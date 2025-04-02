@@ -1,348 +1,177 @@
 const express = require('express');
-const {chromium} = require('playwright');
+const { chromium } = require('playwright');
 const axios = require('axios');
 
-// ---------- Configuration Section ---------- //
+// Configuration
 const LOGIN_URL = "http://app.loops.id/login";
 const CAMPAIGN_BASE_URL = "https://app.loops.id/campaign/";
 const EMAIL = "anurisatria@gmail.com";
 const PASSWORD = "Efeindonesia2020";
-
-const CAMPAIGN_IDS = [
-  249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548
-]; 
-
-const ALLOWED_ADMIN_NAMES = [
-  "admin 1", "admin 2", "admin 3", "admin 4",
-  "admin 5", "admin 6", "admin 7"
-];
-
+const CAMPAIGN_IDS = [249397, 250794, 250554, 250433];
+const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"];
 const BCAT_URL = 'wss://api.browsercat.com/connect';
-const API_KEY = 'OuhuW8WPX31W1b3ab90pwMAgMdXRuv4cR4nXEEoDaseYLsZ8PhSlfHUWuZZP7sf2';
-
-// WhatsApp Configuration
+const API_KEY = 'Mb9riRt0DEEkYCNE5D7p9gilTGF16pFzDHaMP0HhxnKyjFxiHNUEpHN4dFBsDz9L';
 const FONNTE_API_URL = 'https://api.fonnte.com/send';
 const FONNTE_TOKEN = "TBKYN74wCBMv1TFYVNuG";
-//const WHATSAPP_TARGET = '120363048415397336@g.us';
 const WHATSAPP_TARGET = '6289506851030-1568542338@g.us';
 
-// Browser management configuration
-let browser = null;
-let lastBrowserUseTime = null;
-const BROWSER_IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
-
-// Request queue for handling concurrent requests
-const requestQueue = [];
-let isProcessing = false;
-
-// ---------- Browser Management Functions ---------- //
-
+// Browser Connection
 async function getBrowser() {
-  const currentTime = Date.now();
-  
-  // Close idle browser if it exists
-  if (browser && lastBrowserUseTime && (currentTime - lastBrowserUseTime) > BROWSER_IDLE_TIMEOUT) {
-    console.log("Closing idle browser");
-    await browser.close();
-    browser = null;
-  }
-  
-  // Create new browser if needed
-  if (!browser) {
-    console.log("Connecting to BrowserCat...");
-    try {
-      const browser = await chromium.connect({
-        wsEndpoint: BCAT_URL,
-        headers: { 'Api-Key': API_KEY },
-        timeout: 15000
-      });
-      return browser;
-    } catch (error) {
-      console.error("Error connecting to BrowserCat:", error);
-      //throw error;
-      return await chromium.launch(
-        {
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        }
-      )
-    }
-  }
-  
-  lastBrowserUseTime = currentTime;
-  return browser;
-}
-
-async function cleanupBrowser() {
-  if (browser) {
-    try {
-      await browser.close();
-    } catch (error) {
-      console.error("Error closing browser:", error);
-    }
-    browser = null;
+  console.log('Starting browser connection...');
+  try {
+    const browser = await chromium.connect({
+      wsEndpoint: BCAT_URL,
+      headers: { 'Api-Key': API_KEY },
+      timeout: 15000
+    });
+    console.log('Connected to BrowserCat successfully');
+    return browser;
+  } catch (error) {
+    console.error("BrowserCat connection failed:", error);
+    console.log('Falling back to local Chromium');
+    const browser = await chromium.launch({ headless: true });
+    console.log('Local Chromium launched');
+    return browser;
   }
 }
 
-// Periodically check and close idle browser
-setInterval(async () => {
-  const currentTime = Date.now();
-  if (browser && lastBrowserUseTime && (currentTime - lastBrowserUseTime) > BROWSER_IDLE_TIMEOUT) {
-    console.log("Closing idle browser in scheduled cleanup");
-    await cleanupBrowser();
-  }
-}, BROWSER_IDLE_TIMEOUT);
-
-// ---------- Helper Functions ---------- //
-
+// Core Functions
 async function login(page) {
-  console.log("Logging in...");
-  await page.goto(LOGIN_URL, { timeout: 30000 });
+  console.log('Initiating login process...');
+  await page.goto(LOGIN_URL);
+  console.log('Login page loaded');
   await page.fill("input[name=email]", EMAIL);
   await page.fill("input[name=password]", PASSWORD);
+  console.log('Credentials entered');
   await page.click("button[type=submit]");
   await page.waitForLoadState("networkidle");
-  console.log("Login successful!");
-}
-
-async function navigateToCampaign(page, campaignId) {
-  const campaignUrl = `${CAMPAIGN_BASE_URL}${campaignId}`;
-  console.log(`Navigating to campaign ID: ${campaignId} at URL: ${campaignUrl}`);
-  await page.goto(campaignUrl, { timeout: 30000 });
-  await page.waitForLoadState('networkidle');
-}
-
-async function deleteItems(page, times = 2) {
-  console.log(`Deleting ${times} items...`);
-  for (let i = 0; i < times; i++) {
-    await page.waitForSelector("button.secondary.op-delete.icon-subtraction.delete", { timeout: 10000 });
-    await page.click("button.secondary.op-delete.icon-subtraction.delete");
-    await page.waitForTimeout(1000);
-  }
-  console.log("Deletion completed.");
-}
-
-async function interactWithDropdown(page, containerSelector, value) {
-  console.log(`Selecting '${value}' from the dropdown (${containerSelector})`);
-  await page.waitForSelector(`${containerSelector} .select2-arrow`, { timeout: 10000 });
-  await page.click(`${containerSelector} .select2-arrow`);
-  await page.waitForTimeout(500);
-  await page.keyboard.type(value);
-  await page.waitForTimeout(500);
-  await page.keyboard.press("Enter");
-}
-
-async function saveChanges(page) {
-  const saveButtonSelector = "#app > form > section > article > div.columns.four > div.card.has-sections > div.card-section.secondary.align-right > small > button:nth-child(2)";
-  console.log("Saving changes...");
-  await page.waitForSelector(saveButtonSelector, { timeout: 10000 });
-  await page.click(saveButtonSelector);
-  await page.waitForTimeout(1000);
-  console.log("Changes saved successfully.");
+  console.log('Login completed successfully');
 }
 
 async function processCampaign(page, campaignId, admin1Name, admin2Name) {
   try {
-    await navigateToCampaign(page, campaignId);
-    await deleteItems(page, 2);
+    console.log(`Processing campaign ${campaignId}...`);
+    await page.goto(`${CAMPAIGN_BASE_URL}${campaignId}`);
+    await page.waitForLoadState('networkidle');
+    console.log(`Campaign ${campaignId} page loaded`);
 
-    await interactWithDropdown(page, "#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(1)", admin1Name);
+    console.log('Deleting existing items...');
+    for (let i = 0; i < 2; i++) {
+      await page.click("button.secondary.op-delete.icon-subtraction.delete");
+      await page.waitForTimeout(500);
+      console.log(`Deleted item ${i + 1}`);
+    }
 
-    await page.waitForSelector("button.secondary.op-clone.icon-addition.clone", { timeout: 10000 });
+    console.log(`Setting admin 1: ${admin1Name}`);
+    await page.click("#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(1) .select2-arrow");
+    await page.keyboard.type(admin1Name);
+    await page.keyboard.press("Enter");
+    console.log('Admin 1 set');
+
+    console.log('Cloning for admin 2...');
     await page.click("button.secondary.op-clone.icon-addition.clone");
-    await interactWithDropdown(page, "#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(2)", admin2Name);
+    console.log(`Setting admin 2: ${admin2Name}`);
+    await page.click("#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(2) .select2-arrow");
+    await page.keyboard.type(admin2Name);
+    await page.keyboard.press("Enter");
+    console.log('Admin 2 set');
 
-    await saveChanges(page);
-    console.log(`Successfully processed campaign ID: ${campaignId}`);
+    console.log('Saving changes...');
+    await page.click("#app > form > section > article > div.columns.four > div.card.has-sections > div.card-section.secondary.align-right > small > button:nth-child(2)");
+    console.log(`Campaign ${campaignId} processed successfully`);
     return true;
   } catch (error) {
-    console.error(`Error processing campaign ID ${campaignId}:`, error);
+    console.error(`Campaign ${campaignId} processing failed:`, error);
     return false;
   }
 }
 
-async function sendWhatsAppMessage(admin1Name, admin2Name, status, finishTime, timeOfDay) {
-  // Build the message based on conditions
-  const message = buildMessage(admin1Name, admin2Name, status, finishTime, timeOfDay);
-
-  // Send the message via Fonnte API
-  return await sendMessageToWhatsApp(message);
-}
-
-// Helper function to construct the message
-function buildMessage(admin1Name, admin2Name, status, finishTime, timeOfDay) {
-  const isSuccess = status === 'success';
-  const emoji = isSuccess ? '✅' : '❌';
-  const actionText = isSuccess ? 'Successfully set' : 'Failed to set';
-
-  // Standard case
-  if (admin1Name === admin2Name) {
-    return `${emoji} ${actionText}:\n- ${admin1Name}\n\nat ${finishTime}`;
-  } else {
-    return `${emoji} ${actionText}:\n- ${admin1Name}\n- ${admin2Name}\n\nat ${finishTime}`;
-  }
-}
-
-// Helper function to send the message via Fonnte API
-async function sendMessageToWhatsApp(message) {
-  const config = {
-    headers: { 'Authorization': FONNTE_TOKEN },
-    timeout: 10000 // 10-second timeout
-  };
-
+async function sendWhatsAppMessage(admin1Name, admin2Name, status, finishTime) {
+  console.log('Preparing WhatsApp message...');
+  const message = `${status === 'success' ? '✅' : '❌'} ${status === 'success' ? 'Successfully set' : 'Failed to set'}:\n- ${admin1Name}\n${admin1Name !== admin2Name ? `- ${admin2Name}\n` : ''}at ${finishTime}`;
+  
   try {
-    const response = await axios.post(FONNTE_API_URL, {
+    console.log('Sending WhatsApp message...');
+    await axios.post(FONNTE_API_URL, {
       target: WHATSAPP_TARGET,
-      message: message
-    }, config);
-
-    console.log('WhatsApp message sent:', response.data);
+      message
+    }, {
+      headers: { 'Authorization': FONNTE_TOKEN }
+    });
+    console.log('WhatsApp message sent successfully');
     return true;
   } catch (error) {
-    const errorDetail = error.response ? error.response.data : error.message;
-    console.error('Error sending WhatsApp message:', errorDetail);
+    console.error('WhatsApp message sending failed:', error.message);
     return false;
   }
 }
 
-// ---------- Request Processing Queue ---------- //
+// Automation Process
+async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
+  console.log(`Starting automation for ${timeOfDay} with admins: ${admin1Name}, ${admin2Name}`);
+  const browser = await getBrowser();
+  console.log('Opening new page...');
+  const page = await browser.newPage();
 
-async function processAutomation(requestData) {
-  const { admin1Name, admin2Name, timeOfDay, res } = requestData;
-  
-  let page = null;
-  
   try {
-    console.log(`Starting automation with Admin 1: ${admin1Name}, Admin 2: ${admin2Name} for ${timeOfDay}`);
-    
-    const browser = await getBrowser();
-    page = await browser.newPage({ timeout: 60000 });
-    console.log("New page opened");
-    
     await login(page);
 
-    // Filter campaign IDs based on timeOfDay
-    let filteredCampaignIds = CAMPAIGN_IDS;
-    if (timeOfDay === "pagi" || timeOfDay === "siang" || timeOfDay === "malam") {
-      filteredCampaignIds = CAMPAIGN_IDS.filter(id => id !== 249397);
-      console.log("Malam request: Excluding campaign ID 249397");
-    } else if (timeOfDay === "dhuha" || timeOfDay === "sore") {
-      filteredCampaignIds = [249397]; // Only process 249397 for sore
-      console.log("Sore request: Processing only campaign ID 249397");
-    }
+    const campaignIds = timeOfDay === "dhuha" || timeOfDay === "sore" 
+      ? [249397] 
+      : CAMPAIGN_IDS.filter(id => id !== 249397);
+    console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
 
     let allSuccessful = true;
-    for (const campaignId of filteredCampaignIds) {
-      console.log(`Processing campaign ${campaignId}`);
-      const success = await processCampaign(page, campaignId, admin1Name, admin2Name);
-      if (!success) {
-        allSuccessful = false;
-      }
-      await page.waitForTimeout(1000); // 1-second breather between campaigns
+    for (const id of campaignIds) {
+      const success = await processCampaign(page, id, admin1Name, admin2Name);
+      if (!success) allSuccessful = false;
+      await page.waitForTimeout(500);
     }
 
     const finishTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-    await sendWhatsAppMessage(admin1Name, admin2Name, allSuccessful ? 'success' : 'failure', finishTime, timeOfDay);
+    console.log(`Automation finished at: ${finishTime}`);
+    await sendWhatsAppMessage(admin1Name, admin2Name, allSuccessful ? 'success' : 'failure', finishTime);
     
-    res.send(`Automation ${allSuccessful ? 'completed successfully' : 'completed with some errors'} for ${timeOfDay}!`);
+    console.log(`Sending response to client: Automation ${allSuccessful ? 'completed' : 'failed'}`);
+    res.send(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
   } catch (error) {
-    console.error('Automation error:', error);
+    console.error('Automation process failed:', error);
     const finishTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-    await sendWhatsAppMessage(admin1Name, admin2Name, 'failure', finishTime, timeOfDay);
-    res.status(500).send(`Automation failed for ${timeOfDay}: ${error.message}`);
+    await sendWhatsAppMessage(admin1Name, admin2Name, 'failure', finishTime);
+    res.status(500).send(`Automation failed: ${error.message}`);
   } finally {
-    if (page) {
-      try {
-        await page.close(); // Explicitly close the page
-      } catch (error) {
-        console.error("Error closing page:", error);
-      }
-    }
-    
-    // Try to run garbage collection if exposed
-    if (global.gc) {
-      try {
-        global.gc();
-      } catch (e) {
-        console.error("Error running garbage collection:", e);
-      }
-    }
+    console.log('Cleaning up: Closing page and browser...');
+    await page.close();
+    await browser.close();
+    console.log('Cleanup completed');
   }
 }
 
-async function addToQueue(requestData) {
-  requestQueue.push(requestData);
-  processNextInQueue();
-}
-
-async function processNextInQueue() {
-  if (isProcessing || requestQueue.length === 0) return;
-  
-  isProcessing = true;
-  const nextRequest = requestQueue.shift();
-  
-  try {
-    await processAutomation(nextRequest);
-  } catch (error) {
-    console.error("Error processing queued request:", error);
-  } finally {
-    isProcessing = false;
-    processNextInQueue(); // Process next item
-  }
-}
-
-// ---------- Server Setup ---------- //
-
+// Server Setup
 const app = express();
-const port = 3010;
-
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
+  console.log('Serving index.html');
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/run', async (req, res) => {
-  let admin1Name = req.body.admin1;
-  let admin2Name = req.body.admin2;
+app.post('/run', (req, res) => {
+  console.log('Received POST request to /run');
+  const admin1Name = req.body.admin1;
+  const admin2Name = req.body.admin2;
   const timeOfDay = req.body.timeOfDay || "unknown";
-
-  // Special case for sore: override admins to "admin 1"
-//   if (timeOfDay === "sore") {
-//     admin1Name = "admin 1";
-//     admin2Name = "admin 1";
-//   }
+  console.log(`Request parameters - admin1: ${admin1Name}, admin2: ${admin2Name}, timeOfDay: ${timeOfDay}`);
 
   if (!ALLOWED_ADMIN_NAMES.includes(admin1Name) || !ALLOWED_ADMIN_NAMES.includes(admin2Name)) {
-    return res.status(400).send('Invalid admin names!');
+    console.log('Invalid admin names detected');
+    return res.status(400).send('Invalid admin names');
   }
 
-  // Add request to processing queue
-  addToQueue({
-    admin1Name,
-    admin2Name,
-    timeOfDay,
-    res
-  });
+  console.log('Starting automation process...');
+  runAutomation(admin1Name, admin2Name, timeOfDay, res);
 });
 
-app.get('/run', (req, res) => {
-  res.status(405).send('Method Not Allowed: Please use POST request');
-});
-
-// Cleanup on server exit
-process.on('SIGINT', async () => {
-  console.log('Server shutting down, cleaning up resources...');
-  await cleanupBrowser();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Server terminating, cleaning up resources...');
-  await cleanupBrowser();
-  process.exit(0);
-});
-
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(3010, () => {
+  console.log('Server started on http://localhost:3010');
 });
