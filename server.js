@@ -1,38 +1,58 @@
 const express = require('express');
 const { chromium } = require('playwright');
 const axios = require('axios');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Configuration
-const LOGIN_URL = "http://app.loops.id/login";
-const CAMPAIGN_BASE_URL = "https://app.loops.id/campaign/";
-const EMAIL = "anurisatria@gmail.com";
-const PASSWORD = "Efeindonesia2020";
-const CAMPAIGN_IDS = [249397, 250794, 250554, 250433];
+const CAMPAIGN_IDS = [249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548];
 const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"];
-const BCAT_URL = 'wss://api.browsercat.com/connect';
-const API_KEY = 'Mb9riRt0DEEkYCNE5D7p9gilTGF16pFzDHaMP0HhxnKyjFxiHNUEpHN4dFBsDz9L';
-const FONNTE_API_URL = 'https://api.fonnte.com/send';
-const FONNTE_TOKEN = "TBKYN74wCBMv1TFYVNuG";
-const WHATSAPP_TARGET = '6289506851030-1568542338@g.us';
+const LOGIN_URL = process.env.LOGIN_URL
+const CAMPAIGN_BASE_URL = process.env.CAMPAIGN_BASE_URL
+const EMAIL = process.env.EMAIL
+const PASSWORD = process.env.PASSWORD
+const BROWSERLESS_WS_URL = process.env.BROWSERLESS_WS_URL
+const BROWSERLESS_TOKEN = process.env.BROWSERLESS_TOKEN
+const BCAT_URL = process.env.BCAT_URL
+const BCAT_API_KEY = process.env.BCAT_API_KEY
+const FONNTE_API_URL = process.env.FONNTE_API_URL
+const FONNTE_TOKEN = process.env.FONNTE_TOKEN
+const WHATSAPP_TARGET = process.env.WHATSAPP_TARGET
 
 // Browser Connection
 async function getBrowser() {
-  console.log('Starting browser connection...');
+  console.log('Attempting browser connection...');
+
+  // Try Browserless first
   try {
+    console.log('Connecting to Browserless...');
+    const wsEndpoint = `${BROWSERLESS_WS_URL}?token=${BROWSERLESS_TOKEN}`;
+    const browser = await chromium.connect({ wsEndpoint, timeout: 10000 });
+    console.log('Connected to Browserless successfully');
+    return browser;
+  } catch (error) {
+    console.error('Browserless connection failed:', error.message);
+  }
+
+  // Try BrowserCat as fallback
+  try {
+    console.log('Connecting to BrowserCat...');
     const browser = await chromium.connect({
       wsEndpoint: BCAT_URL,
-      headers: { 'Api-Key': API_KEY },
-      timeout: 15000
+      headers: { 'Api-Key': BCAT_API_KEY },
+      timeout: 10000
     });
     console.log('Connected to BrowserCat successfully');
     return browser;
   } catch (error) {
-    console.error("BrowserCat connection failed:", error);
-    console.log('Falling back to local Chromium');
-    const browser = await chromium.launch({ headless: true });
-    console.log('Local Chromium launched');
-    return browser;
+    console.error('BrowserCat connection failed:', error.message);
   }
+
+  // Fall back to local Chromium
+  console.log('Falling back to local Chromium...');
+  const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  console.log('Local Chromium launched successfully');
+  return browser;
 }
 
 // Core Functions
@@ -117,7 +137,8 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
     await login(page);
 
     const campaignIds = timeOfDay === "dhuha" || timeOfDay === "sore" 
-      ? [249397] 
+      ? [249397
+] 
       : CAMPAIGN_IDS.filter(id => id !== 249397);
     console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
 
