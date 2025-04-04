@@ -1,46 +1,31 @@
 const express = require('express');
-const { chromium } = require('playwright');
+const { chromium } = require('playwright-core');
 const axios = require('axios');
 const dotenv = require('dotenv');
 dotenv.config();
 
 // Configuration
-const CAMPAIGN_IDS = [249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548];
+const CAMPAIGN_IDS = [249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548
+];
 const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"];
-const LOGIN_URL = process.env.LOGIN_URL
-const CAMPAIGN_BASE_URL = process.env.CAMPAIGN_BASE_URL
+const LOGIN_URL= 'https://app.loops.id/login'
+const CAMPAIGN_BASE_URL= 'https://app.loops.id/campaign/'
 const EMAIL = process.env.EMAIL
 const PASSWORD = process.env.PASSWORD
-const BROWSERLESS_WS_URL = process.env.BROWSERLESS_WS_URL
-const BROWSERLESS_TOKEN = process.env.BROWSERLESS_TOKEN
-const BCAT_URL = process.env.BCAT_URL
+const BCAT_URL= 'wss://api.browsercat.com/connect'
 const BCAT_API_KEY = process.env.BCAT_API_KEY
-const FONNTE_API_URL = process.env.FONNTE_API_URL
-const FONNTE_TOKEN = process.env.FONNTE_TOKEN
-const WHATSAPP_TARGET = process.env.WHATSAPP_TARGET
 
 // Browser Connection
 async function getBrowser() {
   console.log('Attempting browser connection...');
 
-  // Try Browserless first
-  try {
-    console.log('Connecting to Browserless...');
-    const wsEndpoint = `${BROWSERLESS_WS_URL}?token=${BROWSERLESS_TOKEN}`;
-    const browser = await chromium.connect({ wsEndpoint, timeout: 10000 });
-    console.log('Connected to Browserless successfully');
-    return browser;
-  } catch (error) {
-    console.error('Browserless connection failed:', error.message);
-  }
-
-  // Try BrowserCat as fallback
+  // Try BrowserCat
   try {
     console.log('Connecting to BrowserCat...');
     const browser = await chromium.connect({
       wsEndpoint: BCAT_URL,
       headers: { 'Api-Key': BCAT_API_KEY },
-      timeout: 10000
+      timeout: 10000,
     });
     console.log('Connected to BrowserCat successfully');
     return browser;
@@ -106,25 +91,6 @@ async function processCampaign(page, campaignId, admin1Name, admin2Name) {
   }
 }
 
-async function sendWhatsAppMessage(admin1Name, admin2Name, status, finishTime) {
-  console.log('Preparing WhatsApp message...');
-  const message = `${status === 'success' ? '✅' : '❌'} ${status === 'success' ? 'Successfully set' : 'Failed to set'}:\n- ${admin1Name}\n${admin1Name !== admin2Name ? `- ${admin2Name}\n` : ''}at ${finishTime}`;
-  
-  try {
-    console.log('Sending WhatsApp message...');
-    await axios.post(FONNTE_API_URL, {
-      target: WHATSAPP_TARGET,
-      message
-    }, {
-      headers: { 'Authorization': FONNTE_TOKEN }
-    });
-    console.log('WhatsApp message sent successfully');
-    return true;
-  } catch (error) {
-    console.error('WhatsApp message sending failed:', error.message);
-    return false;
-  }
-}
 
 // Automation Process
 async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
@@ -149,16 +115,11 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
       await page.waitForTimeout(500);
     }
 
-    const finishTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-    console.log(`Automation finished at: ${finishTime}`);
-    await sendWhatsAppMessage(admin1Name, admin2Name, allSuccessful ? 'success' : 'failure', finishTime);
     
     console.log(`Sending response to client: Automation ${allSuccessful ? 'completed' : 'failed'}`);
     res.send(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
   } catch (error) {
     console.error('Automation process failed:', error);
-    const finishTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-    await sendWhatsAppMessage(admin1Name, admin2Name, 'failure', finishTime);
     res.status(500).send(`Automation failed: ${error.message}`);
   } finally {
     console.log('Cleaning up: Closing page and browser...');
@@ -170,6 +131,7 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
 
 // Server Setup
 const app = express();
+const PORT = 3010;
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
@@ -193,6 +155,6 @@ app.post('/run', (req, res) => {
   runAutomation(admin1Name, admin2Name, timeOfDay, res);
 });
 
-app.listen(3010, () => {
-  console.log('Server started on http://localhost:3010');
+app.listen(PORT, () => {
+  console.log(`Server started on http://localhost:${PORT}`);
 });
