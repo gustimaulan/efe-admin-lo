@@ -1,6 +1,5 @@
 const express = require('express');
 const { chromium } = require('playwright-core');
-const axios = require('axios');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -14,11 +13,24 @@ const EMAIL = process.env.EMAIL
 const PASSWORD = process.env.PASSWORD
 const BCAT_URL= 'wss://api.browsercat.com/connect'
 const BCAT_API_KEY = process.env.BCAT_API_KEY
+const BROWSERLESS_TOKEN = process.env.BROWSERLESS_TOKEN
 
 // Browser Connection
 async function getBrowser() {
   console.log('Attempting browser connection...');
 
+  // Try Browserless first
+  try {
+    console.log('Connecting to Browserless...');
+    const browser = await chromium.connectOverCDP(`wss://production-sfo.browserless.io?token=${BROWSERLESS_TOKEN}`, {
+      timeout: 10000,
+    });
+    console.log('Connected to Browserless successfully');
+    return browser;
+  } catch (error) {
+    console.error('Browserless connection failed:', error.message);
+  }
+  
   // Try BrowserCat
   try {
     console.log('Connecting to BrowserCat...');
@@ -101,11 +113,10 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
 
   try {
     await login(page);
-
+    const ttCampaignIds = [249397, 275170];
     const campaignIds = timeOfDay === "dhuha" || timeOfDay === "sore" 
-      ? [249397
-] 
-      : CAMPAIGN_IDS.filter(id => id !== 249397);
+      ? ttCampaignIds 
+      : CAMPAIGN_IDS.filter(id => !ttCampaignIds.includes(id));
     console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
 
     let allSuccessful = true;
