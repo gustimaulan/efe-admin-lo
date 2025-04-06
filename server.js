@@ -18,38 +18,12 @@ const BROWSERLESS_TOKEN = process.env.BROWSERLESS_TOKEN
 // Browser Connection
 async function getBrowser() {
   console.log('Attempting browser connection...');
-
-  // Try Browserless first
   try {
-    console.log('Connecting to Browserless...');
-    const browser = await chromium.connectOverCDP(`wss://production-sfo.browserless.io?token=${BROWSERLESS_TOKEN}`, {
-      timeout: 10000,
-    });
-    console.log('Connected to Browserless successfully');
-    return browser;
-  } catch (error) {
-    console.error('Browserless connection failed:', error.message);
-  }
-  
-  // Try BrowserCat
-  try {
-    console.log('Connecting to BrowserCat...');
-    const browser = await chromium.connect({
-      wsEndpoint: BCAT_URL,
-      headers: { 'Api-Key': BCAT_API_KEY },
-      timeout: 10000,
-    });
-    console.log('Connected to BrowserCat successfully');
-    return browser;
-  } catch (error) {
-    console.error('BrowserCat connection failed:', error.message);
-  }
-
-  // Fall back to local Chromium
-  console.log('Falling back to local Chromium...');
-  const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-  console.log('Local Chromium launched successfully');
-  return browser;
+  console.log('Use local Chromium...');
+  return browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+} catch (error) {
+  console.error('Browser failed to launch:', error.message);
+} 
 }
 
 // Core Functions
