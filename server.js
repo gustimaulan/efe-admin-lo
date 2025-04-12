@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Configuration
-const CAMPAIGN_IDS = [249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548
+const CAMPAIGN_IDS = [281482, 249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548
 ];
 const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"];
 const LOGIN_URL= 'https://app.loops.id/login'
