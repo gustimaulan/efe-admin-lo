@@ -119,6 +119,8 @@ const app = express();
 const PORT = 3010;
 app.use(express.urlencoded({ extended: true }));
 
+app.set('trust proxy', true);
+
 app.get('/', (req, res) => {
   console.log('Serving index.html');
   res.sendFile(__dirname + '/index.html');
