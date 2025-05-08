@@ -11,9 +11,7 @@ const LOGIN_URL= 'https://app.loops.id/login'
 const CAMPAIGN_BASE_URL= 'https://app.loops.id/campaign/'
 const EMAIL = process.env.EMAIL
 const PASSWORD = process.env.PASSWORD
-const BCAT_URL= 'wss://api.browsercat.com/connect'
-const BCAT_API_KEY = process.env.BCAT_API_KEY
-const BROWSERLESS_TOKEN = process.env.BROWSERLESS_TOKEN
+const WEBHOOK_URL = process.env.WEBHOOK_URL
 
 // Browser Connection
 async function getBrowser() {
@@ -78,6 +76,23 @@ async function processCampaign(page, campaignId, admin1Name, admin2Name) {
 }
 
 
+// Webhook function to send data to n8n
+async function sendToWebhook(admin1Name, admin2Name, timeOfDay) {
+  try {
+    const response = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ admin1: admin1Name, admin2: admin2Name, timeOfDay })
+    });
+    console.log('Webhook sent, status:', response.status);
+  } catch (error) {
+    console.error('Error sending to webhook:', error.message);
+  }
+}
+
+
 // Automation Process
 async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${admin1Name}, ${admin2Name}`);
@@ -100,7 +115,9 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
       await page.waitForTimeout(500);
     }
 
-    
+    // Send the result to the n8n webhook
+    await sendToWebhook(admin1Name, admin2Name, timeOfDay);
+
     console.log(`Sending response to client: Automation ${allSuccessful ? 'completed' : 'failed'}`);
     res.send(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
   } catch (error) {
@@ -113,6 +130,7 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
     console.log('Cleanup completed');
   }
 }
+
 
 // Server Setup
 const app = express();
