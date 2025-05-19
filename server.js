@@ -103,9 +103,15 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
   try {
     await login(page);
     const ttCampaignIds = [249397, 275170];
-    const campaignIds = timeOfDay === "dhuha" || timeOfDay === "sore" 
-      ? ttCampaignIds 
-      : CAMPAIGN_IDS.filter(id => !ttCampaignIds.includes(id));
+    let campaignIds;
+    if (timeOfDay === "dhuha" || timeOfDay === "sore") {
+      campaignIds = ttCampaignIds;
+    } else {
+      campaignIds = CAMPAIGN_IDS.filter(id => !ttCampaignIds.includes(id));
+      if (timeOfDay === "dini") {
+        campaignIds = campaignIds.filter(id => id !== 247001); // Exclude 247001 for dini
+      }
+    }
     console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
 
     let allSuccessful = true;
