@@ -18,7 +18,7 @@ async function getBrowser() {
   console.log('Attempting browser connection...');
   try {
   console.log('Use local Chromium...');
-  return browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  return browser = await chromium.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 } catch (error) {
   console.error('Browser failed to launch:', error.message);
 } 
@@ -37,33 +37,44 @@ async function login(page) {
   console.log('Login completed successfully');
 }
 
-async function processCampaign(page, campaignId, admin1Name, admin2Name) {
+async function processCampaign(page, campaignId, adminNames) {
   try {
     console.log(`Processing campaign ${campaignId}...`);
     await page.goto(`${CAMPAIGN_BASE_URL}${campaignId}`);
     await page.waitForLoadState('networkidle');
     console.log(`Campaign ${campaignId} page loaded`);
 
-    console.log('Deleting existing items...');
-    for (let i = 0; i < 2; i++) {
-      await page.click("button.secondary.op-delete.icon-subtraction.delete");
-      await page.waitForTimeout(500);
-      console.log(`Deleted item ${i + 1}`);
+    // Delete exactly the same number of items as admin names provided
+    console.log(`Deleting ${adminNames.length} existing items...`);
+    for (let i = 0; i < adminNames.length; i++) {
+      if (await page.$("button.secondary.op-delete.icon-subtraction.delete")) {
+        await page.click("button.secondary.op-delete.icon-subtraction.delete");
+        await page.waitForTimeout(500);
+        console.log(`Deleted item ${i + 1}`);
+      } else {
+        console.log(`No more items to delete after ${i} deletions`);
+        break;
+      }
     }
 
-    console.log(`Setting admin 1: ${admin1Name}`);
-    await page.click("#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(1) .select2-arrow");
-    await page.keyboard.type(admin1Name);
-    await page.keyboard.press("Enter");
-    console.log('Admin 1 set');
+    // Step 1: Clone all needed admin fields
+    console.log(`Cloning fields for ${adminNames.length} admins...`);
+    // We already have the first field, so clone (adminNames.length - 1) more
+    for (let i = 1; i < adminNames.length; i++) {
+      console.log(`Cloning field ${i + 1}...`);
+      await page.click("button.secondary.op-clone.icon-addition.clone");
+      await page.waitForTimeout(500);
+    }
 
-    console.log('Cloning for admin 2...');
-    await page.click("button.secondary.op-clone.icon-addition.clone");
-    console.log(`Setting admin 2: ${admin2Name}`);
-    await page.click("#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(2) .select2-arrow");
-    await page.keyboard.type(admin2Name);
-    await page.keyboard.press("Enter");
-    console.log('Admin 2 set');
+    // Step 2: Set admin names for each field
+    for (let i = 0; i < adminNames.length; i++) {
+      console.log(`Setting admin ${i + 1}: ${adminNames[i]}`);
+      await page.click(`#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(${i + 1}) .select2-arrow`);
+      await page.keyboard.type(adminNames[i]);
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(300);
+      console.log(`Admin ${i + 1} set to ${adminNames[i]}`);
+    }
 
     console.log('Saving changes...');
     await page.click("#app > form > section > article > div.columns.four > div.card.has-sections > div.card-section.secondary.align-right > small > button:nth-child(2)");
@@ -75,16 +86,15 @@ async function processCampaign(page, campaignId, admin1Name, admin2Name) {
   }
 }
 
-
-// Webhook function to send data to n8n
-async function sendToWebhook(admin1Name, admin2Name, timeOfDay) {
+// Update the webhook function to handle dynamic admins
+async function sendToWebhook(adminNames, timeOfDay) {
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ admin1: admin1Name, admin2: admin2Name, timeOfDay })
+      body: JSON.stringify({ admins: adminNames, timeOfDay })
     });
     console.log('Webhook sent, status:', response.status);
   } catch (error) {
@@ -92,10 +102,9 @@ async function sendToWebhook(admin1Name, admin2Name, timeOfDay) {
   }
 }
 
-
-// Automation Process
-async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
-  console.log(`Starting automation for ${timeOfDay} with admins: ${admin1Name}, ${admin2Name}`);
+// Update the runAutomation function for dynamic admins
+async function runAutomation(adminNames, timeOfDay, res) {
+  console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
   const browser = await getBrowser();
   console.log('Opening new page...');
   const page = await browser.newPage();
@@ -116,13 +125,12 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
 
     let allSuccessful = true;
     for (const id of campaignIds) {
-      const success = await processCampaign(page, id, admin1Name, admin2Name);
+      const success = await processCampaign(page, id, adminNames);
       if (!success) allSuccessful = false;
       await page.waitForTimeout(500);
     }
 
-    // Send the result to the n8n webhook
-    await sendToWebhook(admin1Name, admin2Name, timeOfDay);
+    await sendToWebhook(adminNames, timeOfDay);
 
     console.log(`Sending response to client: Automation ${allSuccessful ? 'completed' : 'failed'}`);
     res.send(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
@@ -136,7 +144,6 @@ async function runAutomation(admin1Name, admin2Name, timeOfDay, res) {
     console.log('Cleanup completed');
   }
 }
-
 
 // Server Setup
 const app = express();
@@ -152,18 +159,27 @@ app.get('/', (req, res) => {
 
 app.post('/run', (req, res) => {
   console.log('Received POST request to /run');
-  const admin1Name = req.body.admin1;
-  const admin2Name = req.body.admin2;
+  const adminNames = [];
+  
+  // Extract all admin names from the request
+  for (const key in req.body) {
+    if (key.startsWith('admin')) {
+      adminNames.push(req.body[key]);
+    }
+  }
+  
   const timeOfDay = req.body.timeOfDay || "unknown";
-  console.log(`Request parameters - admin1: ${admin1Name}, admin2: ${admin2Name}, timeOfDay: ${timeOfDay}`);
+  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}`);
 
-  if (!ALLOWED_ADMIN_NAMES.includes(admin1Name) || !ALLOWED_ADMIN_NAMES.includes(admin2Name)) {
+  // Validate all admin names
+  const allAdminsValid = adminNames.every(name => ALLOWED_ADMIN_NAMES.includes(name));
+  if (!allAdminsValid || adminNames.length === 0) {
     console.log('Invalid admin names detected');
     return res.status(400).send('Invalid admin names');
   }
 
   console.log('Starting automation process...');
-  runAutomation(admin1Name, admin2Name, timeOfDay, res);
+  runAutomation(adminNames, timeOfDay, res);
 });
 
 app.listen(PORT, () => {
