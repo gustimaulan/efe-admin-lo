@@ -18,7 +18,7 @@ async function getBrowser() {
   console.log('Attempting browser connection...');
   try {
   console.log('Use local Chromium...');
-  return browser = await chromium.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  return browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 } catch (error) {
   console.error('Browser failed to launch:', error.message);
 } 
