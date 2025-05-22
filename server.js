@@ -1,6 +1,7 @@
 const express = require('express');
 const { chromium } = require('playwright-core');
 const dotenv = require('dotenv');
+const http = require('http');
 dotenv.config();
 
 // Configuration
@@ -102,8 +103,8 @@ async function sendToWebhook(adminNames, timeOfDay) {
   }
 }
 
-// Update the runAutomation function for dynamic admins
-async function runAutomation(adminNames, timeOfDay, res) {
+// Update the runAutomation function for quick acknowledgement and background processing
+async function runAutomation(adminNames, timeOfDay) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
   const browser = await getBrowser();
   console.log('Opening new page...');
@@ -132,11 +133,11 @@ async function runAutomation(adminNames, timeOfDay, res) {
 
     await sendToWebhook(adminNames, timeOfDay);
 
-    console.log(`Sending response to client: Automation ${allSuccessful ? 'completed' : 'failed'}`);
-    res.send(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
+    console.log(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
+    return allSuccessful;
   } catch (error) {
     console.error('Automation process failed:', error);
-    res.status(500).send(`Automation failed: ${error.message}`);
+    throw error;
   } finally {
     console.log('Cleaning up: Closing page and browser...');
     await page.close();
@@ -149,12 +150,28 @@ async function runAutomation(adminNames, timeOfDay, res) {
 const app = express();
 const PORT = 3010;
 app.use(express.urlencoded({ extended: true }));
-
 app.set('trust proxy', true);
+
+// Set higher timeouts for the server
+const server = http.createServer(app);
+server.timeout = 600000; // 10 minutes timeout
+
+// Store ongoing automation jobs
+const runningJobs = new Map();
 
 app.get('/', (req, res) => {
   console.log('Serving index.html');
   res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/status/:jobId', (req, res) => {
+  const jobId = req.params.jobId;
+  if (runningJobs.has(jobId)) {
+    const job = runningJobs.get(jobId);
+    res.json({ status: job.status, message: job.message });
+  } else {
+    res.status(404).json({ status: 'error', message: 'Job not found' });
+  }
 });
 
 app.post('/run', (req, res) => {
@@ -178,10 +195,56 @@ app.post('/run', (req, res) => {
     return res.status(400).send('Invalid admin names');
   }
 
+  // Generate a unique job ID
+  const jobId = Date.now().toString();
+  
+  // Store job info
+  runningJobs.set(jobId, {
+    status: 'running',
+    message: 'Automation started',
+    adminNames,
+    timeOfDay,
+    startTime: new Date()
+  });
+  
+  // Acknowledge the request immediately
+  res.status(202).send('Automation started. Processing in background.');
+  
+  // Start the automation process in the background
   console.log('Starting automation process...');
-  runAutomation(adminNames, timeOfDay, res);
+  runAutomation(adminNames, timeOfDay)
+    .then(success => {
+      runningJobs.set(jobId, {
+        status: 'completed',
+        message: `Automation ${success ? 'completed' : 'failed'} for ${timeOfDay}`,
+        adminNames,
+        timeOfDay,
+        success,
+        endTime: new Date()
+      });
+      
+      // Clean up job record after some time
+      setTimeout(() => {
+        runningJobs.delete(jobId);
+      }, 3600000); // Remove after 1 hour
+    })
+    .catch(error => {
+      runningJobs.set(jobId, {
+        status: 'error',
+        message: `Automation failed: ${error.message}`,
+        adminNames,
+        timeOfDay,
+        error: error.message,
+        endTime: new Date()
+      });
+      
+      // Clean up job record after some time
+      setTimeout(() => {
+        runningJobs.delete(jobId);
+      }, 3600000); // Remove after 1 hour
+    });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });

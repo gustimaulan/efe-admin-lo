@@ -215,14 +215,19 @@
 
         function addLog(message, isError = false) {
             const logEntry = document.createElement('div');
-            logEntry.className = isError ? 'text-red-600' : 'text-green-600';
+            logEntry.className = `${isError ? 'text-red-600' : 'text-green-600'} opacity-0 transition-opacity duration-300`;
             logEntry.textContent = message;
             logContainer.appendChild(logEntry);
             logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Trigger fade-in effect
+            setTimeout(() => {
+                logEntry.classList.remove('opacity-0');
+            }, 50);
         }
 
         automationForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Prevent page reload
+            e.preventDefault();
             changeButtonText();
 
             const formData = new FormData(automationForm);
@@ -240,16 +245,30 @@
 
                 const result = await response.text();
                 if (response.ok) {
-                    addLog('Automation completed successfully!', false); // Success message
+                    // Add a loading message
+                    addLog('Processing your request...', false);
+                    
+                    // Random delay between 3-7 seconds
+                    const delay = Math.floor(Math.random() * (7000 - 3000) + 3000);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    
+                    // Show success message
+                    addLog('Automation completed successfully! ✅', false);
                 } else {
-                    addLog(`Error: ${result}`, true); // Error message
+                    // Add a small delay before showing error (1 second)
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    addLog(`Error: ${result} ❌`, true);
                 }
             } catch (error) {
-                addLog(`Error: ${error.message}`, true); // Error message
+                // Add a small delay before showing error (1 second)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                addLog(`Error: ${error.message} ❌`, true);
             } finally {
-                startButton.disabled = false; // Re-enable the submit button after completion
-                startButton.textContent = "Start Automation"; // Reset button text
-                startButton.classList.remove("opacity-50", "cursor-not-allowed"); // Reset button styling
+                // Add a small delay before resetting button (0.5 seconds)
+                await new Promise(resolve => setTimeout(resolve, 500));
+                startButton.disabled = false;
+                startButton.textContent = "Start Automation";
+                startButton.classList.remove("opacity-50", "cursor-not-allowed");
             }
         });
 
