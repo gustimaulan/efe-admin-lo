@@ -13,6 +13,9 @@
     <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
         <h1 class="text-2xl font-semibold text-center mb-4">Switch Admin EFE - Loops</h1>
         <form id="automationForm" class="space-y-4">
+            <div class="block mb-1 font-medium text-sm text-blue-500">
+                Admin Selection <span id="adminCounter" class="text-blue-500"></span>
+            </div>
             <div id="adminContainer">
                 <!-- Admin fields will be added here dynamically -->
             </div>
@@ -69,7 +72,7 @@
             // Create label
             const label = document.createElement('label');
             label.htmlFor = `admin${index}`;
-            label.className = 'block mb-1 font-medium text-blue-500 text-sm';
+            label.className = 'block mb-1 font-medium text-blue-500 text-sm hidden';
             label.textContent = `Admin ke-${index}`;
             adminDiv.appendChild(label);
             
@@ -83,6 +86,9 @@
             select.id = `admin${index}`;
             select.className = 'flex-grow p-2 border rounded';
             select.required = true;
+            
+            // Add change event listener to update counter when selection changes
+            select.addEventListener('change', updateCounter);
             
             // Add default option
             const defaultOption = document.createElement('option');
@@ -107,19 +113,29 @@
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'flex space-x-1';
             
-            // Add plus button
+            // Add plus button with improved event handling
             const addButton = document.createElement('button');
             addButton.type = 'button';
             addButton.className = 'bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded';
             addButton.innerHTML = '<i class="fas fa-plus"></i>';
-            addButton.addEventListener('click', () => addAdminField(index + 1));
+            addButton.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const currentIndex = parseInt(adminDiv.dataset.adminIndex);
+                addAdminField(currentIndex + 1);
+            };
             
-            // Add minus button
+            // Add minus button with improved event handling
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
             removeButton.className = 'bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded';
             removeButton.innerHTML = '<i class="fas fa-minus"></i>';
-            removeButton.addEventListener('click', () => removeAdminField(index));
+            removeButton.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const currentIndex = parseInt(adminDiv.dataset.adminIndex);
+                removeAdminField(currentIndex);
+            };
             
             // Disable remove button if it's the only admin
             if (adminCount <= 1) {
@@ -140,7 +156,9 @@
         }
 
         function reindexAdminFields() {
-            const adminDivs = adminContainer.querySelectorAll('div[data-admin-index]');
+            const adminDivs = Array.from(adminContainer.querySelectorAll('div[data-admin-index]'));
+            adminDivs.sort((a, b) => parseInt(a.dataset.adminIndex) - parseInt(b.dataset.adminIndex));
+            
             adminDivs.forEach((div, i) => {
                 const newIndex = i + 1;
                 div.dataset.adminIndex = newIndex;
@@ -148,7 +166,7 @@
                 // Update label
                 const label = div.querySelector('label');
                 label.htmlFor = `admin${newIndex}`;
-                label.textContent = `Admin ${newIndex}`;
+                label.textContent = `Admin ke-${newIndex}`;
                 
                 // Update select
                 const select = div.querySelector('select');
@@ -163,8 +181,10 @@
             
             if (positionIndex) {
                 // Insert at specific position
-                const adminDivs = adminContainer.querySelectorAll('div[data-admin-index]');
+                const adminDivs = Array.from(adminContainer.querySelectorAll('div[data-admin-index]'));
                 let inserted = false;
+                
+                adminDivs.sort((a, b) => parseInt(a.dataset.adminIndex) - parseInt(b.dataset.adminIndex));
                 
                 for (let i = 0; i < adminDivs.length; i++) {
                     const currentIndex = parseInt(adminDivs[i].dataset.adminIndex);
@@ -183,23 +203,19 @@
                 adminContainer.appendChild(newAdminField);
             }
             
-            // Update all remove buttons
+            reindexAdminFields();
             updateRemoveButtons();
         }
 
         function removeAdminField(index) {
             if (adminCount > 1) {
-                // Find the admin div with the matching index
                 const adminDivToRemove = adminContainer.querySelector(`div[data-admin-index="${index}"]`);
                 if (adminDivToRemove) {
-                    adminContainer.removeChild(adminDivToRemove);
+                    adminDivToRemove.remove();
                     adminCount--;
-                    
-                    // Reindex remaining admin fields
                     reindexAdminFields();
-                    
-                    // Update all remove buttons
                     updateRemoveButtons();
+                    updateCounter();
                 }
             }
         }
@@ -250,6 +266,7 @@
             
             // Reset the button
             resetButton();
+            updateCounter();
         }
 
         automationForm.addEventListener('submit', async (e) => {
@@ -349,6 +366,14 @@
         function formatDuration(startTime, endTime) {
             const duration = Math.floor((new Date(endTime) - new Date(startTime)) / 1000);
             return `${duration} seconds`;
+        }
+
+        // Update the counter function to count only selected admins
+        function updateCounter() {
+            const counter = document.getElementById('adminCounter');
+            const selects = adminContainer.querySelectorAll('select');
+            const selectedCount = Array.from(selects).filter(select => select.value !== '').length;
+            counter.textContent = `(${selectedCount})`;
         }
     </script>
 </body>
