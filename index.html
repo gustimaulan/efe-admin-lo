@@ -17,16 +17,21 @@
                 <!-- Admin fields will be added here dynamically -->
             </div>
             <div class="mb-3">
-                <label for="timeOfDay" class="block mb-1 font-medium text-sm text-blue-500">Time of Day</label>
-                <select name="timeOfDay" id="timeOfDay" class="w-full p-2 border rounded" required>
-                  <option value="" disabled selected>Select a time</option>
-                  <option value="pagi">Pagi</option>
-                  <option value="siang">Siang</option>
-                  <option value="malam">Malam</option>
-                  <option value="dhuha">Pagi - Admin Tiktok</option>
-                  <option value="sore">Sore - Admin Tiktok</option>
-                </select>
+                <label class="block mb-1 font-medium text-sm text-blue-500">Campaign Selection</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="regularCampaigns" name="regularCampaigns" value="true" class="mr-2">
+                        <label for="regularCampaigns" class="text-sm">Regular Campaign</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="tiktokCampaigns" name="tiktokCampaigns" value="true" class="mr-2">
+                        <label for="tiktokCampaigns" class="text-sm">Tiktok Campaign</label>
+                    </div>
+                </div>
             </div>
+            <!-- Hidden fields -->
+            <input type="hidden" name="isManual" value="true">
+            <input type="hidden" name="timeOfDay" value="manual">
             <div class="text-center">
                 <button id="automationButton" type="submit" class="bg-blue-500 hover:bg-black focus:bg-black text-white px-4 py-2 rounded">
                     Start Automation
@@ -226,15 +231,45 @@
             }, 50);
         }
 
+        function resetForm() {
+            // Reset admin fields
+            const adminFields = adminContainer.querySelectorAll('div[data-admin-index]');
+            // Remove all admin fields except the first one
+            for (let i = adminFields.length - 1; i > 0; i--) {
+                adminFields[i].remove();
+            }
+            // Reset the first admin field's select value
+            if (adminFields[0]) {
+                adminFields[0].querySelector('select').value = '';
+            }
+            adminCount = 1;
+            
+            // Reset campaign checkboxes
+            document.getElementById('regularCampaigns').checked = false;
+            document.getElementById('tiktokCampaigns').checked = false;
+            
+            // Reset the button
+            resetButton();
+        }
+
         automationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Check if at least one campaign type is selected
+            const regularCampaigns = document.getElementById('regularCampaigns').checked;
+            const tiktokCampaigns = document.getElementById('tiktokCampaigns').checked;
+
+            if (!regularCampaigns && !tiktokCampaigns) {
+                addLog('Please select at least one campaign type', true);
+                return;
+            }
+
             changeButtonText();
 
             const formData = new FormData(automationForm);
             addLog('Starting automation...');
 
             try {
-                // Send the form data asynchronously using fetch
                 const response = await fetch('/run', {
                     method: 'POST',
                     headers: {
@@ -243,32 +278,57 @@
                     body: new URLSearchParams(formData)
                 });
 
-                const result = await response.text();
+                const result = await response.json();
                 if (response.ok) {
-                    // Add a loading message
+                    const jobId = result.jobId;
                     addLog('Processing your request...', false);
                     
-                    // Random delay between 3-7 seconds
-                    const delay = Math.floor(Math.random() * (7000 - 3000) + 3000);
-                    await new Promise(resolve => setTimeout(resolve, delay));
+                    const statusCheck = setInterval(async () => {
+                        try {
+                            const statusResponse = await fetch(`/status/${jobId}`);
+                            const statusResult = await statusResponse.json();
+                            
+                            if (statusResponse.ok) {
+                                if (statusResult.status === 'completed') {
+                                    clearInterval(statusCheck);
+                                    if (statusResult.success) {
+                                        addLog('Automation completed successfully! ✅', false);
+                                        resetForm();
+                                    } else {
+                                        addLog('Automation completed with errors ❌', true);
+                                        resetButton();
+                                    }
+                                } else if (statusResult.status === 'error') {
+                                    clearInterval(statusCheck);
+                                    addLog(`Error: ${statusResult.message} ❌`, true);
+                                    resetButton();
+                                }
+                            } else {
+                                clearInterval(statusCheck);
+                                addLog('Lost track of job status ❌', true);
+                                resetButton();
+                            }
+                        } catch (error) {
+                            clearInterval(statusCheck);
+                            addLog(`Error checking status: ${error.message} ❌`, true);
+                            resetButton();
+                        }
+                    }, 2000);
                     
-                    // Show success message
-                    addLog('Automation completed successfully! ✅', false);
+                    // Stop polling after 10 minutes maximum
+                    setTimeout(() => {
+                        clearInterval(statusCheck);
+                        addLog('Operation timed out ❌', true);
+                        resetButton();
+                    }, 600000);
+                    
                 } else {
-                    // Add a small delay before showing error (1 second)
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    addLog(`Error: ${result} ❌`, true);
+                    addLog(`Error: ${result.message} ❌`, true);
+                    resetButton();
                 }
             } catch (error) {
-                // Add a small delay before showing error (1 second)
-                await new Promise(resolve => setTimeout(resolve, 1000));
                 addLog(`Error: ${error.message} ❌`, true);
-            } finally {
-                // Add a small delay before resetting button (0.5 seconds)
-                await new Promise(resolve => setTimeout(resolve, 500));
-                startButton.disabled = false;
-                startButton.textContent = "Start Automation";
-                startButton.classList.remove("opacity-50", "cursor-not-allowed");
+                resetButton();
             }
         });
 
@@ -277,6 +337,18 @@
             button.textContent = "Processing...";
             button.disabled = true; // Disable button to prevent multiple submissions
             button.classList.add("opacity-50", "cursor-not-allowed"); // Styling for disabled state
+        }
+
+        function resetButton() {
+            startButton.disabled = false;
+            startButton.textContent = "Start Automation";
+            startButton.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+
+        // Add a function to format duration
+        function formatDuration(startTime, endTime) {
+            const duration = Math.floor((new Date(endTime) - new Date(startTime)) / 1000);
+            return `${duration} seconds`;
         }
     </script>
 </body>

@@ -5,8 +5,20 @@ const http = require('http');
 dotenv.config();
 
 // Configuration
-const CAMPAIGN_IDS = [281482, 249397, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548
-];
+const CAMPAIGN_IDS = {
+    regular: {
+        pagi: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
+        siang: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
+        malam: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
+        dini: [281482, 250794, 250554, 250433, 250432, 246860, 246815, 246551, 246550, 246549, 246548],
+        manual: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548]
+    },
+    tiktok: {
+        dhuha: [249397, 275170],
+        sore: [249397, 275170],
+        manual: [249397, 275170]
+    }
+};
 const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"];
 const LOGIN_URL= 'https://app.loops.id/login'
 const CAMPAIGN_BASE_URL= 'https://app.loops.id/campaign/'
@@ -49,9 +61,9 @@ async function processCampaign(page, campaignId, adminNames) {
     console.log(`Deleting ${adminNames.length} existing items...`);
     for (let i = 0; i < adminNames.length; i++) {
       if (await page.$("button.secondary.op-delete.icon-subtraction.delete")) {
-        await page.click("button.secondary.op-delete.icon-subtraction.delete");
-        await page.waitForTimeout(500);
-        console.log(`Deleted item ${i + 1}`);
+      await page.click("button.secondary.op-delete.icon-subtraction.delete");
+      await page.waitForTimeout(500);
+      console.log(`Deleted item ${i + 1}`);
       } else {
         console.log(`No more items to delete after ${i} deletions`);
         break;
@@ -63,7 +75,7 @@ async function processCampaign(page, campaignId, adminNames) {
     // We already have the first field, so clone (adminNames.length - 1) more
     for (let i = 1; i < adminNames.length; i++) {
       console.log(`Cloning field ${i + 1}...`);
-      await page.click("button.secondary.op-clone.icon-addition.clone");
+    await page.click("button.secondary.op-clone.icon-addition.clone");
       await page.waitForTimeout(500);
     }
 
@@ -72,7 +84,7 @@ async function processCampaign(page, campaignId, adminNames) {
       console.log(`Setting admin ${i + 1}: ${adminNames[i]}`);
       await page.click(`#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(${i + 1}) .select2-arrow`);
       await page.keyboard.type(adminNames[i]);
-      await page.keyboard.press("Enter");
+    await page.keyboard.press("Enter");
       await page.waitForTimeout(300);
       console.log(`Admin ${i + 1} set to ${adminNames[i]}`);
     }
@@ -104,7 +116,7 @@ async function sendToWebhook(adminNames, timeOfDay) {
 }
 
 // Update the runAutomation function for quick acknowledgement and background processing
-async function runAutomation(adminNames, timeOfDay) {
+async function runAutomation(adminNames, timeOfDay, campaignSelections) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
   const browser = await getBrowser();
   console.log('Opening new page...');
@@ -112,16 +124,25 @@ async function runAutomation(adminNames, timeOfDay) {
 
   try {
     await login(page);
-    const ttCampaignIds = [249397, 275170];
-    let campaignIds;
-    if (timeOfDay === "dhuha" || timeOfDay === "sore") {
-      campaignIds = ttCampaignIds;
-    } else {
-      campaignIds = CAMPAIGN_IDS.filter(id => !ttCampaignIds.includes(id));
-      if (timeOfDay === "dini") {
-        campaignIds = campaignIds.filter(id => id !== 247001); // Exclude 247001 for dini
-      }
+    
+    // Build campaign list based on timeOfDay
+    let campaignIds = [];
+    
+    if (campaignSelections.regular.selected) {
+      const campaigns = CAMPAIGN_IDS.regular[timeOfDay] || [];
+      campaignIds = campaignIds.concat(campaigns);
     }
+    
+    if (campaignSelections.tiktok.selected) {
+      const campaigns = CAMPAIGN_IDS.tiktok[timeOfDay] || [];
+      campaignIds = campaignIds.concat(campaigns);
+    }
+
+    // Special handling for dini hari
+    if (timeOfDay === "dini") {
+      campaignIds = campaignIds.filter(id => id !== 247001);
+    }
+
     console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
 
     let allSuccessful = true;
@@ -167,16 +188,20 @@ app.get('/', (req, res) => {
 app.get('/status/:jobId', (req, res) => {
   const jobId = req.params.jobId;
   if (runningJobs.has(jobId)) {
-    const job = runningJobs.get(jobId);
-    res.json({ status: job.status, message: job.message });
+    res.json(runningJobs.get(jobId));
   } else {
-    res.status(404).json({ status: 'error', message: 'Job not found' });
+    res.status(404).json({ 
+      status: 'error', 
+      message: 'Job not found' 
+    });
   }
 });
 
 app.post('/run', (req, res) => {
   console.log('Received POST request to /run');
   const adminNames = [];
+  const timeOfDay = req.body.timeOfDay || "manual"; // Default to "manual" for frontend requests
+  const isManualRequest = req.body.isManual === 'true';
   
   // Extract all admin names from the request
   for (const key in req.body) {
@@ -184,9 +209,37 @@ app.post('/run', (req, res) => {
       adminNames.push(req.body[key]);
     }
   }
+
+  // Get campaign selections based on request type
+  let campaignSelections;
   
-  const timeOfDay = req.body.timeOfDay || "unknown";
-  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}`);
+  if (isManualRequest) {
+    // Manual request from frontend - use explicit campaign selections
+    campaignSelections = {
+      regular: {
+        selected: req.body.regularCampaigns === 'true',
+        time: 'manual'
+      },
+      tiktok: {
+        selected: req.body.tiktokCampaigns === 'true',
+        time: 'manual'
+      }
+    };
+  } else {
+    // Automated request from AppScript - infer from timeOfDay
+    campaignSelections = {
+      regular: {
+        selected: ['pagi', 'siang', 'malam', 'dini'].includes(timeOfDay),
+        time: timeOfDay
+      },
+      tiktok: {
+        selected: ['dhuha', 'sore'].includes(timeOfDay),
+        time: timeOfDay
+      }
+    };
+  }
+
+  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections);
 
   // Validate all admin names
   const allAdminsValid = adminNames.every(name => ALLOWED_ADMIN_NAMES.includes(name));
@@ -198,50 +251,47 @@ app.post('/run', (req, res) => {
   // Generate a unique job ID
   const jobId = Date.now().toString();
   
-  // Store job info
+  // Store initial job status
   runningJobs.set(jobId, {
     status: 'running',
     message: 'Automation started',
+    startTime: new Date(),
     adminNames,
     timeOfDay,
-    startTime: new Date()
+    campaignSelections
   });
-  
-  // Acknowledge the request immediately
-  res.status(202).send('Automation started. Processing in background.');
-  
-  // Start the automation process in the background
-  console.log('Starting automation process...');
-  runAutomation(adminNames, timeOfDay)
+
+  // Send back the jobId immediately
+  res.json({ 
+    jobId,
+    message: 'Automation started',
+    status: 'running'
+  });
+
+  // Run the automation in the background
+  runAutomation(adminNames, timeOfDay, campaignSelections)
     .then(success => {
       runningJobs.set(jobId, {
         status: 'completed',
-        message: `Automation ${success ? 'completed' : 'failed'} for ${timeOfDay}`,
-        adminNames,
-        timeOfDay,
         success,
+        message: `Automation ${success ? 'completed' : 'failed'}`,
         endTime: new Date()
       });
-      
-      // Clean up job record after some time
+
       setTimeout(() => {
         runningJobs.delete(jobId);
-      }, 3600000); // Remove after 1 hour
+      }, 3600000);
     })
     .catch(error => {
       runningJobs.set(jobId, {
         status: 'error',
-        message: `Automation failed: ${error.message}`,
-        adminNames,
-        timeOfDay,
-        error: error.message,
+        message: error.message,
         endTime: new Date()
       });
-      
-      // Clean up job record after some time
+
       setTimeout(() => {
         runningJobs.delete(jobId);
-      }, 3600000); // Remove after 1 hour
+      }, 3600000);
     });
 });
 
