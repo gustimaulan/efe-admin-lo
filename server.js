@@ -1,7 +1,6 @@
 const express = require('express');
 const { chromium } = require('playwright-core');
 const dotenv = require('dotenv');
-const http = require('http');
 dotenv.config();
 
 // Configuration
@@ -172,17 +171,13 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
       campaignIds = campaignIds.concat(CAMPAIGN_IDS.tiktok[timeOfDay] || []);
     }
 
-    if (timeOfDay === "dini") {
-      campaignIds = campaignIds.filter(id => id !== 247001);
-    }
-
     // Group campaigns by the admins that should process them
     const campaignGroups = {};
     
     for (const campaignId of campaignIds) {
       let adminsForThisCampaign = [...adminNames];
       
-      // For campaign 247001, exclude admin 1 and admin 2
+      // Special handling for campaign 247001
       if (campaignId === 247001) {
         adminsForThisCampaign = adminNames.filter(admin => 
           admin !== "admin 1" && admin !== "admin 2"
@@ -234,6 +229,7 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
 // Server Setup
 const app = express();
 const PORT = 3010;
+const http = require('http');
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
 
@@ -241,8 +237,118 @@ app.set('trust proxy', true);
 const server = http.createServer(app);
 server.timeout = 600000; // 10 minutes timeout
 
-// Store ongoing automation jobs
+// Enhanced job tracking with detailed logs
 const runningJobs = new Map();
+
+// Add a helper function to add logs to a job
+// Add these imports at the top
+const socketIo = require('socket.io');
+
+// Create HTTP server and Socket.IO instance
+const io = socketIo(server);
+
+// Override console.log to also emit messages to Socket.IO
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+
+console.log = function() {
+  // Call the original console.log
+  originalConsoleLog.apply(console, arguments);
+  
+  // Convert arguments to a proper string message
+  const message = Array.from(arguments).map(arg => {
+    if (typeof arg === 'object') {
+      try {
+        return JSON.stringify(arg);
+      } catch (e) {
+        return arg.toString();
+      }
+    }
+    return arg;
+  }).join(' ');
+  
+  // Emit to a specific 'console_logs' event that all clients can listen to
+  io.emit('console_logs', {
+    timestamp: new Date(),
+    message,
+    isError: false
+  });
+};
+
+console.error = function() {
+  // Call the original console.error
+  originalConsoleError.apply(console, arguments);
+  
+  // Convert arguments to a proper string message
+  const message = Array.from(arguments).map(arg => {
+    if (typeof arg === 'object') {
+      try {
+        return JSON.stringify(arg);
+      } catch (e) {
+        return arg.toString();
+      }
+    }
+    return arg;
+  }).join(' ');
+  
+  // Emit to the same 'console_logs' event but marked as an error
+  io.emit('console_logs', {
+    timestamp: new Date(),
+    message,
+    isError: true
+  });
+};
+
+// Set up Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  
+  socket.on('subscribeToJob', (jobId) => {
+    console.log('Client subscribed to job:', jobId);
+    socket.join(jobId);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+// Modify the addJobLog function to emit logs via Socket.IO
+function addJobLog(jobId, message, isError = false) {
+  if (!runningJobs.has(jobId)) return;
+  
+  const job = runningJobs.get(jobId);
+  if (!job.logs) job.logs = [];
+  
+  const logEntry = {
+    timestamp: new Date(),
+    message,
+    isError
+  };
+  
+  job.logs.push(logEntry);
+  runningJobs.set(jobId, job);
+  
+  // Emit the new log to all clients subscribed to this job
+  io.to(jobId).emit('newLog', logEntry);
+}
+
+// Add a new endpoint to get detailed logs
+app.get('/logs/:jobId', (req, res) => {
+  const jobId = req.params.jobId;
+  if (runningJobs.has(jobId)) {
+    const job = runningJobs.get(jobId);
+    res.json({
+      status: job.status,
+      logs: job.logs || []
+    });
+  } else {
+    res.status(404).json({ 
+      status: 'error', 
+      message: 'Job logs not found' 
+    });
+  }
+});
 
 app.get('/', (req, res) => {
   console.log('Serving index.html');
@@ -315,14 +421,19 @@ app.post('/run', (req, res) => {
   // Generate a unique job ID
   const jobId = Date.now().toString();
   
-  // Store initial job status
+  // Store initial job status with empty logs array
   runningJobs.set(jobId, {
     status: 'running',
     message: 'Automation started',
     startTime: new Date(),
     adminNames,
     timeOfDay,
-    campaignSelections
+    campaignSelections,
+    logs: [{
+      timestamp: new Date(),
+      message: `Started automation for ${adminNames.join(', ')} with timeOfDay: ${timeOfDay}`,
+      isError: false
+    }]
   });
 
   // Send back the jobId immediately
