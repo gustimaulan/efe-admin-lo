@@ -30,11 +30,20 @@ const WEBHOOK_URL = process.env.WEBHOOK_URL
 async function getBrowser() {
   console.log('Attempting browser connection...');
   try {
-  console.log('Use local Chromium...');
-  return browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-} catch (error) {
-  console.error('Browser failed to launch:', error.message);
-} 
+    console.log('Use local Chromium...');
+    return browser = await chromium.launch({ 
+      headless: false,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage', // Important for container environments
+        '--disable-gpu',           // Helpful for server environments
+      ]
+    });
+  } catch (error) {
+    console.error('Browser failed to launch:', error.message);
+    throw error;
+  } 
 }
 
 // Core Functions
@@ -115,55 +124,71 @@ async function sendToWebhook(adminNames, timeOfDay) {
   }
 }
 
-// Update the runAutomation function for quick acknowledgement and background processing
+// New function for parallel processing
+async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize = 3) {
+  const results = [];
+  
+  // Process campaigns in batches
+  for (let i = 0; i < campaignIds.length; i += batchSize) {
+    const batch = campaignIds.slice(i, i + batchSize);
+    console.log(`Processing batch of ${batch.length} campaigns...`);
+    
+    const batchPromises = batch.map(async (campaignId) => {
+      const page = await browser.newPage();
+      try {
+        await login(page);
+        const result = await processCampaign(page, campaignId, adminNames);
+        return { campaignId, success: result };
+      } finally {
+        await page.close(); // Important to close pages to free resources
+      }
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+    
+    // Small delay between batches to prevent overwhelming the server
+    if (i + batchSize < campaignIds.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+  
+  return results;
+}
+
+// Modified runAutomation function
 async function runAutomation(adminNames, timeOfDay, campaignSelections) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
   const browser = await getBrowser();
-  console.log('Opening new page...');
-  const page = await browser.newPage();
 
   try {
-    await login(page);
-    
-    // Build campaign list based on timeOfDay
     let campaignIds = [];
     
     if (campaignSelections.regular.selected) {
-      const campaigns = CAMPAIGN_IDS.regular[timeOfDay] || [];
-      campaignIds = campaignIds.concat(campaigns);
+      campaignIds = campaignIds.concat(CAMPAIGN_IDS.regular[timeOfDay] || []);
     }
     
     if (campaignSelections.tiktok.selected) {
-      const campaigns = CAMPAIGN_IDS.tiktok[timeOfDay] || [];
-      campaignIds = campaignIds.concat(campaigns);
+      campaignIds = campaignIds.concat(CAMPAIGN_IDS.tiktok[timeOfDay] || []);
     }
 
-    // Special handling for dini hari
     if (timeOfDay === "dini") {
       campaignIds = campaignIds.filter(id => id !== 247001);
     }
 
     console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
 
-    let allSuccessful = true;
-    for (const id of campaignIds) {
-      const success = await processCampaign(page, id, adminNames);
-      if (!success) allSuccessful = false;
-      await page.waitForTimeout(500);
-    }
+    const results = await runParallelCampaigns(browser, adminNames, campaignIds);
+    const allSuccessful = results.every(r => r.success);
 
     await sendToWebhook(adminNames, timeOfDay);
-
-    console.log(`Automation ${allSuccessful ? 'completed' : 'failed'} for ${timeOfDay}`);
+    
     return allSuccessful;
   } catch (error) {
     console.error('Automation process failed:', error);
     throw error;
   } finally {
-    console.log('Cleaning up: Closing page and browser...');
-    await page.close();
     await browser.close();
-    console.log('Cleanup completed');
   }
 }
 
