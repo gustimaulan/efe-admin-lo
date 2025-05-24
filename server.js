@@ -215,8 +215,11 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
       allResults.push(...results);
     }
 
-    await sendToWebhook(adminNames, timeOfDay);
-    
+    // Only send webhook if regular campaigns were selected
+    if (campaignSelections.regular.selected) {
+        await sendToWebhook(adminNames, timeOfDay);
+    }
+
     return allResults.every(r => r.success);
   } catch (error) {
     console.error('Automation process failed:', error);
