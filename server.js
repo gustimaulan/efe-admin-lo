@@ -32,7 +32,7 @@ async function getBrowser() {
   try {
     console.log('Use local Chromium...');
     return browser = await chromium.launch({ 
-      headless: false,
+      headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
