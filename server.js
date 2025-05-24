@@ -176,14 +176,53 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
       campaignIds = campaignIds.filter(id => id !== 247001);
     }
 
-    console.log(`Selected campaigns to process: ${campaignIds.join(', ')}`);
-
-    const results = await runParallelCampaigns(browser, adminNames, campaignIds);
-    const allSuccessful = results.every(r => r.success);
+    // Group campaigns by the admins that should process them
+    const campaignGroups = {};
+    
+    for (const campaignId of campaignIds) {
+      let adminsForThisCampaign = [...adminNames];
+      
+      // For campaign 247001, exclude admin 1 and admin 2
+      if (campaignId === 247001) {
+        adminsForThisCampaign = adminNames.filter(admin => 
+          admin !== "admin 1" && admin !== "admin 2"
+        );
+        
+        // Skip this campaign if no admins are left after filtering
+        if (adminsForThisCampaign.length === 0) {
+          console.log(`Skipping campaign ${campaignId} as all selected admins are excluded for it`);
+          continue;
+        }
+      }
+      
+      // Create a key based on the admins for this campaign
+      const adminKey = adminsForThisCampaign.sort().join(',');
+      
+      if (!campaignGroups[adminKey]) {
+        campaignGroups[adminKey] = {
+          admins: adminsForThisCampaign,
+          campaigns: []
+        };
+      }
+      
+      campaignGroups[adminKey].campaigns.push(campaignId);
+    }
+    
+    // Process each group of campaigns with their specific admins
+    const allResults = [];
+    
+    for (const groupKey in campaignGroups) {
+      const group = campaignGroups[groupKey];
+      console.log(`Processing group for admins: ${group.admins.join(', ')} with ${group.campaigns.length} campaigns`);
+      
+      // Use the existing batch processing for each group
+      const results = await runParallelCampaigns(browser, group.admins, group.campaigns);
+      allResults.push(...results);
+    }
 
     await sendToWebhook(adminNames, timeOfDay);
     
-    return allSuccessful;
+    return allResults.every(r => r.success);
   } catch (error) {
     console.error('Automation process failed:', error);
     throw error;
