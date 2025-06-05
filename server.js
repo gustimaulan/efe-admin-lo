@@ -6,16 +6,10 @@ dotenv.config();
 // Configuration
 const CAMPAIGN_IDS = {
     regular: {
-        pagi: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
-        siang: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
-        malam: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
-        dini: [281482, 250794, 250554, 250433, 250432, 246860, 246815, 246551, 246550, 246549, 246548],
-        manual: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548]
-    },
-    tiktok: {
-        dhuha: [249397, 275170],
-        sore: [249397, 275170],
-        manual: [249397, 275170]
+        pagi: [281482, 250794, 250554, 250433, 249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
+        siang: [281482, 250794, 250554, 250433, 249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
+        malam: [281482, 250794, 250554, 250433,249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
+        manual: [281482, 250794, 250554, 250433, 249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548]
     }
 };
 const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"];
@@ -156,8 +150,9 @@ async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize 
 }
 
 // Modified runAutomation function
-async function runAutomation(adminNames, timeOfDay, campaignSelections) {
+async function runAutomation(adminNames, timeOfDay, campaignSelections, exclusionSettings = {}) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
+  console.log('Exclusion settings:', exclusionSettings);
   const browser = await getBrowser();
 
   try {
@@ -166,9 +161,18 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
     if (campaignSelections.regular.selected) {
       campaignIds = campaignIds.concat(CAMPAIGN_IDS.regular[timeOfDay] || []);
     }
+
+    // Define excluded campaigns based on settings
+    const excludedCampaigns = [];
     
-    if (campaignSelections.tiktok.selected) {
-      campaignIds = campaignIds.concat(CAMPAIGN_IDS.tiktok[timeOfDay] || []);
+    // Always exclude campaign 247001 from admin 1 and admin 2 if excludeFromAdvanced is true (default)
+    if (exclusionSettings.excludeFromAdvanced !== false) {
+      excludedCampaigns.push(247001);
+    }
+    
+    // Add the 6 last campaigns if excludeFromLast6 is true
+    if (exclusionSettings.excludeFromLast6 === true) {
+      excludedCampaigns.push(246860, 246815, 246551, 246550, 246549, 246548);
     }
 
     // Group campaigns by the admins that should process them
@@ -177,8 +181,8 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
     for (const campaignId of campaignIds) {
       let adminsForThisCampaign = [...adminNames];
       
-      // Special handling for campaign 247001
-      if (campaignId === 247001) {
+      // Apply exclusions for admin 1 and admin 2
+      if (excludedCampaigns.includes(campaignId)) {
         adminsForThisCampaign = adminNames.filter(admin => 
           admin !== "admin 1" && admin !== "admin 2"
         );
@@ -392,10 +396,6 @@ app.post('/run', (req, res) => {
       regular: {
         selected: req.body.regularCampaigns === 'true',
         time: 'manual'
-      },
-      tiktok: {
-        selected: req.body.tiktokCampaigns === 'true',
-        time: 'manual'
       }
     };
   } else {
@@ -404,15 +404,17 @@ app.post('/run', (req, res) => {
       regular: {
         selected: ['pagi', 'siang', 'malam', 'dini'].includes(timeOfDay),
         time: timeOfDay
-      },
-      tiktok: {
-        selected: ['dhuha', 'sore'].includes(timeOfDay),
-        time: timeOfDay
       }
     };
   }
 
-  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections);
+  // Get exclusion settings from the request
+  const exclusionSettings = {
+    excludeFromAdvanced: req.body.excludeFromAdvanced === 'true',
+    excludeFromLast6: req.body.excludeFromLast6 === 'true'
+  };
+
+  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections, 'exclusions:', exclusionSettings);
 
   // Validate all admin names
   const allAdminsValid = adminNames.every(name => ALLOWED_ADMIN_NAMES.includes(name));
@@ -432,6 +434,7 @@ app.post('/run', (req, res) => {
     adminNames,
     timeOfDay,
     campaignSelections,
+    exclusionSettings,
     logs: [{
       timestamp: new Date(),
       message: `Started automation for ${adminNames.join(', ')} with timeOfDay: ${timeOfDay}`,
@@ -447,7 +450,7 @@ app.post('/run', (req, res) => {
   });
 
   // Run the automation in the background
-  runAutomation(adminNames, timeOfDay, campaignSelections)
+  runAutomation(adminNames, timeOfDay, campaignSelections, exclusionSettings)
     .then(success => {
       runningJobs.set(jobId, {
         status: 'completed',

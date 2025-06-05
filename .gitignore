@@ -7,3 +7,5 @@ tmp
 .htaccess
 stderr.log
 appscript.js
+*.sh
+*.md

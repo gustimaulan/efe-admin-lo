@@ -36,25 +36,33 @@
                     <div id="adminContainer">
                         <!-- Admin fields will be added here dynamically -->
                     </div>
+
+
+                    <!-- Exclusion Settings with same style -->
                     <div class="mb-3">
-                        <label class="block mb-1 font-medium text-sm text-blue-400">Campaign Selection</label>
-                        <div class="space-y-2">
+                        <label id="toggleExclusions" class="block mb-1 font-medium text-sm text-blue-400 cursor-pointer hover:text-blue-300 flex items-center">
+                            Exclusion Settings for Admin 1 & 2
+                            <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" id="exclusionChevron"></i>
+                        </label>
+                        <div id="exclusionContent" class="hidden space-y-2">
                             <div class="flex items-center">
-                                <input type="checkbox" id="regularCampaigns" name="regularCampaigns" value="true" class="mr-2">
-                                <label for="regularCampaigns" class="text-sm text-gray-300">Regular Campaign <span class="text-xs text-gray-500">(Semua leads iklan)</span></label>
+                                <input type="checkbox" id="excludeFromAdvanced" name="excludeFromAdvanced" value="true" class="mr-2" checked>
+                                <label for="excludeFromAdvanced" class="text-sm text-gray-300">Kelas lanjutan <span class="text-xs text-gray-500">(Admin 1 & 2 tidak akan diproses untuk kelas lanjutan)</span></label>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="tiktokCampaigns" name="tiktokCampaigns" value="true" class="mr-2">
-                                <label for="tiktokCampaigns" class="text-sm text-gray-300">Tiktok Campaign <span class="text-xs text-gray-500">(Biolink Tiktok saja)</span></label>
+                                <input type="checkbox" id="excludeFromLast6" name="excludeFromLast6" value="true" class="mr-2">
+                                <label for="excludeFromLast6" class="text-sm text-gray-300">6 Campaign Terakhir <span class="text-xs text-gray-500">(Admin 1 & 2 tidak akan diproses untuk 6 campaign terakhir)</span></label>
                             </div>
                         </div>
                     </div>
+
                     <!-- Hidden fields -->
                     <input type="hidden" name="isManual" value="true">
                     <input type="hidden" name="timeOfDay" value="manual">
+                    <input type="hidden" name="regularCampaigns" value="true">
                     <div class="text-center">
-                        <button id="automationButton" type="submit" class="bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-4 py-2 rounded">
-                            Start Automation
+                        <button id="automationButton" type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-4 py-2 rounded">
+                            Submit
                         </button>
                     </div>
                 </form>
@@ -92,18 +100,9 @@
                 </div>
 
                 <div class="bg-gray-700 p-4 rounded-lg">
-                    <h3 class="font-medium text-blue-400 mb-2">2. Pemilihan Campaign</h3>
+                    <h3 class="font-medium text-blue-400 mb-2">2. Memulai Proses</h3>
                     <ul class="list-disc list-inside space-y-1 text-gray-300">
-                        <li>Regular Campaign: Untuk semua leads iklan</li>
-                        <li>Tiktok Campaign: Khusus untuk Biolink Tiktok</li>
-                        <li>Pilih minimal satu jenis campaign</li>
-                    </ul>
-                </div>
-
-                <div class="bg-gray-700 p-4 rounded-lg">
-                    <h3 class="font-medium text-blue-400 mb-2">3. Memulai Proses</h3>
-                    <ul class="list-disc list-inside space-y-1 text-gray-300">
-                        <li>Pastikan semua admin dan campaign telah dipilih</li>
+                        <li>Pastikan semua admin telah dipilih</li>
                         <li>Klik tombol "Start Automation" untuk memulai proses</li>
                         <li>Proses dapat dilihat di tab "Logs"</li>
                         <li>Form akan direset otomatis setelah proses selesai</li>
@@ -111,7 +110,7 @@
                 </div>
 
                 <div class="bg-gray-700 p-4 rounded-lg">
-                    <h3 class="font-medium text-blue-400 mb-2">4. Catatan Penting</h3>
+                    <h3 class="font-medium text-blue-400 mb-2">3. Catatan Penting</h3>
                     <ul class="list-disc list-inside space-y-1 text-gray-300">
                         <li>Admin 1 dan Admin 2 tidak akan diproses untuk campaign kelas lanjutan</li>
                         <li>Proses dapat memakan waktu beberapa menit</li>
@@ -396,10 +395,6 @@
             }
             adminCount = 1;
             
-            // Reset campaign checkboxes
-            document.getElementById('regularCampaigns').checked = false;
-            document.getElementById('tiktokCampaigns').checked = false;
-            
             // Reset the button
             resetButton();
             updateCounter();
@@ -418,15 +413,6 @@
         automationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Check if at least one campaign type is selected
-            const regularCampaigns = document.getElementById('regularCampaigns').checked;
-            const tiktokCampaigns = document.getElementById('tiktokCampaigns').checked;
-
-            if (!regularCampaigns && !tiktokCampaigns) {
-                addLog('Please select at least one campaign type', true);
-                return;
-            }
-
             changeButtonText();
 
             const formData = new FormData(automationForm);
@@ -546,6 +532,15 @@
             
             guideContent.classList.toggle('hidden');
             chevron.style.transform = guideContent.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+
+        // Add this new code for the exclusion toggle functionality (add this near the end of the script section)
+        document.getElementById('toggleExclusions').addEventListener('click', function() {
+            const exclusionContent = document.getElementById('exclusionContent');
+            const chevron = document.getElementById('exclusionChevron');
+            
+            exclusionContent.classList.toggle('hidden');
+            chevron.style.transform = exclusionContent.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         });
     </script>
 </body>
