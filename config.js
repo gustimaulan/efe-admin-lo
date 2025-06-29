@@ -16,7 +16,7 @@ module.exports = {
             manual: [249397, 275170]
         }
     },
-    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7"],
+    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 9", "admin 10"],
     LOGIN_URL: 'https://app.loops.id/login',
     CAMPAIGN_BASE_URL: 'https://app.loops.id/campaign/',
     SERVER: {

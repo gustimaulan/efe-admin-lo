@@ -18,20 +18,16 @@ const CAMPAIGN_BASE_URL= 'https://app.loops.id/campaign/'
 const EMAIL = process.env.EMAIL
 const PASSWORD = process.env.PASSWORD
 const WEBHOOK_URL = process.env.WEBHOOK_URL
+const bcatUrl = process.env.bcatUrl || 'wss://api.browsercat.com/connect'
+const bcatToken = process.env.bcatToken || 'PnBOCdxmzInbPWWhVvbDNiocpcRtVQCsRD2MYf9ed8ZiqtejGfRnXatB2a58lJr7'
 
 // Browser Connection
 async function getBrowser() {
   console.log('Attempting browser connection...');
   try {
-    console.log('Use local Chromium...');
-    return browser = await chromium.launch({ 
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage', // Important for container environments
-        '--disable-gpu',           // Helpful for server environments
-      ]
+    console.log('Use bcat...');
+    return browser = await chromium.connect(bcatUrl, {
+        headers: {'Api-Key': bcatToken},
     });
   } catch (error) {
     console.error('Browser failed to launch:', error.message);
@@ -42,13 +38,15 @@ async function getBrowser() {
 // Core Functions
 async function login(page) {
   console.log('Initiating login process...');
+  // Remove timeout from page
+  page.setDefaultTimeout(0);
   await page.goto(LOGIN_URL);
   console.log('Login page loaded');
   await page.fill("input[name=email]", EMAIL);
   await page.fill("input[name=password]", PASSWORD);
   console.log('Credentials entered');
   await page.click("button[type=submit]");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("networkidle", { timeout: 0 });
   console.log('Login completed successfully');
 }
 
@@ -56,7 +54,7 @@ async function processCampaign(page, campaignId, adminNames) {
   try {
     console.log(`Processing campaign ${campaignId}...`);
     await page.goto(`${CAMPAIGN_BASE_URL}${campaignId}`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle', { timeout: 0 });
     console.log(`Campaign ${campaignId} page loaded`);
 
     // Delete exactly 3 items (hardcoded)
@@ -64,7 +62,6 @@ async function processCampaign(page, campaignId, adminNames) {
     for (let i = 0; i < 3; i++) {
       if (await page.$("button.secondary.op-delete.icon-subtraction.delete")) {
       await page.click("button.secondary.op-delete.icon-subtraction.delete");
-      await page.waitForTimeout(500);
       console.log(`Deleted item ${i + 1}`);
       } else {
         console.log(`No more items to delete after ${i} deletions`);
@@ -78,7 +75,6 @@ async function processCampaign(page, campaignId, adminNames) {
     for (let i = 1; i < adminNames.length; i++) {
       console.log(`Cloning field ${i + 1}...`);
     await page.click("button.secondary.op-clone.icon-addition.clone");
-      await page.waitForTimeout(500);
     }
 
     // Step 2: Set admin names for each field
@@ -87,7 +83,6 @@ async function processCampaign(page, campaignId, adminNames) {
       await page.click(`#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(${i + 1}) .select2-arrow`);
       await page.keyboard.type(adminNames[i]);
     await page.keyboard.press("Enter");
-      await page.waitForTimeout(300);
       console.log(`Admin ${i + 1} set to ${adminNames[i]}`);
     }
 
@@ -128,6 +123,8 @@ async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize 
     
     const batchPromises = batch.map(async (campaignId) => {
       const page = await browser.newPage();
+      // Remove timeout from page
+      page.setDefaultTimeout(0);
       try {
         await login(page);
         const result = await processCampaign(page, campaignId, adminNames);
@@ -139,11 +136,6 @@ async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize 
 
     const batchResults = await Promise.all(batchPromises);
     results.push(...batchResults);
-    
-    // Small delay between batches to prevent overwhelming the server
-    if (i + batchSize < campaignIds.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
   }
   
   return results;
