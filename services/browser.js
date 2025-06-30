@@ -42,13 +42,13 @@ class BrowserService {
             await page.goto(`${config.CAMPAIGN_BASE_URL}${campaignId}`);
             await page.waitForLoadState('networkidle');
 
-            // Special handling for campaign 247001
+            // Special handling for campaign 247001 for admin 1,2, and 10
             let adminsToProcess = [...adminNames];
             if (campaignId === 247001) {
                 adminsToProcess = adminNames.filter(admin => 
-                    admin !== "admin 1" && admin !== "admin 2"
+                    admin !== "admin 1" && admin !== "admin 2" && admin !== "admin 10" 
                 );
-                logger.info(`Campaign 247001: Excluding admin 1 and admin 2. Processing with admins: ${adminsToProcess.join(', ')}`);
+                logger.info(`Campaign 247001: Excluding admin 1, admin 2, and admin 10. Processing with admins: ${adminsToProcess.join(', ')}`);
                 
                 if (adminsToProcess.length === 0) {
                     logger.warn('No admins left to process after filtering for campaign 247001');
