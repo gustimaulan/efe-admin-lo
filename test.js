@@ -173,10 +173,10 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections, exclusio
     for (const campaignId of campaignIds) {
       let adminsForThisCampaign = [...adminNames];
       
-      // Apply exclusions for admin 1 and admin 2
+      // Apply exclusions for admin 1, admin 2, and admin 10
       if (excludedCampaigns.includes(campaignId)) {
         adminsForThisCampaign = adminNames.filter(admin => 
-          admin !== "admin 1" && admin !== "admin 2"
+          admin !== "admin 1" && admin !== "admin 2" && admin !== "admin 10"
         );
         
         // Skip this campaign if no admins are left after filtering
