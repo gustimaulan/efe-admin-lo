@@ -4,17 +4,9 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Configuration
-const CAMPAIGN_IDS = {
-    regular: {
-        pagi: [281482, 250794, 250554, 250433, 249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
-        siang: [281482, 250794, 250554, 250433, 249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
-        malam: [281482, 250794, 250554, 250433,249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548],
-        manual: [281482, 250794, 250554, 250433, 249397, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548]
-    }
-};
-const ALLOWED_ADMIN_NAMES = ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 9", "admin 10"];
-const LOGIN_URL= 'https://app.loops.id/login'
-const CAMPAIGN_BASE_URL= 'https://app.loops.id/campaign/'
+const config = require('./config');
+const { CAMPAIGN_IDS, ALLOWED_ADMIN_NAMES } = config;
+const { LOGIN_URL, CAMPAIGN_BASE_URL } = config;
 const EMAIL = process.env.EMAIL
 const PASSWORD = process.env.PASSWORD
 const WEBHOOK_URL = process.env.WEBHOOK_URL
@@ -157,7 +149,7 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections, exclusio
     // Define excluded campaigns based on settings
     const excludedCampaigns = [];
     
-    // Always exclude campaign 247001 from admin 1 and admin 2 if excludeFromAdvanced is true (default)
+    // Always exclude campaign 247001 from admin 1, admin 2, and admin 10 if excludeFromAdvanced is true (default)
     if (exclusionSettings.excludeFromAdvanced !== false) {
       excludedCampaigns.push(247001);
     }
