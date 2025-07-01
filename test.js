@@ -386,7 +386,7 @@ app.post('/run', (req, res) => {
     // Automated request from AppScript - infer from timeOfDay
     campaignSelections = {
       regular: {
-        selected: ['pagi', 'siang', 'malam', 'dini'].includes(timeOfDay),
+        selected: ['pagi', 'siang', 'malam'].includes(timeOfDay),
         time: timeOfDay
       }
     };
