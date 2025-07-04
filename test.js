@@ -44,7 +44,18 @@ async function login(page) {
 
 async function processCampaign(page, campaignId, adminNames) {
   try {
-    console.log(`Processing campaign ${campaignId}...`);
+    console.log(`Processing campaign ${campaignId} with admins: ${adminNames.join(', ')}`);
+    
+    // Special debug logging for campaign 247001 (lanjutan)
+    if (campaignId === 247001) {
+      console.log(`🔍 CAMPAIGN 247001 (LANJUTAN): Processing with admins: ${adminNames.join(', ')}`);
+      if (adminNames.includes('admin 10')) {
+        console.log(`❌ ERROR: Admin 10 should be excluded from campaign 247001!`);
+      } else {
+        console.log(`✅ CORRECT: Admin 10 properly excluded from campaign 247001`);
+      }
+    }
+    
     await page.goto(`${CAMPAIGN_BASE_URL}${campaignId}`);
     await page.waitForLoadState('networkidle', { timeout: 0 });
     console.log(`Campaign ${campaignId} page loaded`);
@@ -167,9 +178,12 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections, exclusio
       
       // Apply exclusions for admin 1, admin 2, and admin 10
       if (excludedCampaigns.includes(campaignId)) {
+        const originalAdmins = [...adminNames];
         adminsForThisCampaign = adminNames.filter(admin => 
           admin !== "admin 1" && admin !== "admin 2" && admin !== "admin 10"
         );
+        
+        console.log(`🔍 Campaign ${campaignId} exclusion: Original admins: [${originalAdmins.join(', ')}] -> Filtered admins: [${adminsForThisCampaign.join(', ')}]`);
         
         // Skip this campaign if no admins are left after filtering
         if (adminsForThisCampaign.length === 0) {
