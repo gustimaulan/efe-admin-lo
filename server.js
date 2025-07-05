@@ -1,6 +1,7 @@
 const express = require('express');
 const { chromium } = require('playwright-core');
 const dotenv = require('dotenv');
+const packageJson = require('./package.json');
 dotenv.config();
 
 // Configuration
@@ -372,6 +373,15 @@ app.get('/', (req, res) => {
     'Expires': '0'
   });
   res.sendFile(__dirname + '/index.html');
+});
+
+// Version endpoint
+app.get('/version', (req, res) => {
+  res.json({
+    version: packageJson.version,
+    name: packageJson.name,
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.get('/status/:jobId', (req, res) => {
