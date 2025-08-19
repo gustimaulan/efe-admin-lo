@@ -154,9 +154,8 @@ async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize 
 }
 
 // Modified runAutomation function
-async function runAutomation(adminNames, timeOfDay, campaignSelections, exclusionSettings = {}) {
+async function runAutomation(adminNames, timeOfDay, campaignSelections) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
-  console.log('Exclusion settings:', exclusionSettings);
   const browser = await getBrowser();
 
   try {
@@ -166,52 +165,36 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections, exclusio
       campaignIds = campaignIds.concat(CAMPAIGN_IDS.regular[timeOfDay] || []);
     }
 
-    // Define excluded campaigns based on settings
-    const excludedCampaigns = [];
-    
-    // Always exclude campaign 247001 from admin 1, admin 2, and admin 10 if excludeFromAdvanced is true (default)
-    if (exclusionSettings.excludeFromAdvanced !== false) {
-      excludedCampaigns.push(247001);
-    }
-    
-    // Add the 6 last campaigns if excludeFromLast6 is true
-    if (exclusionSettings.excludeFromLast6 === true) {
-      excludedCampaigns.push(246860, 246815, 246551, 246550, 246549, 246548);
-    }
-
     // Group campaigns by the admins that should process them
     const campaignGroups = {};
     
     for (const campaignId of campaignIds) {
-      let adminsForThisCampaign = [...adminNames];
-      
-      // Apply exclusions for admin 1, admin 2, and admin 10
-      if (excludedCampaigns.includes(campaignId)) {
-        const originalAdmins = [...adminNames];
-        adminsForThisCampaign = adminNames.filter(admin => 
-          admin !== "admin 1" && admin !== "admin 2" && admin !== "admin 10"
-        );
+        // Use config-based restriction system
+        let adminsForThisCampaign = config.getAdminsForCampaign(adminNames, campaignId);
         
-        console.log(`🔍 Campaign ${campaignId} exclusion: Original admins: [${originalAdmins.join(', ')}] -> Filtered admins: [${adminsForThisCampaign.join(', ')}]`);
+        // Log the filtering for transparency
+        if (adminsForThisCampaign.length !== adminNames.length) {
+            const excludedAdmins = adminNames.filter(admin => !adminsForThisCampaign.includes(admin));
+            console.log(`🔍 Campaign ${campaignId} restrictions: Excluded admins: [${excludedAdmins.join(', ')}] -> Processing with: [${adminsForThisCampaign.join(', ')}]`);
+        }
         
         // Skip this campaign if no admins are left after filtering
         if (adminsForThisCampaign.length === 0) {
-          console.log(`Skipping campaign ${campaignId} as all selected admins are excluded for it`);
-          continue;
+            console.log(`Skipping campaign ${campaignId} as no admins are available to process it`);
+            continue;
         }
-      }
-      
-      // Create a key based on the admins for this campaign
-      const adminKey = adminsForThisCampaign.sort().join(',');
-      
-      if (!campaignGroups[adminKey]) {
-        campaignGroups[adminKey] = {
-          admins: adminsForThisCampaign,
-          campaigns: []
-        };
-      }
-      
-      campaignGroups[adminKey].campaigns.push(campaignId);
+        
+        // Create a key based on the admins for this campaign
+        const adminKey = adminsForThisCampaign.sort().join(',');
+        
+        if (!campaignGroups[adminKey]) {
+            campaignGroups[adminKey] = {
+                admins: adminsForThisCampaign,
+                campaigns: []
+            };
+        }
+        
+        campaignGroups[adminKey].campaigns.push(campaignId);
     }
     
     // Process each group of campaigns with their specific admins
@@ -436,7 +419,7 @@ app.post('/run', (req, res) => {
     excludeFromLast6: req.body.excludeFromLast6 === 'true'
   };
 
-  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections, 'exclusions:', exclusionSettings);
+  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections);
 
   // Validate all admin names
   const allAdminsValid = adminNames.every(name => ALLOWED_ADMIN_NAMES.includes(name));
