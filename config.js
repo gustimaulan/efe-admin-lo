@@ -31,6 +31,7 @@ module.exports = {
     ADMIN_CAMPAIGN_RESTRICTIONS: {
         "admin 1": [247001], // admin 1 can only process campaign 247001
         "admin 2": { exclude: [247001] }, // admin 2 cannot process campaign 247001
+        "admin 7": { exclude: [247001] }, // admin 7 cannot process campaign 247001
         "admin 10": { exclude: [247001] }, // admin 10 cannot process campaign 247001
         "admin 99": { exclude: [247001] }, // admin 99 cannot process campaign 247001
     },
