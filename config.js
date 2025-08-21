@@ -29,10 +29,10 @@ module.exports = {
         CLEANUP_TIMEOUT: 3600000 // 1 hour
     },
     ADMIN_CAMPAIGN_RESTRICTIONS: {
-        "admin 99": [246549], // admin 99 can only process campaign 246549
         "admin 1": [247001], // admin 1 can only process campaign 247001
         "admin 2": { exclude: [247001] }, // admin 2 cannot process campaign 247001
-        "admin 10": { exclude: [247001] } // admin 10 cannot process campaign 247001
+        "admin 10": { exclude: [247001] }, // admin 10 cannot process campaign 247001
+        "admin 99": { exclude: [247001] }, // admin 99 cannot process campaign 247001
     },
     
     // Helper function to check if an admin can process a campaign
