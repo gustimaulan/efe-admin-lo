@@ -347,15 +347,18 @@ app.get('/logs/:jobId', (req, res) => {
   }
 });
 
+// Option 3: Server-Side Template (Advanced)
+//
+// If you want to avoid any hardcoding, you could serve the HTML dynamically:
+// Update the root route
 app.get('/', (req, res) => {
-  console.log('Serving index.html');
-  // Add cache-busting headers
-  res.set({
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  });
-  res.sendFile(__dirname + '/index.html');
+    const fs = require('fs');
+    let html = fs.readFileSync('./index.html', 'utf8');
+    
+    // Replace version placeholder
+    html = html.replace('{{VERSION}}', packageJson.version);
+    
+    res.send(html);
 });
 
 // Version endpoint
