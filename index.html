@@ -45,24 +45,24 @@
                         <!-- Admin fields will be added here dynamically -->
                     </div>
 
-
                     <!-- Admin Restrictions Info -->
-                    <!-- <div class="mb-3">
+                    <div class="mb-3">
                         <label class="block mb-1 font-medium text-sm text-blue-400 cursor-pointer hover:text-blue-300 flex items-center" onclick="toggleInfo()">
                             Admin Restrictions (Config-based)
-                            <i class="fas fa-info-circle ml-2 text-xs"></i>
+                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
                         </label>
                         <div id="restrictionInfo" class="hidden space-y-2 mt-2">
-                            <div class="text-sm text-gray-400 p-3 bg-gray-800 rounded border-l-4 border-blue-500">
-                                <p class="font-semibold mb-2 text-blue-300">Current Admin Restrictions:</p>
-                                <ul class="text-xs space-y-1 text-gray-300">
-                                    <li>• <strong class="text-yellow-400">Admin 99:</strong> Can only process campaign 246549</li>
-                                    <li>• <strong class="text-red-400">Admin 1, 2, 10:</strong> Cannot process campaign 247001 (Kelas lanjutan)</li>
+                            <div class="bg-gray-700 p-4 rounded-lg">
+                                <h3 class="font-medium text-blue-400 mb-2">Pembatasan Admin (Config-based)</h3>
+                                <ul class="list-disc list-inside space-y-1 text-gray-300">
+                                    <li><strong class="text-yellow-400">Admin 1:</strong> Hanya dapat memproses campaign 247001 (Kelas lanjutan)</li>
+                                    <li><strong class="text-red-400">Admin 2, 7, 10, 99 (WABA):</strong> Tidak dapat memproses campaign 247001 (Kelas lanjutan)</li>
+                                    <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
+                                    <li>Admin yang tidak memiliki pembatasan akan menerima leads reguler secara default</li>
                                 </ul>
-                                <p class="text-xs text-gray-500 mt-3 italic">⚙️ Restrictions are managed in config.js</p>
                             </div>
                         </div>
-                    </div> -->
+                    </div>
 
                     <!-- Hidden fields -->
                     <input type="hidden" name="isManual" value="true">
@@ -89,7 +89,7 @@
         </div>
 
         <!-- Usage Guide Card -->
-        <!-- <div id="usageGuideCard" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div id="usageGuideCard" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
             <button id="toggleGuide" class="w-full text-left p-4 flex items-center justify-between text-gray-300 hover:text-white border-b border-gray-700">
                 <span class="font-medium flex items-center">
                     <i class="fas fa-book mr-2 text-blue-400"></i>Petunjuk Penggunaan
@@ -118,15 +118,26 @@
                 </div>
 
                 <div class="bg-gray-700 p-4 rounded-lg">
-                    <h3 class="font-medium text-blue-400 mb-2">3. Catatan Penting</h3>
+                    <h3 class="font-medium text-blue-400 mb-2">3. Pembatasan Admin (Config-based)</h3>
                     <ul class="list-disc list-inside space-y-1 text-gray-300">
-                        <li>Admin 1, Admin 2, dan Admin 10 tidak akan diproses untuk campaign kelas lanjutan</li>
+                        <li><strong class="text-yellow-400">Admin 1:</strong> Hanya dapat memproses campaign 247001 (Kelas lanjutan)</li>
+                        <li><strong class="text-red-400">Admin 2, 7, 10, 99:</strong> Tidak dapat memproses campaign 247001 (Kelas lanjutan)</li>
+                        <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
+                        <li>Admin yang tidak memiliki pembatasan akan menerima leads reguler secara default</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h3 class="font-medium text-blue-400 mb-2">4. Catatan Penting</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300">
+                        <li>Sistem akan otomatis memfilter admin berdasarkan pembatasan campaign</li>
                         <li>Proses dapat memakan waktu beberapa menit</li>
                         <li>Jangan tutup browser selama proses berjalan</li>
+                        <li>Lihat tab "Logs" untuk detail proses dan admin yang dilewati</li>
                     </ul>
                 </div>
             </div>
-        </div> -->
+        </div>
     </div>
 
     <script>
@@ -206,6 +217,25 @@
 
         // Add initial admin field
         addAdminField();
+
+        function toggleInfo() {
+            const restrictionInfo = document.getElementById('restrictionInfo');
+            const icon = document.querySelector('label[onclick="toggleInfo()"] i');
+            
+            if (restrictionInfo.classList.contains('hidden')) {
+                // Show the content
+                restrictionInfo.classList.remove('hidden');
+                // Change icon to chevron-up
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                // Hide the content
+                restrictionInfo.classList.add('hidden');
+                // Change icon to chevron-down
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
 
         function createAdminField(index) {
             const adminDiv = document.createElement('div');
