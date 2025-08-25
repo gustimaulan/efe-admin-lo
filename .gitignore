@@ -9,3 +9,4 @@ stderr.log
 appscript.js
 *.sh
 *.md
+test-process.js

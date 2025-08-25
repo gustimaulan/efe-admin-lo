@@ -53,13 +53,33 @@
                         </label>
                         <div id="restrictionInfo" class="hidden space-y-2 mt-2">
                             <div class="bg-gray-700 p-4 rounded-lg">
-                                <h3 class="font-medium text-blue-400 mb-2">Pembatasan Admin (Config-based)</h3>
-                                <ul class="list-disc list-inside space-y-1 text-gray-300">
-                                    <li><strong class="text-yellow-400">Admin 1:</strong> Hanya dapat memproses campaign 247001 (Kelas lanjutan)</li>
-                                    <li><strong class="text-red-400">Admin 2, 7, 10, 99 (WABA):</strong> Tidak dapat memproses campaign 247001 (Kelas lanjutan)</li>
-                                    <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
-                                    <li>Admin yang tidak memiliki pembatasan akan menerima leads reguler secara default</li>
-                                </ul>
+                                <h3 class="font-medium text-blue-400 mb-2">3. Pembatasan Admin (Config-based)</h3>
+                                <div class="space-y-3">
+                                    <!-- Regular Restrictions -->
+                                    <div>
+                                        <h4 class="font-medium text-yellow-400 mb-1 text-sm">Pembatasan Reguler:</h4>
+                                        <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
+                                            <li><strong class="text-red-400">Admin 2, 6, 7, 10, 99:</strong> Tidak dapat memproses campaign 247001</li>
+                                            <li><strong class="text-green-400">Admin 1, 3, 4, 5:</strong> Dapat memproses semua campaign</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Conditional Restrictions -->
+                                    <div class="bg-orange-900/20 border border-orange-500/30 p-2 rounded">
+                                        <h4 class="font-medium text-orange-400 mb-1 text-sm">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            Pembatasan Kondisional:
+                                        </h4>
+                                        <p class="text-orange-300 text-sm mb-1">
+                                            <strong>Ketika Admin 99 dipilih:</strong> Admin lain hanya dapat memproses campaign 247001
+                                        </p>
+                                    </div>
+                                    
+                                    <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
+                                        <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
+                                        <li>Sistem akan otomatis memfilter admin berdasarkan pembatasan campaign</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
