@@ -59,25 +59,41 @@
                                     <div>
                                         <h4 class="font-medium text-yellow-400 mb-1 text-sm">Pembatasan Reguler:</h4>
                                         <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
-                                            <li><strong class="text-red-400">Admin 2, 6, 7, 10, 99:</strong> Tidak dapat memproses campaign 247001</li>
-                                            <li><strong class="text-green-400">Admin 1, 3, 4, 5:</strong> Dapat memproses semua campaign</li>
+                                            <li><strong class="text-red-400">Admin 1:</strong> Tidak dapat memproses campaign 247002, 247003</li>
+                                            <li><strong class="text-red-400">Admin 2:</strong> Tidak dapat memproses campaign 247001</li>
+                                            <li><strong class="text-red-400">Admin 3:</strong> Tidak dapat memproses campaign 247004</li>
+                                            <li><strong class="text-green-400">Admin lainnya:</strong> Dapat memproses semua campaign (kecuali pembatasan khusus)</li>
                                         </ul>
                                     </div>
                                     
                                     <!-- Conditional Restrictions -->
-                                    <div class="bg-orange-900/20 border border-orange-500/30 p-2 rounded">
-                                        <h4 class="font-medium text-orange-400 mb-1 text-sm">
+                                    <div class="bg-orange-900/20 border border-orange-500/30 p-3 rounded">
+                                        <h4 class="font-medium text-orange-400 mb-2 text-sm">
                                             <i class="fas fa-exclamation-triangle mr-1"></i>
-                                            Pembatasan Kondisional:
+                                            Pembatasan Kondisional (Admin 99):
                                         </h4>
-                                        <p class="text-orange-300 text-sm mb-1">
-                                            <strong>Ketika Admin 99 dipilih:</strong> Admin lain hanya dapat memproses campaign 247001
-                                        </p>
+                                        <div class="space-y-2">
+                                            <p class="text-orange-300 text-sm mb-1">
+                                                <strong>Ketika Admin 99 dipilih:</strong>
+                                            </p>
+                                            <ul class="list-disc list-inside space-y-1 text-orange-200 text-sm ml-4">
+                                                <li><strong class="text-orange-300">Admin 1 & Admin 5:</strong> Hanya dapat memproses campaign 247001</li>
+                                                <li><strong class="text-red-300">Admin lainnya:</strong> Mengikuti pembatasan reguler mereka</li>
+                                                <li><strong class="text-red-300">Admin 99:</strong> Tidak dapat memproses campaign apapun</li>
+                                            </ul>
+                                            <div class="bg-red-900/30 border border-red-500/30 p-2 rounded mt-2">
+                                                <p class="text-red-200 text-xs">
+                                                    <i class="fas fa-info-circle mr-1"></i>
+                                                    <strong>Catatan:</strong> Ketika Admin 99 aktif, Admin 1 dan Admin 5 akan dibatasi hanya untuk campaign 247001 saja.
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
                                         <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
                                         <li>Sistem akan otomatis memfilter admin berdasarkan pembatasan campaign</li>
+                                        <li>Conditional restrictions memiliki prioritas lebih tinggi dari pembatasan reguler</li>
                                     </ul>
                                 </div>
                             </div>

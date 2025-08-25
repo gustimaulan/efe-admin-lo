@@ -36,13 +36,13 @@ module.exports = {
         "admin 99": { exclude: [247001] }, // admin 99 cannot process campaign 247001
     },
     
-    // Conditional restrictions: when admin 99 is on shift, only admin 1 and 5 can process 247001
+    // Conditional restrictions: when admin 99 is present, admin 1 and 5 are restricted to only campaign 247001
     CONDITIONAL_RESTRICTIONS: {
         "admin 99": {
             whenPresent: {
-                specificAdminsRestriction: {
-                    "admin 1": { include: [247001] }, // Only admin 1 can process 247001 when admin 99 is present
-                    "admin 5": { include: [247001] }  // Only admin 5 can process 247001 when admin 99 is present
+                restrictSpecificAdmins: {
+                    "admin 1": { include: [247001] }, // Admin 1 can only process 247001 when admin 99 is present
+                    "admin 5": { include: [247001] }  // Admin 5 can only process 247001 when admin 99 is present
                 }
             }
         }
@@ -53,21 +53,17 @@ module.exports = {
         // Check conditional restrictions first
         const isAdmin99Present = allSelectedAdmins.includes("admin 99");
         
-        if (isAdmin99Present && adminName !== "admin 99") {
-            // If admin 99 is present and this is not admin 99, check specific admin restrictions
-            const specificRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.specificAdminsRestriction;
-            if (specificRestrictions[adminName]) {
-                // This admin has specific conditional restrictions
-                const conditionalRule = specificRestrictions[adminName];
+        if (isAdmin99Present) {
+            // If admin 99 is present, check if this admin has specific conditional restrictions
+            const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.restrictSpecificAdmins;
+            if (conditionalRestrictions[adminName]) {
+                // This admin has conditional restrictions - they can only process specific campaigns
+                const conditionalRule = conditionalRestrictions[adminName];
                 if (conditionalRule.include) {
                     return conditionalRule.include.includes(campaignId);
                 }
-            } else {
-                // This admin is not in the specific restrictions list, so they cannot process campaign 247001
-                if (campaignId === 247001) {
-                    return false;
-                }
             }
+            // If admin doesn't have conditional restrictions, fall through to regular restrictions
         }
         
         // Apply regular restrictions
