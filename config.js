@@ -29,15 +29,35 @@ module.exports = {
         CLEANUP_TIMEOUT: 3600000 // 1 hour
     },
     ADMIN_CAMPAIGN_RESTRICTIONS: {
-        "admin 1": [247001], // admin 1 can only process campaign 247001
         "admin 2": { exclude: [247001] }, // admin 2 cannot process campaign 247001
-        "admin 7": { exclude: [247001] }, // admin 7 cannot process campaign 247001
+        "admin 6": { exclude: [247001] }, // admin 6 cannot process campaign 247001
         "admin 10": { exclude: [247001] }, // admin 10 cannot process campaign 247001
         "admin 99": { exclude: [247001] }, // admin 99 cannot process campaign 247001
     },
     
+    // Conditional restrictions: when admin 99 is on shift, others can only process 247001
+    CONDITIONAL_RESTRICTIONS: {
+        "admin 99": {
+            whenPresent: {
+                otherAdminsRestriction: { include: [247001] } // When admin 99 is present, others can only process 247001
+            }
+        }
+    },
+    
     // Helper function to check if an admin can process a campaign
-    canAdminProcessCampaign: function(adminName, campaignId) {
+    canAdminProcessCampaign: function(adminName, campaignId, allSelectedAdmins = []) {
+        // Check conditional restrictions first
+        const isAdmin99Present = allSelectedAdmins.includes("admin 99");
+        
+        if (isAdmin99Present && adminName !== "admin 99") {
+            // If admin 99 is present and this is not admin 99, apply conditional restriction
+            const conditionalRestriction = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.otherAdminsRestriction;
+            if (conditionalRestriction.include) {
+                return conditionalRestriction.include.includes(campaignId);
+            }
+        }
+        
+        // Apply regular restrictions
         const restrictions = this.ADMIN_CAMPAIGN_RESTRICTIONS[adminName];
         if (!restrictions) return true; // No restrictions for this admin
         
@@ -56,6 +76,6 @@ module.exports = {
     
     // Helper function to filter admins for a campaign
     getAdminsForCampaign: function(adminNames, campaignId) {
-        return adminNames.filter(admin => this.canAdminProcessCampaign(admin, campaignId));
+        return adminNames.filter(admin => this.canAdminProcessCampaign(admin, campaignId, adminNames));
     }
 };
