@@ -36,11 +36,14 @@ module.exports = {
         "admin 99": { exclude: [247001] }, // admin 99 cannot process campaign 247001
     },
     
-    // Conditional restrictions: when admin 99 is on shift, others can only process 247001
+    // Conditional restrictions: when admin 99 is on shift, only admin 1 and 5 can process 247001
     CONDITIONAL_RESTRICTIONS: {
         "admin 99": {
             whenPresent: {
-                otherAdminsRestriction: { include: [247001] } // When admin 99 is present, others can only process 247001
+                specificAdminsRestriction: {
+                    "admin 1": { include: [247001] }, // Only admin 1 can process 247001 when admin 99 is present
+                    "admin 5": { include: [247001] }  // Only admin 5 can process 247001 when admin 99 is present
+                }
             }
         }
     },
@@ -51,10 +54,19 @@ module.exports = {
         const isAdmin99Present = allSelectedAdmins.includes("admin 99");
         
         if (isAdmin99Present && adminName !== "admin 99") {
-            // If admin 99 is present and this is not admin 99, apply conditional restriction
-            const conditionalRestriction = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.otherAdminsRestriction;
-            if (conditionalRestriction.include) {
-                return conditionalRestriction.include.includes(campaignId);
+            // If admin 99 is present and this is not admin 99, check specific admin restrictions
+            const specificRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.specificAdminsRestriction;
+            if (specificRestrictions[adminName]) {
+                // This admin has specific conditional restrictions
+                const conditionalRule = specificRestrictions[adminName];
+                if (conditionalRule.include) {
+                    return conditionalRule.include.includes(campaignId);
+                }
+            } else {
+                // This admin is not in the specific restrictions list, so they cannot process campaign 247001
+                if (campaignId === 247001) {
+                    return false;
+                }
             }
         }
         
