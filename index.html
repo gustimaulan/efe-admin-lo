@@ -53,16 +53,13 @@
                         </label>
                         <div id="restrictionInfo" class="hidden space-y-2 mt-2">
                             <div class="bg-gray-700 p-4 rounded-lg">
-                                <h3 class="font-medium text-blue-400 mb-2">Pembatasan Admin (Config-based)</h3>
                                 <div class="space-y-3">
                                     <!-- Regular Restrictions -->
                                     <div>
                                         <h4 class="font-medium text-yellow-400 mb-1 text-sm">Pembatasan Reguler:</h4>
                                         <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
-                                            <li><strong class="text-red-400">Admin 1:</strong> Tidak dapat memproses campaign 247002, 247003</li>
-                                            <li><strong class="text-red-400">Admin 2:</strong> Tidak dapat memproses campaign 247001</li>
-                                            <li><strong class="text-red-400">Admin 3:</strong> Tidak dapat memproses campaign 247004</li>
-                                            <li><strong class="text-green-400">Admin lainnya:</strong> Dapat memproses semua campaign (kecuali pembatasan khusus)</li>
+                                            <li><strong class="text-red-400">Admin 2, 6, 7, 10, 99:</strong> Tidak dapat memproses campaign 247001</li>
+                                            <li><strong class="text-green-400">Admin lainnya:</strong> Dapat memproses semua campaign (kecuali pembatasan Kondisional)</li>
                                         </ul>
                                     </div>
                                     
@@ -79,7 +76,7 @@
                                             <ul class="list-disc list-inside space-y-1 text-orange-200 text-sm ml-4">
                                                 <li><strong class="text-orange-300">Admin 1 & Admin 5:</strong> Hanya dapat memproses campaign 247001</li>
                                                 <li><strong class="text-red-300">Admin lainnya:</strong> Mengikuti pembatasan reguler mereka</li>
-                                                <li><strong class="text-red-300">Admin 99:</strong> Tidak dapat memproses campaign apapun</li>
+                                                <li><strong class="text-red-300">Admin 99:</strong> Tidak dapat memproses campaign 247001, dapat memproses campaign lainnya</li>
                                             </ul>
                                             <div class="bg-red-900/30 border border-red-500/30 p-2 rounded mt-2">
                                                 <p class="text-red-200 text-xs">
