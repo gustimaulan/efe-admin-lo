@@ -52,46 +52,13 @@
                             <i class="fas fa-chevron-down ml-2 text-xs"></i>
                         </label>
                         <div id="restrictionInfo" class="hidden space-y-2 mt-2">
-                            <div class="bg-gray-700 p-4 rounded-lg">
-                                <div class="space-y-3">
-                                    <!-- Regular Restrictions -->
-                                    <div>
-                                        <h4 class="font-medium text-yellow-400 mb-1 text-sm">Pembatasan Reguler:</h4>
-                                        <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
-                                            <li><strong class="text-red-400">Admin 2, 6, 7, 10, 99:</strong> Tidak dapat memproses campaign 247001</li>
-                                            <li><strong class="text-green-400">Admin lainnya:</strong> Dapat memproses semua campaign (kecuali pembatasan Kondisional)</li>
-                                        </ul>
+                            <div class="bg-slate-700 p-4 rounded-lg">
+                                <div id="restrictionContent" class="space-y-3">
+                                    <!-- Content will be populated dynamically -->
+                                    <div class="text-center text-gray-400">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                                        Loading restrictions...
                                     </div>
-                                    
-                                    <!-- Conditional Restrictions -->
-                                    <div class="bg-orange-900/20 border border-orange-500/30 p-3 rounded">
-                                        <h4 class="font-medium text-orange-400 mb-2 text-sm">
-                                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                                            Pembatasan Kondisional (Admin 99):
-                                        </h4>
-                                        <div class="space-y-2">
-                                            <p class="text-orange-300 text-sm mb-1">
-                                                <strong>Ketika Admin 99 dipilih:</strong>
-                                            </p>
-                                            <ul class="list-disc list-inside space-y-1 text-orange-200 text-sm ml-4">
-                                                <li><strong class="text-orange-300">Admin 1 & Admin 5:</strong> Hanya dapat memproses campaign 247001</li>
-                                                <li><strong class="text-red-300">Admin lainnya:</strong> Mengikuti pembatasan reguler mereka</li>
-                                                <li><strong class="text-red-300">Admin 99:</strong> Tidak dapat memproses campaign 247001, dapat memproses campaign lainnya</li>
-                                            </ul>
-                                            <div class="bg-red-900/30 border border-red-500/30 p-2 rounded mt-2">
-                                                <p class="text-red-200 text-xs">
-                                                    <i class="fas fa-info-circle mr-1"></i>
-                                                    <strong>Catatan:</strong> Ketika Admin 99 aktif, Admin 1 dan Admin 5 akan dibatasi hanya untuk campaign 247001 saja.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
-                                        <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
-                                        <li>Sistem akan otomatis memfilter admin berdasarkan pembatasan campaign</li>
-                                        <li>Conditional restrictions memiliki prioritas lebih tinggi dari pembatasan reguler</li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -122,7 +89,7 @@
         </div>
 
         <!-- Usage Guide Card -->
-        <div id="usageGuideCard" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div id="usageGuideCard" class="bg-slate-800 rounded-lg shadow-lg overflow-hidden">
             <button id="toggleGuide" class="w-full text-left p-4 flex items-center justify-between text-gray-300 hover:text-white border-b border-gray-700">
                 <span class="font-medium flex items-center">
                     <i class="fas fa-book mr-2 text-blue-400"></i>Petunjuk Penggunaan
@@ -604,14 +571,7 @@
             chevron.style.transform = guideContent.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         });
 
-        // Add this new code for the exclusion toggle functionality (add this near the end of the script section)
-        document.getElementById('toggleExclusions').addEventListener('click', function() {
-            const exclusionContent = document.getElementById('exclusionContent');
-            const chevron = document.getElementById('exclusionChevron');
-            
-            exclusionContent.classList.toggle('hidden');
-            chevron.style.transform = exclusionContent.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-        });
+        // Exclusion toggle functionality removed - now using dynamic restrictions
 
         // Fetch and display version information
         async function fetchVersion() {
@@ -640,11 +600,120 @@
             }
         }
 
+        // Fetch and display admin restrictions
+        async function fetchAdminRestrictions() {
+            try {
+                const response = await fetch('/admin-restrictions');
+                const data = await response.json();
+                
+                displayRestrictions(data);
+            } catch (error) {
+                console.error('Error fetching admin restrictions:', error);
+                
+                // Show error message
+                const restrictionContent = document.getElementById('restrictionContent');
+                restrictionContent.innerHTML = `
+                    <div class="text-center text-gray-400">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Failed to load restrictions
+                    </div>
+                `;
+            }
+        }
+        
+        function displayRestrictions(data) {
+            const restrictionContent = document.getElementById('restrictionContent');
+            const { adminCampaignRestrictions, conditionalRestrictions } = data;
+            
+            let html = '';
+            
+            // Regular Restrictions
+            html += `
+                <div>
+                    <h4 class="font-medium text-gray-300 mb-1 text-sm">Pembatasan Reguler:</h4>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
+            `;
+            
+            // Group admins by their restrictions
+            const excludedAdmins = [];
+            Object.entries(adminCampaignRestrictions).forEach(([admin, restriction]) => {
+                if (restriction.exclude && restriction.exclude.includes(247001)) {
+                    excludedAdmins.push(admin);
+                }
+            });
+            
+            if (excludedAdmins.length > 0) {
+                html += `<li><strong class="text-gray-200">${excludedAdmins.join(', ')}:</strong> Tidak dapat memproses campaign 247001</li>`;
+            }
+            
+            html += `
+                        <li><strong class="text-gray-200">Admin lainnya:</strong> Dapat memproses semua campaign (kecuali pembatasan Kondisional)</li>
+                    </ul>
+                </div>
+            `;
+            
+            // Conditional Restrictions
+            if (conditionalRestrictions && conditionalRestrictions['admin 99']) {
+                const conditionalData = conditionalRestrictions['admin 99'];
+                
+                html += `
+                    <div class="bg-slate-700/50 border border-gray-600 p-3 rounded">
+                        <h4 class="font-medium text-gray-300 mb-2 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Pembatasan Kondisional (Admin 99):
+                        </h4>
+                        <div class="space-y-2">
+                            <p class="text-gray-300 text-sm mb-1">
+                                <strong>Ketika Admin 99 dipilih:</strong>
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm ml-4">
+                `;
+                
+                if (conditionalData.whenPresent && conditionalData.whenPresent.restrictSpecificAdmins) {
+                    const restrictedAdmins = Object.keys(conditionalData.whenPresent.restrictSpecificAdmins);
+                    if (restrictedAdmins.length > 0) {
+                        html += `<li><strong class="text-gray-200">${restrictedAdmins.join(' & ')}:</strong> Hanya dapat memproses campaign 247001</li>`;
+                    }
+                }
+                
+                html += `
+                                <li><strong class="text-gray-200">Admin lainnya:</strong> Mengikuti pembatasan reguler mereka</li>
+                                <li><strong class="text-red-300">Admin 99:</strong> Tidak dapat memproses campaign 247001, dapat memproses campaign lainnya</li>
+                            </ul>
+                            <div class="bg-red-900/30 border border-red-500/30 p-2 rounded mt-2">
+                                <p class="text-red-200 text-xs">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Catatan:</strong> Ketika Admin 99 aktif, Admin 1 dan Admin 5 akan dibatasi hanya untuk campaign 247001 saja.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // General info
+            html += `
+                <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm">
+                    <li>Pembatasan dikelola secara otomatis melalui konfigurasi server</li>
+                    <li>Sistem akan otomatis memfilter admin berdasarkan pembatasan campaign</li>
+                    <li>Conditional restrictions memiliki prioritas lebih tinggi dari pembatasan reguler</li>
+                </ul>
+            `;
+            
+            restrictionContent.innerHTML = html;
+        }
+        
         // Fetch version on page load
         fetchVersion();
         
+        // Fetch admin restrictions on page load
+        fetchAdminRestrictions();
+        
         // Also fetch version every 30 seconds to keep status updated
         setInterval(fetchVersion, 30000);
+        
+        // Refresh restrictions every 5 minutes
+         setInterval(fetchAdminRestrictions, 300000);
     </script>
 </body>
 </html>

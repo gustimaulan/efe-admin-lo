@@ -370,6 +370,22 @@ app.get('/version', (req, res) => {
   });
 });
 
+// Admin restrictions endpoint
+app.get('/admin-restrictions', (req, res) => {
+  res.json({
+    adminCampaignRestrictions: config.ADMIN_CAMPAIGN_RESTRICTIONS,
+    conditionalRestrictions: config.CONDITIONAL_RESTRICTIONS
+  });
+});
+
+// Admin restrictions endpoint
+app.get('/admin-restrictions', (req, res) => {
+  res.json({
+    adminCampaignRestrictions: config.ADMIN_CAMPAIGN_RESTRICTIONS,
+    conditionalRestrictions: config.CONDITIONAL_RESTRICTIONS
+  });
+});
+
 app.get('/status/:jobId', (req, res) => {
   const jobId = req.params.jobId;
   if (runningJobs.has(jobId)) {
