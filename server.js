@@ -63,9 +63,9 @@ async function processCampaign(page, campaignId, adminNames) {
     await page.waitForLoadState('networkidle');
     console.log(`Campaign ${campaignId} page loaded`);
 
-    // Delete exactly 3 items (hardcoded)
-    console.log(`Deleting 3 existing items...`);
-    for (let i = 0; i < 3; i++) {
+    // Delete exactly 4 items (hardcoded)
+    console.log(`Deleting 4 existing items...`);
+    for (let i = 0; i < 4; i++) {
       if (await page.$("button.secondary.op-delete.icon-subtraction.delete")) {
       await page.click("button.secondary.op-delete.icon-subtraction.delete");
       await page.waitForTimeout(500);
