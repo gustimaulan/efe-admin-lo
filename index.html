@@ -64,6 +64,22 @@
                         </div>
                     </div>
 
+                    <!-- Dynamic Exemption Section (Initially Hidden) -->
+                    <div id="exemptionSection" class="hidden bg-yellow-900/30 border border-yellow-500/50 p-4 rounded-lg space-y-2">
+                        <label for="exemptAdmin" class="block font-medium text-sm text-yellow-300">
+                            <i class="fas fa-shield-alt mr-2"></i>Pengecualian Pembatasan
+                        </label>
+                        <p class="text-xs text-yellow-200">Karena Admin 1, 5, dan 99 dipilih bersamaan, salah satu harus dikecualikan dari pembatasan.</p>
+                        <select name="exemptAdmin" id="exemptAdmin" class="w-full p-2 border rounded bg-gray-700 text-gray-200 border-gray-600">
+                            <option value="admin 5" selected>Kecualikan Admin 5 (Default)</option>
+                            <option value="admin 1">Kecualikan Admin 1</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Admin yang dikecualikan akan dapat memproses semua campaign.
+                            Admin yang tidak dikecualikan hanya bisa memproses campaign 247001.
+                        </p>
+                    </div>
+
                     <!-- Hidden fields -->
                     <input type="hidden" name="isManual" value="true">
                     <input type="hidden" name="timeOfDay" value="manual">
@@ -251,7 +267,7 @@
             select.required = true;
             
             // Add change event listener to update counter when selection changes
-            select.addEventListener('change', updateCounter);
+            select.addEventListener('change', handleAdminSelectionChange);
             
             // Add default option
             const defaultOption = document.createElement('option');
@@ -377,7 +393,7 @@
                     adminDivToRemove.remove();
                     adminCount--;
                     reindexAdminFields();
-                    updateRemoveButtons();
+                    handleAdminSelectionChange(); // Also trigger check on remove
                     updateCounter();
                 }
             }
@@ -434,6 +450,7 @@
             
             // Reset the button
             resetButton();
+            handleAdminSelectionChange(); // Trigger check to hide exemption section
             updateCounter();
         }
 
@@ -560,6 +577,27 @@
             const selects = adminContainer.querySelectorAll('select');
             const selectedCount = Array.from(selects).filter(select => select.value !== '').length;
             counter.textContent = `(${selectedCount})`;
+        }
+
+        // Function to handle showing/hiding the exemption section
+        function handleAdminSelectionChange() {
+            const exemptionSection = document.getElementById('exemptionSection');
+            const selects = adminContainer.querySelectorAll('select');
+            const selectedAdmins = Array.from(selects)
+                .map(select => select.value)
+                .filter(value => value !== '');
+            
+            // Check if 'admin 1', 'admin 5', and 'admin 99' are all present
+            const hasAdmin1 = selectedAdmins.includes('admin 1');
+            const hasAdmin5 = selectedAdmins.includes('admin 5');
+            const hasAdmin99 = selectedAdmins.includes('admin 99');
+            
+            if (hasAdmin1 && hasAdmin5 && hasAdmin99) {
+                exemptionSection.classList.remove('hidden');
+            } else {
+                exemptionSection.classList.add('hidden');
+            }
+            updateCounter(); // Also update the counter
         }
 
         // Add this new code for the guide toggle functionality

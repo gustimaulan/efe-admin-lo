@@ -4,10 +4,10 @@ dotenv.config();
 module.exports = {
     CAMPAIGN_IDS: {
         regular: {
-            pagi: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170],
-            siang: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170],
-            malam: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170],
-            manual: [281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170]
+            pagi: [288437, 281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170],
+            siang: [288437, 281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170],
+            malam: [288437, 281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170],
+            manual: [288437, 281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170]
         }
     },
     ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 9", "admin 10", "admin 99"],
@@ -42,17 +42,30 @@ module.exports = {
                 restrictSpecificAdmins: {
                     "admin 1": { include: [247001] }, // Admin 1 can only process 247001 when admin 99 is present
                     "admin 5": { include: [247001] }  // Admin 5 can only process 247001 when admin 99 is present
+                },
+                // Special case: if admin 1, 5, and 99 are all present, admin 5 is exempt from the restriction.
+                ifAllPresent: {
+                    admins: ["admin 1", "admin 5", "admin 99"],
+                    exempt: ["admin 5"]
                 }
             }
         }
     },
     
     // Helper function to check if an admin can process a campaign
-    canAdminProcessCampaign: function(adminName, campaignId, allSelectedAdmins = []) {
+    canAdminProcessCampaign: function(adminName, campaignId, allSelectedAdmins = [], exemptionSettings = {}) {
         // Check conditional restrictions first
         const isAdmin99Present = allSelectedAdmins.includes("admin 99");
         
         if (isAdmin99Present) {
+            // Handle special case: if admin 1, 5, and 99 are all present
+            const specialCase = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.ifAllPresent;
+            if (specialCase && exemptionSettings.exemptAdmin) {
+                const allSpecialAdminsPresent = specialCase.admins.every(admin => allSelectedAdmins.includes(admin));
+                if (allSpecialAdminsPresent && exemptionSettings.exemptAdmin === adminName) {
+                    // This admin is exempt from conditional restrictions, fall through to regular restrictions
+                    // (The code for regular restrictions is below)
+                } else {
             // If admin 99 is present, check if this admin has specific conditional restrictions
             const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.restrictSpecificAdmins;
             if (conditionalRestrictions[adminName]) {
@@ -60,6 +73,8 @@ module.exports = {
                 const conditionalRule = conditionalRestrictions[adminName];
                 if (conditionalRule.include) {
                     return conditionalRule.include.includes(campaignId);
+                }
+            }
                 }
             }
             // If admin doesn't have conditional restrictions, fall through to regular restrictions
@@ -83,7 +98,7 @@ module.exports = {
     },
     
     // Helper function to filter admins for a campaign
-    getAdminsForCampaign: function(adminNames, campaignId) {
-        return adminNames.filter(admin => this.canAdminProcessCampaign(admin, campaignId, adminNames));
+    getAdminsForCampaign: function(adminNames, campaignId, exemptionSettings) {
+        return adminNames.filter(admin => this.canAdminProcessCampaign(admin, campaignId, adminNames, exemptionSettings));
     }
 };

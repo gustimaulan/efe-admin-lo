@@ -154,7 +154,7 @@ async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize 
 }
 
 // Modified runAutomation function
-async function runAutomation(adminNames, timeOfDay, campaignSelections) {
+async function runAutomation(adminNames, timeOfDay, campaignSelections, exemptionSettings) {
   console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
   const browser = await getBrowser();
 
@@ -170,7 +170,7 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections) {
     
     for (const campaignId of campaignIds) {
         // Use config-based restriction system
-        let adminsForThisCampaign = config.getAdminsForCampaign(adminNames, campaignId);
+        let adminsForThisCampaign = config.getAdminsForCampaign(adminNames, campaignId, exemptionSettings);
         
         // Log the filtering for transparency
         if (adminsForThisCampaign.length !== adminNames.length) {
@@ -433,10 +433,11 @@ app.post('/run', (req, res) => {
   }
 
   // Get exclusion settings from the request
-  const exclusionSettings = {
-    excludeFromAdvanced: req.body.excludeFromAdvanced === 'true',
-    excludeFromLast6: req.body.excludeFromLast6 === 'true'
+  const exemptionSettings = {
+    // New setting for dynamic exemption
+    exemptAdmin: req.body.exemptAdmin || null
   };
+
 
   console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections);
 
@@ -458,7 +459,7 @@ app.post('/run', (req, res) => {
     adminNames,
     timeOfDay,
     campaignSelections,
-    exclusionSettings,
+    exemptionSettings,
     logs: [{
       timestamp: new Date(),
       message: `Started automation for ${adminNames.join(', ')} with timeOfDay: ${timeOfDay}`,
@@ -474,7 +475,7 @@ app.post('/run', (req, res) => {
   });
 
   // Run the automation in the background
-  runAutomation(adminNames, timeOfDay, campaignSelections, exclusionSettings)
+  runAutomation(adminNames, timeOfDay, campaignSelections, exemptionSettings)
     .then(success => {
       runningJobs.set(jobId, {
         status: 'completed',
