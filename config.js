@@ -66,31 +66,30 @@ module.exports = {
         const isAdmin91Present = allSelectedAdmins.includes("admin 91");
         const isAdmin92Present = allSelectedAdmins.includes("admin 92");
 
+        // --- Conditional Restriction for admin 91 ---
         if (isAdmin91Present) {
-            // Handle special case: if admin 1, 5, and 91 are all present
+            // Check for exemption first (e.g., when admin 1, 5, 91 are all selected)
             const specialCase = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.ifAllPresent;
-            if (specialCase && exemptionSettings.exemptAdmin) {
-                const allSpecialAdminsPresent = specialCase.admins.every(admin => allSelectedAdmins.includes(admin));
-                if (allSpecialAdminsPresent && exemptionSettings.exemptAdmin === adminName) {
-                    // This admin is exempt from conditional restrictions, fall through to regular restrictions
-                    // (The code for regular restrictions is below)
-                } else {
-            // If admin 91 is present, check if this admin has specific conditional restrictions
-            const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.restrictSpecificAdmins;
-            if (conditionalRestrictions[adminName]) {
-                // This admin has conditional restrictions - they can only process specific campaigns
-                const conditionalRule = conditionalRestrictions[adminName];
-                if (conditionalRule.include) {
-                    return conditionalRule.include.includes(campaignId);
+            const allSpecialAdminsPresent = specialCase && specialCase.admins.every(admin => allSelectedAdmins.includes(admin));
+
+            if (allSpecialAdminsPresent && exemptionSettings.exemptAdmin === adminName) {
+                // This admin is explicitly exempted. We can skip conditional checks for them
+                // and proceed to the regular restrictions at the end of the function.
+            } else {
+                // If not exempt, apply the conditional restrictions for admin 91's presence.
+                const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.restrictSpecificAdmins;
+                if (conditionalRestrictions[adminName]) {
+                    // This admin has a conditional rule. They can ONLY process campaigns in the 'include' list.
+                    return conditionalRestrictions[adminName].include.includes(campaignId);
                 }
             }
-                }
-            }
-            // If admin doesn't have conditional restrictions, fall through to regular restrictions
         }
 
-        if (isAdmin92Present && adminName === "admin 7") {
-            return campaignId === 247001;
+        // --- Conditional Restriction for admin 92 ---
+        if (isAdmin92Present) {
+            const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.restrictSpecificAdmins;
+            // This is a simplified rule for admin 7 when admin 92 is present
+            if (adminName === "admin 7") return campaignId === 247001;
         }
         
         // Apply regular restrictions
