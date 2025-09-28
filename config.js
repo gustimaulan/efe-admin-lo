@@ -29,6 +29,10 @@ module.exports = {
         CLEANUP_TIMEOUT: 3600000 // 1 hour
     },
     ADMIN_CAMPAIGN_RESTRICTIONS: {
+        // include: admin can ONLY process these campaigns
+        "admin 1": { include: [247001] }, // Admin 1 can ONLY process campaign 247001
+
+        // exclude: admin cannot process these campaigns
         "admin 2": { exclude: [247001] }, // admin 2 cannot process campaign 247001
         "admin 6": { exclude: [247001] }, // admin 6 cannot process campaign 247001
         "admin 10": { exclude: [247001] }, // admin 10 cannot process campaign 247001
@@ -41,7 +45,6 @@ module.exports = {
         "admin 91": {
             whenPresent: {
                 restrictSpecificAdmins: {
-                    "admin 1": { include: [247001] }, // Admin 1 can only process 247001 when admin 91 is present
                     "admin 5": { include: [247001] }  // Admin 5 can only process 247001 when admin 91 is present
                 },
                 // Special case: if admin 1, 5, and 91 are all present, admin 5 is exempt from the restriction.
@@ -87,9 +90,12 @@ module.exports = {
 
         // --- Conditional Restriction for admin 92 ---
         if (isAdmin92Present) {
-            const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.restrictSpecificAdmins;
-            // This is a simplified rule for admin 7 when admin 92 is present
-            if (adminName === "admin 7") return campaignId === 247001;
+            const restrictionsFor92 = this.CONDITIONAL_RESTRICTIONS["admin 92"]?.whenPresent?.restrictSpecificAdmins;
+            if (restrictionsFor92 && restrictionsFor92[adminName]) {
+                // This admin has a conditional rule. They can ONLY process campaigns in the 'include' list.
+                const rule = restrictionsFor92[adminName];
+                return rule.include.includes(campaignId);
+            }
         }
         
         // Apply regular restrictions
@@ -104,6 +110,11 @@ module.exports = {
         // If it's an object with exclude property, admin cannot process these campaigns
         if (restrictions.exclude && Array.isArray(restrictions.exclude)) {
             return !restrictions.exclude.includes(campaignId);
+        }
+        
+        // If it's an object with include property, admin can ONLY process these campaigns
+        if (restrictions.include && Array.isArray(restrictions.include)) {
+            return restrictions.include.includes(campaignId);
         }
         
         return true;
