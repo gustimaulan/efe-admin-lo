@@ -33,6 +33,7 @@ module.exports = {
         "admin 6": { exclude: [247001] }, // admin 6 cannot process campaign 247001
         "admin 10": { exclude: [247001] }, // admin 10 cannot process campaign 247001
         "admin 91": { exclude: [247001] }, // admin 91 cannot process campaign 247001
+        "admin 92": { exclude: [247001] }, // admin 92 cannot process campaign 247001
     },
     
     // Conditional restrictions: when admin 91 is present, admin 1 and 5 are restricted to only campaign 247001
@@ -88,7 +89,7 @@ module.exports = {
             // If admin doesn't have conditional restrictions, fall through to regular restrictions
         }
 
-        if (isAdmin92Present && adminName === "admin 2") {
+        if (isAdmin92Present && adminName === "admin 7") {
             return campaignId === 247001;
         }
         
