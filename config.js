@@ -10,7 +10,7 @@ module.exports = {
             manual: [288437, 281482, 250794, 250554, 250433, 250432, 247001, 246860, 246815, 246551, 246550, 246549, 246548, 249397, 275170]
         }
     },
-    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 9", "admin 10", "admin 99"],
+    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 9", "admin 10", "admin 91", "admin 92"],
     LOGIN_URL: 'https://app.loops.id/login',
     CAMPAIGN_BASE_URL: 'https://app.loops.id/campaign/',
     SERVER: {
@@ -32,21 +32,28 @@ module.exports = {
         "admin 2": { exclude: [247001] }, // admin 2 cannot process campaign 247001
         "admin 6": { exclude: [247001] }, // admin 6 cannot process campaign 247001
         "admin 10": { exclude: [247001] }, // admin 10 cannot process campaign 247001
-        "admin 99": { exclude: [247001] }, // admin 99 cannot process campaign 247001
+        "admin 91": { exclude: [247001] }, // admin 91 cannot process campaign 247001
     },
     
-    // Conditional restrictions: when admin 99 is present, admin 1 and 5 are restricted to only campaign 247001
+    // Conditional restrictions: when admin 91 is present, admin 1 and 5 are restricted to only campaign 247001
     CONDITIONAL_RESTRICTIONS: {
-        "admin 99": {
+        "admin 91": {
             whenPresent: {
                 restrictSpecificAdmins: {
-                    "admin 1": { include: [247001] }, // Admin 1 can only process 247001 when admin 99 is present
-                    "admin 5": { include: [247001] }  // Admin 5 can only process 247001 when admin 99 is present
+                    "admin 1": { include: [247001] }, // Admin 1 can only process 247001 when admin 91 is present
+                    "admin 5": { include: [247001] }  // Admin 5 can only process 247001 when admin 91 is present
                 },
-                // Special case: if admin 1, 5, and 99 are all present, admin 5 is exempt from the restriction.
+                // Special case: if admin 1, 5, and 91 are all present, admin 5 is exempt from the restriction.
                 ifAllPresent: {
-                    admins: ["admin 1", "admin 5", "admin 99"],
+                    admins: ["admin 1", "admin 5", "admin 91"],
                     exempt: ["admin 5"]
+                }
+            }
+        },
+        "admin 92": {
+            whenPresent: {
+                restrictSpecificAdmins: {
+                    "admin 7": { include: [247001] } // Admin 7 can only process 247001 when admin 92 is present
                 }
             }
         }
@@ -55,19 +62,20 @@ module.exports = {
     // Helper function to check if an admin can process a campaign
     canAdminProcessCampaign: function(adminName, campaignId, allSelectedAdmins = [], exemptionSettings = {}) {
         // Check conditional restrictions first
-        const isAdmin99Present = allSelectedAdmins.includes("admin 99");
-        
-        if (isAdmin99Present) {
-            // Handle special case: if admin 1, 5, and 99 are all present
-            const specialCase = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.ifAllPresent;
+        const isAdmin91Present = allSelectedAdmins.includes("admin 91");
+        const isAdmin92Present = allSelectedAdmins.includes("admin 92");
+
+        if (isAdmin91Present) {
+            // Handle special case: if admin 1, 5, and 91 are all present
+            const specialCase = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.ifAllPresent;
             if (specialCase && exemptionSettings.exemptAdmin) {
                 const allSpecialAdminsPresent = specialCase.admins.every(admin => allSelectedAdmins.includes(admin));
                 if (allSpecialAdminsPresent && exemptionSettings.exemptAdmin === adminName) {
                     // This admin is exempt from conditional restrictions, fall through to regular restrictions
                     // (The code for regular restrictions is below)
                 } else {
-            // If admin 99 is present, check if this admin has specific conditional restrictions
-            const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 99"].whenPresent.restrictSpecificAdmins;
+            // If admin 91 is present, check if this admin has specific conditional restrictions
+            const conditionalRestrictions = this.CONDITIONAL_RESTRICTIONS["admin 91"].whenPresent.restrictSpecificAdmins;
             if (conditionalRestrictions[adminName]) {
                 // This admin has conditional restrictions - they can only process specific campaigns
                 const conditionalRule = conditionalRestrictions[adminName];
@@ -78,6 +86,10 @@ module.exports = {
                 }
             }
             // If admin doesn't have conditional restrictions, fall through to regular restrictions
+        }
+
+        if (isAdmin92Present && adminName === "admin 2") {
+            return campaignId === 247001;
         }
         
         // Apply regular restrictions

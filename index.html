@@ -69,7 +69,7 @@
                         <label for="exemptAdmin" class="block font-medium text-sm text-yellow-300">
                             <i class="fas fa-shield-alt mr-2"></i>Pengecualian Pembatasan
                         </label>
-                        <p class="text-xs text-yellow-200">Karena Admin 1, 5, dan 99 dipilih bersamaan, salah satu harus dikecualikan dari pembatasan.</p>
+                        <p class="text-xs text-yellow-200">Karena Admin 1, 5, dan 91 dipilih bersamaan, salah satu harus dikecualikan dari pembatasan.</p>
                         <select name="exemptAdmin" id="exemptAdmin" class="w-full p-2 border rounded bg-gray-700 text-gray-200 border-gray-600">
                             <option value="admin 5" selected>Kecualikan Admin 5 (Default)</option>
                             <option value="admin 1">Kecualikan Admin 1</option>
@@ -215,10 +215,11 @@
             { label: "Admin 5", value: "admin 5" },
             { label: "Admin 6", value: "admin 6" },
             { label: "Admin 7", value: "admin 7" },
-            // { label: "Admin 8", value: "admin 8" },
-            // { label: "Admin 9", value: "admin 9" },
+            { label: "Admin 8", value: "admin 8" },
+            { label: "Admin 9", value: "admin 9" },
             { label: "Admin 10", value: "admin 10" },
-            { label: "Admin 99 WABA", value: "admin 99" },
+            { label: "Admin 91", value: "admin 91" },
+            { label: "Admin 92", value: "admin 92" }
         ];
 
         // Add initial admin field
@@ -587,10 +588,10 @@
                 .map(select => select.value)
                 .filter(value => value !== '');
             
-            // Check if 'admin 1', 'admin 5', and 'admin 99' are all present
+            // Check if 'admin 1', 'admin 5', and 'admin 91' are all present
             const hasAdmin1 = selectedAdmins.includes('admin 1');
             const hasAdmin5 = selectedAdmins.includes('admin 5');
-            const hasAdmin99 = selectedAdmins.includes('admin 99');
+            const hasAdmin99 = selectedAdmins.includes('admin 91');
             
             if (hasAdmin1 && hasAdmin5 && hasAdmin99) {
                 exemptionSection.classList.remove('hidden');
@@ -691,18 +692,18 @@
             `;
             
             // Conditional Restrictions
-            if (conditionalRestrictions && conditionalRestrictions['admin 99']) {
-                const conditionalData = conditionalRestrictions['admin 99'];
+            if (conditionalRestrictions && conditionalRestrictions['admin 91']) {
+                const conditionalData = conditionalRestrictions['admin 91'];
                 
                 html += `
                     <div class="bg-slate-700/50 border border-gray-600 p-3 rounded">
                         <h4 class="font-medium text-gray-300 mb-2 text-sm">
                             <i class="fas fa-exclamation-triangle mr-1"></i>
-                            Pembatasan Kondisional (Admin 99):
+                            Pembatasan Kondisional (admin 91):
                         </h4>
                         <div class="space-y-2">
                             <p class="text-gray-300 text-sm mb-1">
-                                <strong>Ketika Admin 99 dipilih:</strong>
+                                <strong>Ketika admin 91 dipilih:</strong>
                             </p>
                             <ul class="list-disc list-inside space-y-1 text-gray-300 text-sm ml-4">
                 `;
@@ -716,12 +717,12 @@
                 
                 html += `
                                 <li><strong class="text-gray-200">Admin lainnya:</strong> Mengikuti pembatasan reguler mereka</li>
-                                <li><strong class="text-red-300">Admin 99:</strong> Tidak dapat memproses campaign 247001, dapat memproses campaign lainnya</li>
+                                <li><strong class="text-red-300">admin 91:</strong> Tidak dapat memproses campaign 247001, dapat memproses campaign lainnya</li>
                             </ul>
                             <div class="bg-red-900/30 border border-red-500/30 p-2 rounded mt-2">
                                 <p class="text-red-200 text-xs">
                                     <i class="fas fa-info-circle mr-1"></i>
-                                    <strong>Catatan:</strong> Ketika Admin 99 aktif, Admin 1 dan Admin 5 akan dibatasi hanya untuk campaign 247001 saja.
+                                    <strong>Catatan:</strong> Ketika admin 91 aktif, Admin 1 dan Admin 5 akan dibatasi hanya untuk campaign 247001 saja.
                                 </p>
                             </div>
                         </div>
