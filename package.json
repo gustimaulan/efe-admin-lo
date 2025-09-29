@@ -1,18 +1,21 @@
 {
   "name": "efe-admin-lo",
   "version": "1.8.2",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "NODE_ENV=production node server.js",
-    "dev": "NODE_ENV=development nodemon server.js",
+    "start": "NODE_ENV=production node src/server.js",
+    "dev": "NODE_ENV=development nodemon src/server.js",
+    "staging": "NODE_ENV=staging nodemon staging/server-enhanced.js",
+    "staging:prod": "NODE_ENV=staging node staging/server-enhanced.js",
     "lint": "eslint .",
     "test": "jest",
     "version:patch": "npm version patch && git push && git push --tags",
     "version:minor": "npm version minor && git push && git push --tags",
     "version:major": "npm version major && git push && git push --tags",
-    "version:check": "echo \"Current version: $(npm pkg get version | tr -d '\\\"')\""
+    "version:check": "echo \"Current version: $(npm pkg get version | tr -d '\"')\""
   },
   "dependencies": {
+    "@playwright/test": "^1.55.1",
     "axios": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

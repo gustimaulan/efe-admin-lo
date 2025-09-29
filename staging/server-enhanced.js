@@ -1,11 +1,11 @@
 const express = require('express');
 const { chromium } = require('playwright-core');
 const dotenv = require('dotenv');
-const packageJson = require('./package.json');
+const packageJson = require('../package.json'); // Using the original package.json
 dotenv.config();
 
-// Configuration
-const config = require('./config');
+// Using the enhanced configuration with new payload structure
+const config = require('./config-enhanced.js');
 const { CAMPAIGN_IDS, ALLOWED_ADMIN_NAMES } = config;
 const { LOGIN_URL, CAMPAIGN_BASE_URL } = config;
 const EMAIL = process.env.EMAIL
@@ -153,43 +153,51 @@ async function runParallelCampaigns(browser, adminNames, campaignIds, batchSize 
   return results;
 }
 
-// Modified runAutomation function
-async function runAutomation(adminNames, timeOfDay, campaignSelections, exemptionSettings) {
-  console.log(`Starting automation for ${timeOfDay} with admins: ${adminNames.join(', ')}`);
+// Modified runAutomation function using the new payload-based config
+async function runAutomation(adminPayloads, timeOfDay, campaignSelections, exemptionSettings = {}) {
+  console.log(`Starting automation for ${timeOfDay} with admin payloads:`, adminPayloads);
   const browser = await getBrowser();
 
   try {
     let campaignIds = [];
     
     if (campaignSelections.regular.selected) {
-      campaignIds = campaignIds.concat(CAMPAIGN_IDS.regular[timeOfDay] || []);
+      campaignIds = campaignIds.concat(CAMPAIGN_IDS.staging[timeOfDay] || []);
     }
 
-    // Group campaigns by the admins that should process them
+    // Group campaigns by the admins that should process them based on the new payload structure
     const campaignGroups = {};
     
     for (const campaignId of campaignIds) {
-        // Use config-based restriction system
-        let adminsForThisCampaign = config.getAdminsForCampaign(adminNames, campaignId, exemptionSettings);
+        // Use new payload-based restriction system
+        // FIX: Filter the original adminPayloads array to keep the full object structure,
+        // instead of just getting back an array of names.
+        const payloadsForThisCampaign = adminPayloads.filter(payload => 
+            config.canAdminProcessCampaign(payload.name, campaignId, adminPayloads, exemptionSettings)
+        );
+        const adminNamesForThisCampaign = payloadsForThisCampaign.map(p => p.name);
         
         // Log the filtering for transparency
-        if (adminsForThisCampaign.length !== adminNames.length) {
-            const excludedAdmins = adminNames.filter(admin => !adminsForThisCampaign.includes(admin));
-            console.log(`🔍 Campaign ${campaignId} restrictions: Excluded admins: [${excludedAdmins.join(', ')}] -> Processing with: [${adminsForThisCampaign.join(', ')}]`);
+        if (adminNamesForThisCampaign.length !== adminPayloads.length) {
+            const excludedAdmins = adminPayloads.map(p => p.name).filter(name => !adminNamesForThisCampaign.includes(name));
+            console.log(`🔍 Campaign ${campaignId} restrictions: Excluded admins: [${excludedAdmins.join(', ')}] -> Processing with: [${adminNamesForThisCampaign.join(', ')}]`);
         }
         
         // Skip this campaign if no admins are left after filtering
-        if (adminsForThisCampaign.length === 0) {
-            console.log(`Skipping campaign ${campaignId} as no admins are available to process it`);
+        if (payloadsForThisCampaign.length === 0) {
+            const logMessage = `Skipping campaign ${campaignId} as no admins are available to process it after applying rules.`;
+            console.log(logMessage);
+            // Optionally, you can add this to the job log so it's visible on the frontend.
+            // if (jobId) addJobLog(jobId, logMessage, false);
             continue;
         }
         
         // Create a key based on the admins for this campaign
-        const adminKey = adminsForThisCampaign.sort().join(',');
+        const adminKey = adminNamesForThisCampaign.sort().join(',');
         
         if (!campaignGroups[adminKey]) {
             campaignGroups[adminKey] = {
-                admins: adminsForThisCampaign,
+                admins: adminNamesForThisCampaign,
                 campaigns: []
             };
         }
@@ -211,7 +219,7 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections, exemptio
 
     // Only send webhook if regular campaigns were selected
     if (campaignSelections.regular.selected) {
-    await sendToWebhook(adminNames, timeOfDay);
+    await sendToWebhook(adminPayloads.map(admin => admin.name), timeOfDay);
     }
     
     return allResults.every(r => r.success);
@@ -225,7 +233,7 @@ async function runAutomation(adminNames, timeOfDay, campaignSelections, exemptio
 
 // Server Setup
 const app = express();
-const PORT = 3010;
+const PORT = 3011; // Using different port to avoid conflict
 const http = require('http');
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
@@ -347,13 +355,11 @@ app.get('/logs/:jobId', (req, res) => {
   }
 });
 
-// Option 3: Server-Side Template (Advanced)
-//
-// If you want to avoid any hardcoding, you could serve the HTML dynamically:
 // Update the root route
 app.get('/', (req, res) => {
     const fs = require('fs');
-    let html = fs.readFileSync('./index.html', 'utf8');
+    const path = require('path');
+    let html = fs.readFileSync(path.join(__dirname, 'index-enhanced.html'), 'utf8');
     
     // Replace version placeholder
     html = html.replace('{{VERSION}}', packageJson.version);
@@ -370,19 +376,74 @@ app.get('/version', (req, res) => {
   });
 });
 
-// Admin restrictions endpoint
+// Admin restrictions endpoint - updated to show enhanced config
 app.get('/admin-restrictions', (req, res) => {
+  // For the new payload-based system, we don't have predefined rules, so return a simple response
   res.json({
-    adminCampaignRestrictions: config.ADMIN_CAMPAIGN_RESTRICTIONS,
-    conditionalRestrictions: config.CONDITIONAL_RESTRICTIONS
+    message: "Admin restrictions are now handled through dynamic payload rules. Each admin can have include/exclude rules for specific campaigns.",
+    supportedRuleTypes: ["include", "exclude", "null (all campaigns)"],
+    nullRuleBehavior: "When ruleType and campaignId are null, admin can process all campaigns"
   });
 });
 
-// Admin restrictions endpoint
-app.get('/admin-restrictions', (req, res) => {
+app.post('/check-plan', (req, res) => {
+  console.log('Received POST request to /check-plan');
+  const adminPayloads = [];
+  const timeOfDay = req.body.timeOfDay || "manual";
+
+  // --- Re-use payload extraction logic from /run ---
+  for (const key in req.body) {
+    if (/^admin\d+$/.test(key)) {
+      const adminIndex = key.replace('admin', '');
+      const adminName = req.body[key];
+      const ruleTypeKey = `inlineRuleType${adminIndex}`;
+      const campaignIdKey = `inlineRuleCampaign${adminIndex}`;
+      let ruleType = req.body[ruleTypeKey] || null;
+      let campaignId = req.body[campaignIdKey] || null;
+      if (ruleType === '' || ruleType === undefined) ruleType = null;
+      if (campaignId === '' || campaignId === undefined) campaignId = null;
+      adminPayloads.push({ name: adminName, ruleType, campaignId });
+    }
+  }
+
+  // --- Validate admins ---
+  const allAdminsValid = adminPayloads.every(payload => ALLOWED_ADMIN_NAMES.includes(payload.name));
+  if (!allAdminsValid || adminPayloads.length === 0) {
+    return res.status(400).json({ message: 'Invalid or no admin names provided.' });
+  }
+
+  // --- Simulate the planning logic from runAutomation ---
+  const plan = [];
+  const campaignIds = CAMPAIGN_IDS.staging[timeOfDay] || [];
+  const exemptionSettings = { exemptAdmin: req.body.exemptAdmin || null };
+  const allSelectedAdminNames = adminPayloads.map(p => p.name);
+
+  for (const campaignId of campaignIds) {
+    const payloadsForThisCampaign = adminPayloads.filter(payload =>
+      config.canAdminProcessCampaign(payload.name, campaignId, adminPayloads, exemptionSettings)
+    );
+    const processingAdmins = payloadsForThisCampaign.map(p => p.name);
+    const excludedAdmins = allSelectedAdminNames.filter(name => !processingAdmins.includes(name));
+
+    if (processingAdmins.length > 0) {
+      plan.push({
+        campaignId,
+        processingAdmins,
+        excludedAdmins
+      });
+    } else {
+      plan.push({
+        campaignId,
+        processingAdmins: [],
+        excludedAdmins: allSelectedAdminNames,
+        skipped: true
+      });
+    }
+  }
+
   res.json({
-    adminCampaignRestrictions: config.ADMIN_CAMPAIGN_RESTRICTIONS,
-    conditionalRestrictions: config.CONDITIONAL_RESTRICTIONS
+    message: 'Processing plan generated successfully.',
+    plan: plan
   });
 });
 
@@ -400,16 +461,41 @@ app.get('/status/:jobId', (req, res) => {
 
 app.post('/run', (req, res) => {
   console.log('Received POST request to /run');
-  const adminNames = [];
+  const adminPayloads = [];
   const timeOfDay = req.body.timeOfDay || "manual"; // Default to "manual" for frontend requests
   const isManualRequest = req.body.isManual === 'true';
   
-  // Extract all admin names from the request
+  // Extract admin payloads from the request with rule-based system
   for (const key in req.body) {
-    if (key.startsWith('admin')) {
-      adminNames.push(req.body[key]);
+    // Use a regex to strictly match 'admin' followed by digits, e.g., 'admin1', 'admin2'
+    if (/^admin\d+$/.test(key)) {
+      const adminIndex = key.replace('admin', '');
+      const adminName = req.body[key];
+      
+      // Get the corresponding rule type and campaign ID for this admin
+      // FIX: Use the correct field names sent from the frontend ('inlineRuleType' and 'inlineRuleCampaign')
+      const ruleTypeKey = `inlineRuleType${adminIndex}`;
+      const campaignIdKey = `inlineRuleCampaign${adminIndex}`;
+      
+      let ruleType = req.body[ruleTypeKey] || null;
+      let campaignId = req.body[campaignIdKey] || null;
+      
+      // If both ruleType and campaignId are empty, set them to null to indicate the admin can process all campaigns
+      if (ruleType === '' || ruleType === undefined) ruleType = null;
+      if (campaignId === '' || campaignId === undefined) campaignId = null;
+      
+      // Create admin payload with rule-based system
+      const adminPayload = {
+        name: adminName,
+        ruleType: ruleType,
+        campaignId: campaignId
+      };
+      
+      adminPayloads.push(adminPayload);
     }
   }
+  
+  console.log(`Received admin payloads:`, adminPayloads);
 
   // Get campaign selections based on request type
   let campaignSelections;
@@ -438,12 +524,11 @@ app.post('/run', (req, res) => {
     exemptAdmin: req.body.exemptAdmin || null
   };
 
-
-  console.log(`Request parameters - admins: ${adminNames.join(', ')}, timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections);
+  console.log(`Request parameters - admin payloads:`, adminPayloads, `timeOfDay: ${timeOfDay}, isManual: ${isManualRequest}, campaigns:`, campaignSelections);
 
   // Validate all admin names
-  const allAdminsValid = adminNames.every(name => ALLOWED_ADMIN_NAMES.includes(name));
-  if (!allAdminsValid || adminNames.length === 0) {
+  const allAdminsValid = adminPayloads.every(payload => ALLOWED_ADMIN_NAMES.includes(payload.name));
+  if (!allAdminsValid || adminPayloads.length === 0) {
     console.log('Invalid admin names detected');
     return res.status(400).send('Invalid admin names');
   }
@@ -456,13 +541,13 @@ app.post('/run', (req, res) => {
     status: 'running',
     message: 'Automation started',
     startTime: new Date(),
-    adminNames,
+    adminPayloads,
     timeOfDay,
     campaignSelections,
     exemptionSettings,
     logs: [{
       timestamp: new Date(),
-      message: `Started automation for ${adminNames.join(', ')} with timeOfDay: ${timeOfDay}`,
+      message: `Started automation for admin payloads: ${adminPayloads.map(p => p.name).join(', ')} with timeOfDay: ${timeOfDay}`,
       isError: false
     }]
   });
@@ -474,8 +559,8 @@ app.post('/run', (req, res) => {
     status: 'running'
   });
 
-  // Run the automation in the background
-  runAutomation(adminNames, timeOfDay, campaignSelections, exemptionSettings)
+  // Run the automation in the background with new payload structure
+  runAutomation(adminPayloads, timeOfDay, campaignSelections, exemptionSettings)
     .then(success => {
       runningJobs.set(jobId, {
         status: 'completed',
@@ -502,5 +587,5 @@ app.post('/run', (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`Enhanced server started on http://localhost:${PORT}`);
 });

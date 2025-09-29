@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Admin EFE - Loops</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-slate-900 text-slate-200 p-4 sm:p-8">
+    <div class="max-w-xl mx-auto space-y-8">
+        <!-- Header with Version -->
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-3xl font-bold text-white tracking-tight">EFE Admin Tool</h1>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs bg-blue-500/50 text-blue-200 px-3 py-1 rounded-full" id="versionBadge">v{{VERSION}}</span>
+                <div class="w-2 h-2 bg-green-500 rounded-full" id="statusIndicator" title="System Status"></div>
+            </div>
+        </div>
+        
+        <!-- Form Card -->
+        <div class="bg-slate-800/50 rounded-xl shadow-lg overflow-hidden border border-slate-700">
+            <!-- Tab navigation -->
+            <div class="flex border-b border-gray-700">
+                <button id="formTab" class="tab-btn py-3 px-4 w-1/2 font-semibold text-white border-b-2 border-blue-500">
+                    <i class="fas fa-edit mr-2"></i>Form
+                </button>
+                <button id="logTab" class="tab-btn py-3 px-4 w-1/2 font-medium text-slate-400 border-b-2 border-transparent hover:bg-slate-700/50">
+                    <i class="fas fa-list-ul mr-2"></i>Logs
+                    <span id="logCounter" class="ml-2 bg-blue-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                </button>
+            </div>
+            
+            <!-- Form tab content -->
+            <div id="formContent" class="tab-content block p-6">
+                <form id="automationForm" class="space-y-4">
+                    <div class="block mb-1 font-medium text-sm text-blue-400">
+                        Admin Selection <span id="adminCounter" class="text-slate-400"></span>
+                    </div>
+                    <div id="adminContainer">
+                        <!-- Admin fields will be added here dynamically -->
+                    </div>
+
+                    <!-- Hidden fields -->
+                    <input type="hidden" name="isManual" value="true" />
+                    <input type="hidden" name="timeOfDay" value="manual" />
+                    <input type="hidden" name="regularCampaigns" value="true" />
+                    <div class="flex justify-center items-center space-x-3 pt-4">
+                        <button id="checkPlanButton" type="button" class="font-semibold bg-slate-600 hover:bg-slate-500 text-white px-5 py-2.5 rounded-lg transition-colors">
+                            <i class="fas fa-tasks mr-2"></i>Check Plan
+                        </button>
+                        <button id="automationButton" type="submit" class="font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all">
+                            <i class="fas fa-play-circle mr-2"></i>Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Log tab content -->
+            <div id="logContent" class="tab-content hidden p-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold text-white">Automation Logs</h2>
+                    <button id="clearLogs" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1 rounded-md transition-colors">
+                        <i class="fas fa-trash-alt mr-1"></i>Clear
+                    </button>
+                </div>
+                <div id="logContainer" class="space-y-2 max-h-96 overflow-y-auto bg-slate-900 p-4 rounded-lg font-mono text-sm"></div>
+            </div>
+
+        </div>
+
+        <!-- Plan Check Modal -->
+        <div id="planModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+            <div class="bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl mx-4 border border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-white">
+                        <i class="fas fa-tasks mr-2 text-blue-400"></i>Automation Plan
+                    </h2>
+                    <button id="closeModalButton" class="text-slate-400 hover:text-white transition-colors">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                <div id="planContainer" class="space-y-3 max-h-[60vh] overflow-y-auto bg-slate-900 p-4 rounded-lg font-mono text-sm text-white"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let newLogCount = 0;
+        let activeTab = 'form';
+        let adminCount = 0;
+        let currentConfig = {};
+        const adminOptions = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const formTab = document.getElementById('formTab');
+            const logTab = document.getElementById('logTab');
+            const formContent = document.getElementById('formContent');
+            const logContent = document.getElementById('logContent');
+            const logCounter = document.getElementById('logCounter');
+            const logContainer = document.getElementById('logContainer');
+            const automationForm = document.getElementById('automationForm');
+            const adminContainer = document.getElementById('adminContainer');
+            const clearLogsButton = document.getElementById('clearLogs');
+
+            clearLogsButton.addEventListener('click', () => {
+                logContainer.innerHTML = '';
+                addLog('Logs cleared.', false);
+            });
+
+            function addLog(message, isError = false) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('p');
+                logEntry.className = `opacity-0 transition-opacity duration-300`;
+                logEntry.innerHTML = `<span class="text-slate-500 mr-2">[${timestamp}]</span> <span class="${isError ? 'text-red-400' : 'text-slate-300'}">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>`;
+                logContainer.appendChild(logEntry);
+                setTimeout(() => { logEntry.classList.remove('opacity-0'); }, 50);
+                
+                logContainer.scrollTop = logContainer.scrollHeight;
+                if (activeTab !== 'log' && !message.includes('Connected to server')) {
+                    newLogCount++;
+                    logCounter.textContent = newLogCount;
+                    logCounter.classList.remove('hidden');
+                }
+            }
+
+            formTab.addEventListener('click', () => switchTab('form'));
+            logTab.addEventListener('click', () => {
+                switchTab('log');
+                newLogCount = 0;
+                logCounter.textContent = newLogCount;
+                logCounter.classList.add('hidden');
+            });
+
+            function switchTab(tab) {
+                activeTab = tab;
+                [formTab, logTab].forEach(t => {
+                    t.classList.remove('text-white', 'border-blue-500');
+                    t.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+                });
+                [formContent, logContent].forEach(c => c.classList.add('hidden'));
+
+                const tabElements = { form: formTab, log: logTab };
+                const contentElements = { form: formContent, log: logContent };
+
+                tabElements[tab].classList.add('text-white', 'border-blue-500');
+                contentElements[tab].classList.remove('hidden');
+
+                if (tab === 'form') {
+                    if(adminContainer.children.length === 0) addAdminField();
+                }
+            }
+
+            async function loadAdminOptions() {
+                try {
+                    const response = await fetch('/api/config');
+                    currentConfig = await response.json();
+                    adminOptions.length = 0;
+                    currentConfig.ALLOWED_ADMIN_NAMES.forEach(name => adminOptions.push({ label: name, value: name }));
+                    if(adminContainer.children.length === 0) addAdminField();
+                } catch (error) {
+                    addLog('Failed to load admin options', true);
+                }
+            }
+
+            // --- Form Tab Logic ---
+            function createAdminField(index) {
+                const adminDiv = document.createElement('div');
+                adminDiv.className = 'bg-slate-800/50 p-3 rounded-lg mb-2 border border-slate-700';
+                adminDiv.dataset.adminIndex = index;
+                const flexContainer = document.createElement('div');
+                flexContainer.className = 'flex items-center space-x-2';
+                const select = document.createElement('select');
+                select.name = `admin${index}`;
+                select.className = 'flex-grow p-2 border rounded-lg bg-slate-700 text-slate-200 border-slate-600';
+                select.required = true;
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = 'Select an admin';
+                select.appendChild(defaultOption);
+                adminOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    select.appendChild(option);
+                });
+                flexContainer.appendChild(select);
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex items-center space-x-1';
+                const addButton = document.createElement('button');
+                addButton.type = 'button';
+                addButton.className = 'bg-green-500/20 hover:bg-green-500/40 text-green-400 w-8 h-8 rounded-full';
+                addButton.innerHTML = '<i class="fas fa-plus"></i>';
+                addButton.onclick = () => addAdminField();
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.disabledtrue;
+                removeButton.className = 'rmv bg-red-500/20 hover:bg-red-500/40 text-red-400 w-8 h-8 rounded-full';
+                removeButton.innerHTML = '<i class="fas fa-minus"></i>';
+                removeButton.onclick = () => removeAdminField(adminDiv);
+                buttonContainer.appendChild(addButton);
+                buttonContainer.appendChild(removeButton);
+                flexContainer.appendChild(buttonContainer);
+                adminDiv.appendChild(flexContainer);
+                return adminDiv;
+            }
+
+            function addAdminField() {
+                adminCount++;
+                const newField = createAdminField(adminCount);
+                adminContainer.appendChild(newField);
+                updateRemoveButtons();
+            }
+
+            function removeAdminField(field) {
+                if (adminCount > 1) {
+                    field.remove();
+                    adminCount--;
+                    updateRemoveButtons();
+                }
+            }
+
+            function updateRemoveButtons() {
+                const removeButtons = adminContainer.querySelectorAll('.rmv');
+                removeButtons.forEach(button => {
+                    button.disabled = adminCount <= 1;
+                    button.classList.toggle('opacity-50', adminCount <= 1);
+                    button.classList.toggle('cursor-not-allowed', adminCount <= 1);
+                });
+            }
+
+            function resetForm() {
+                // Remove all existing admin fields
+                adminContainer.innerHTML = '';
+                // Reset counter and add one fresh field
+                adminCount = 0;
+                addAdminField();
+            }
+            // --- Plan Check Modal Functionality ---
+            const checkPlanButton = document.getElementById('checkPlanButton');
+            const planModal = document.getElementById('planModal');
+            const closeModalButton = document.getElementById('closeModalButton');
+            const planContainer = document.getElementById('planContainer');
+
+            checkPlanButton.addEventListener('click', async () => {
+                planContainer.innerHTML = '<div class="text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Generating plan...</div>';
+                planModal.classList.remove('hidden');
+                try {
+                    const response = await fetch('/check-plan', {
+                        method: 'POST',
+                        body: new URLSearchParams(new FormData(automationForm))
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        displayPlan(result.plan);
+                    } else {
+                        planContainer.innerHTML = `<div class="text-red-400"><i class="fas fa-exclamation-triangle mr-2"></i>Error: ${result.message || 'Failed to generate plan.'}</div>`;
+                    }
+                } catch (error) {
+                    planContainer.innerHTML = '<div class="text-red-400"><i class="fas fa-server mr-2"></i>Failed to connect to server to generate plan.</div>';
+                }
+            });
+
+            closeModalButton.addEventListener('click', () => planModal.classList.add('hidden'));
+            planModal.addEventListener('click', (e) => { if (e.target === planModal) planModal.classList.add('hidden'); });
+
+            function displayPlan(plan) {
+                if (!plan || plan.length === 0) {
+                    planContainer.innerHTML = '<div class="text-slate-400 text-center">No campaigns to process.</div>';
+                    return;
+                }
+                planContainer.innerHTML = plan.map(item => {
+                    const excludedText = item.excludedAdmins.length > 0 ? `Excluded: <span class="text-red-400">[${item.excludedAdmins.join(', ')}]</span>` : 'No exclusions.';
+                    const processingText = item.processingAdmins.length > 0 ? `Processing: <span class="text-green-400">[${item.processingAdmins.join(', ')}]</span>` : '<span class="text-yellow-400">SKIPPED</span>';
+                    return `<div class="border-b border-slate-700 pb-2 mb-2"><strong class="text-white">Campaign ${item.campaignId}</strong><br><span class="text-slate-400 text-xs">${excludedText} &rarr; ${processingText}</span></div>`;
+                }).join('');
+            }
+
+            automationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = document.getElementById("automationButton");
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+                button.disabled = true;
+
+                addLog('Starting automation...');
+                try {
+                    const response = await fetch('/run', { method: 'POST', body: new URLSearchParams(new FormData(automationForm)) });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message || 'Failed to start');
+                    addLog(`Job started with ID: ${result.jobId}`);
+
+                    // Subscribe to real-time updates for this job
+                    socket.emit('subscribeToJob', result.jobId);
+
+                } catch (error) {
+                    addLog(`Error: ${error.message}`, true);
+                    button.innerHTML = '<i class="fas fa-play-circle mr-2"></i>Submit';
+                    button.disabled = false;
+                }
+            });
+
+            // --- Socket.IO Logic ---
+            const socket = io();
+
+            socket.on('connect', () => {
+                addLog('Connected to server via WebSocket.', false);
+            });
+
+            // Listen for general backend logs
+            socket.on('console_logs', (logEntry) => {
+                addLog(`[Backend] ${logEntry.message}`, logEntry.isError);
+            });
+
+            // Listen for job-specific logs
+            socket.on('newLog', (logEntry) => {
+                const message = logEntry.message.trim();
+                addLog(message, logEntry.isError);
+                if (message.includes('Automation completed') || message.includes('Automation failed')) {
+                    if (logEntry.message.includes('Automation completed') && !logEntry.isError) {
+                        resetForm();
+                    }
+                    document.getElementById("automationButton").innerHTML = '<i class="fas fa-play-circle mr-2"></i>Submit';
+                    document.getElementById("automationButton").disabled = false;
+                }
+            });
+
+            // Initial load
+            loadAdminOptions().then(() => {
+                addAdminField();
+            });
+        });
+    </script>
+</body>
+</html>
