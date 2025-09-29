@@ -35,7 +35,7 @@ const config = {
     _specialCampaign: {
         regular: {
             id: 247001,
-            excludedAdmins: ["admin 6", "admin 7","admin 09", "admin 10", "admin 91", "admin 92"]
+            excludedAdmins: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"]
         },
         staging: {
             id: 289627,
@@ -86,7 +86,7 @@ const config = {
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 10", "admin 91", "admin 92"] },
+                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"] },
                         { type: "CAMPAIGN", value: 247001 }
                     ]
                 },
@@ -158,7 +158,7 @@ const config = {
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 10", "admin 91", "admin 92"] },
+                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"] },
                         { type: "CAMPAIGN", value: 289627 }
                     ]
                 },
