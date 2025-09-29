@@ -55,13 +55,16 @@ async function startServer() {
     try {
       console.log(`Processing campaign ${campaignId} with admins: ${adminNames.join(', ')}`);
       
-      if (campaignId === 247001) {
-        console.log(`🔍 CAMPAIGN 247001 (LANJUTAN): Processing with admins: ${adminNames.join(', ')}`);
-        if (adminNames.includes('admin 10')) {
-          console.log(`❌ ERROR: Admin 10 should be excluded from campaign 247001!`);
+      // Dynamic debug logging for the special campaign defined in config
+      if (config.SPECIAL_CAMPAIGN && parseInt(campaignId) === config.SPECIAL_CAMPAIGN.id) {
+        console.log(`🔍 SPECIAL CAMPAIGN (${config.SPECIAL_CAMPAIGN.id}): Processing with admins: ${adminNames.join(', ')}`);
+        const foundExcluded = adminNames.filter(admin => config.SPECIAL_CAMPAIGN.excludedAdmins.includes(admin));
+
+        if (foundExcluded.length > 0) {
+          console.log(`❌ ERROR: Admins [${foundExcluded.join(', ')}] should have been excluded from campaign ${config.SPECIAL_CAMPAIGN.id}!`);
         } else {
-          console.log(`✅ CORRECT: Admin 10 properly excluded from campaign 247001`);
-        }
+          console.log(`✅ CORRECT: All necessary admins were properly excluded from campaign ${config.SPECIAL_CAMPAIGN.id}.`);
+        } 
       }
       
       await page.goto(`${CAMPAIGN_BASE_URL}${campaignId}`);

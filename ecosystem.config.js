@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'efe-admin-lo',
+    name: 'loops',
     script: 'src/server.js',
     instances: 1,
     autorestart: true,
