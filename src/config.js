@@ -35,14 +35,14 @@ const config = {
     _specialCampaign: {
         regular: {
             id: 247001,
-            excludedAdmins: ["admin 6", "admin 7", "admin 10", "admin 91", "admin 92"]
+            excludedAdmins: ["admin 6", "admin 7","admin 09", "admin 10", "admin 91", "admin 92"]
         },
         staging: {
             id: 289627,
-            excludedAdmins: ["admin 6", "admin 7", "admin 10", "admin 91", "admin 92"]
+            excludedAdmins: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"]
         }
     },
-    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 9", "admin 10", "admin 91", "admin 92"],
+    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 09", "admin 10", "admin 91", "admin 92"],
     LOGIN_URL: 'https://app.loops.id/login',
     CAMPAIGN_BASE_URL: 'https://app.loops.id/campaign/',
     SERVER: {
