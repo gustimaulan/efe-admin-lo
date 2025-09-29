@@ -51,19 +51,22 @@ async function startServer() {
     console.log('Login completed successfully');
   }
 
-  async function processCampaign(page, campaignId, adminNames) {
+  async function processCampaign(page, campaignId, adminNames, allSelectedAdmins = []) {
     try {
       console.log(`Processing campaign ${campaignId} with admins: ${adminNames.join(', ')}`);
       
       // Dynamic debug logging for the special campaign defined in config
       if (config.SPECIAL_CAMPAIGN && parseInt(campaignId) === config.SPECIAL_CAMPAIGN.id) {
-        console.log(`🔍 SPECIAL CAMPAIGN (${config.SPECIAL_CAMPAIGN.id}): Processing with admins: ${adminNames.join(', ')}`);
-        const foundExcluded = adminNames.filter(admin => config.SPECIAL_CAMPAIGN.excludedAdmins.includes(admin));
-
-        if (foundExcluded.length > 0) {
-          console.log(`❌ ERROR: Admins [${foundExcluded.join(', ')}] should have been excluded from campaign ${config.SPECIAL_CAMPAIGN.id}!`);
+        console.log(`🔍 SPECIAL CAMPAIGN (${config.SPECIAL_CAMPAIGN.id}): Processing with admins: [${adminNames.join(', ')}]`);
+        
+        // Find which admins from the original selection were correctly excluded for this special campaign.
+        const originallySelected = allSelectedAdmins.length > 0 ? allSelectedAdmins : adminNames;
+        const excludedForThisCampaign = originallySelected.filter(admin => !adminNames.includes(admin));
+        
+        if (excludedForThisCampaign.length > 0) {
+          console.log(`✅ CORRECT: Admins [${excludedForThisCampaign.join(', ')}] were properly excluded from campaign ${config.SPECIAL_CAMPAIGN.id}.`);
         } else {
-          console.log(`✅ CORRECT: All necessary admins were properly excluded from campaign ${config.SPECIAL_CAMPAIGN.id}.`);
+          console.log(`ℹ️ INFO: No admins were excluded for special campaign ${config.SPECIAL_CAMPAIGN.id} from the current selection.`);
         } 
       }
       
@@ -130,12 +133,13 @@ async function startServer() {
     for (let i = 0; i < campaignIds.length; i += batchSize) {
       const batch = campaignIds.slice(i, i + batchSize);
       console.log(`Processing batch of ${batch.length} campaigns...`);
-      
+      const allSelectedAdmins = adminNames.map(p => p.name); // Assuming adminNames is payload here
       const batchPromises = batch.map(async (campaignId) => {
         const page = await browser.newPage();
         try {
           await login(page);
-          const result = await processCampaign(page, campaignId, adminNames);
+          const processingAdmins = config.getAdminsForCampaign(adminNames, campaignId);
+          const result = await processCampaign(page, campaignId, processingAdmins, allSelectedAdmins);
           return { campaignId, success: result };
         } finally {
           await page.close();
@@ -202,7 +206,11 @@ async function startServer() {
         const group = campaignGroups[groupKey];
         console.log(`Processing group for admins: ${group.admins.join(', ')} with ${group.campaigns.length} campaigns`);
         
-        const results = await runParallelCampaigns(browser, group.admins, group.campaigns);
+        // We need to pass the payloads, not just names, to runParallelCampaigns
+        const groupPayloads = adminPayloads.filter(p => group.admins.includes(p.name));
+
+        // runParallelCampaigns will now handle filtering internally and pass the right context to processCampaign
+        const results = await runParallelCampaigns(browser, groupPayloads, group.campaigns);
         allResults.push(...results);
       }
 
