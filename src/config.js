@@ -129,7 +129,8 @@ const config = {
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", value: "admin 5" }, // This rule now specifically targets admin 5
+                        { type: "ADMIN", value: "admin 5" },
+                        { type: "CAMPAIGN", operator: "!=", value: 247001 }, // This rule should only trigger when the restriction would apply
                         { type: "ALL_SELECTED_ADMINS_CONTAINS", value: ["admin 1", "admin 5", "admin 91"] }
                     ]
                 },
@@ -201,7 +202,8 @@ const config = {
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", value: "admin 5" }, // This rule now specifically targets admin 5
+                        { type: "ADMIN", value: "admin 5" },
+                        { type: "CAMPAIGN", operator: "!=", value: 289627 }, // This rule should only trigger when the restriction would apply
                         { type: "ALL_SELECTED_ADMINS_CONTAINS", value: ["admin 1", "admin 5", "admin 91"] }
                     ]
                 },
@@ -273,9 +275,13 @@ const config = {
 
     checkAllSelectedAdminsContainsCondition: function(condition, allSelectedAdmins) {
         if (Array.isArray(condition.value)) {
+            // This condition requires that EVERY admin listed in condition.value
+            // must be present in the allSelectedAdmins array.
             return condition.value.every(admin => allSelectedAdmins.includes(admin));
         }
-        return allSelectedAdmins.includes(condition.value);
+        // If condition.value is not an array, it's a single string.
+        // Check if that single admin is present.
+        return allSelectedAdmins.includes(String(condition.value));
     },
     // --- END: Default Rules ---
     

@@ -1,0 +1,6 @@
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289626:","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289627:","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289626:","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"level":"error","message":"Failed to add admin admin 4 to campaign 289626: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:last-child .select2-arrow')\u001b[22m\n","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289627:","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"level":"error","message":"Failed to add admin admin 4 to campaign 289627: page.goto: Target page, context or browser has been closed","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}

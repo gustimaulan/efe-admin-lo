@@ -1,0 +1,452 @@
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 16:25:34"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:25:34"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 16:26:13"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:26:14"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 16:27:19"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:27:20"}
+{"level":"info","message":"/api/run received a request.","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"adminPayloads":[{"name":"admin 92"}],"level":"info","message":"Starting automation for manual with admin payloads:","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Client subscribed to job: 1759310881021","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"🔍 Campaign 289627 restrictions: Excluded admins: [admin 92] -> Processing with: []","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Skipping campaign 289627 as no admins are available to process it after applying rules.","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Processing group for admins: admin 92 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:01"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:02"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:02"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:03"}
+{"level":"info","message":"Processing campaign 289626 with admins: admin 92","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:03"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:04"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:04"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:04"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:05"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:05"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:06"}
+{"level":"info","message":"Cloning fields for 1 admins...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:06"}
+{"level":"info","message":"Setting admin 1: admin 92","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:06"}
+{"level":"info","message":"Admin 1 set to admin 92","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:06"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:06"}
+{"level":"info","message":"Campaign 289626 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:06"}
+{"level":"info","message":"Webhook sent, status:","service":"efe-admin-lo","status":200,"timestamp":"2025-10-01 16:28:07"}
+{"jobId":"1759310881021","level":"info","message":"Automation completed.","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:07"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:22"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:28:23"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 16:32:31"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:38:01"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 16:41:45"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:41:45"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 16:44:55"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:48:43"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 16:52:50"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:52:51"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 16:54:03"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:54:03"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 16:54:45"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:54:45"}
+{"level":"info","message":"/api/admin/change-all received a request.","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:12"}
+{"adminPayloads":[{"name":"admin 1"},{"name":"admin 91"},{"name":"admin 6"}],"level":"info","message":"Starting automation for manual with admin payloads:","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:12"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:12"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:12"}
+{"level":"info","message":"Client subscribed to job: 1759312512834","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:12"}
+{"level":"info","message":"🔍 Campaign 289626 restrictions: Excluded admins: [admin 1] -> Processing with: [admin 91, admin 6]","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"🔍 Campaign 289627 restrictions: Excluded admins: [admin 91, admin 6] -> Processing with: [admin 1]","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"Processing group for admins: admin 6, admin 91 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:13"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:14"}
+{"level":"info","message":"Processing campaign 289626 with admins: admin 91, admin 6","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:14"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:15"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:15"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:16"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:16"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:17"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:17"}
+{"level":"info","message":"Cloning fields for 2 admins...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:17"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:17"}
+{"level":"info","message":"Setting admin 1: admin 91","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:18"}
+{"level":"info","message":"Admin 1 set to admin 91","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:18"}
+{"level":"info","message":"Setting admin 2: admin 6","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:18"}
+{"level":"info","message":"Admin 2 set to admin 6","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Campaign 289626 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Processing group for admins: admin 1 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:19"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:20"}
+{"level":"info","message":"Processing campaign 289627 with admins: admin 1","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:20"}
+{"level":"info","message":"🔍 SPECIAL CAMPAIGN (289627): Processing with admins: [admin 1]","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:20"}
+{"level":"info","message":"ℹ️ INFO: No admins were excluded for special campaign 289627 from the current selection.","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:20"}
+{"level":"info","message":"Campaign 289627 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:21"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:21"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:22"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:22"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:23"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:23"}
+{"level":"info","message":"Cloning fields for 1 admins...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:23"}
+{"level":"info","message":"Setting admin 1: admin 1","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:23"}
+{"level":"info","message":"Admin 1 set to admin 1","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:24"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:24"}
+{"level":"info","message":"Campaign 289627 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:24"}
+{"level":"info","message":"Webhook sent, status:","service":"efe-admin-lo","status":200,"timestamp":"2025-10-01 16:55:25"}
+{"jobId":"1759312512834","level":"info","message":"Automation completed.","service":"efe-admin-lo","timestamp":"2025-10-01 16:55:25"}
+{"level":"warn","message":"[/api/admin/add] Validation failed: campaignId and adminName are required.","service":"efe-admin-lo","timestamp":"2025-10-01 16:57:01"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:37"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:38"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:39"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:40"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 4 to ALL campaigns. Job ID: 1759312728047","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Starting process to add admin 'admin 4' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Client subscribed to job: 1759312728047","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:48"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:49"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:49"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:50"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:50"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:50"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:50"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:50"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:50"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:51"}
+{"level":"info","message":"Adding admin admin 4 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:51"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:52"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:52"}
+{"level":"info","message":"Setting admin 2: admin 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:53"}
+{"level":"info","message":"Admin 2 set to admin 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:53"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:53"}
+{"level":"info","message":"Admin admin 4 added to campaign 289626 successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:53"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:53"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:53"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:54"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:54"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:54"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:55"}
+{"level":"info","message":"Adding admin admin 4 to campaign 289627...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:55"}
+{"level":"info","message":"Campaign 289627 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:56"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:56"}
+{"level":"info","message":"Setting admin 2: admin 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:56"}
+{"level":"info","message":"Admin 2 set to admin 4","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:57"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:57"}
+{"level":"info","message":"Admin admin 4 added to campaign 289627 successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:57"}
+{"level":"info","message":"Process to add admin to all campaigns completed successfully.","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:57"}
+{"jobId":"1759312728047","level":"info","message":"Adding admin admin 4 to all campaigns completed.","service":"efe-admin-lo","timestamp":"2025-10-01 16:58:57"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 10 to ALL campaigns. Job ID: 1759312784270","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Starting process to add admin 'admin 10' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Client subscribed to job: 1759312784270","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:44"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:45"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:45"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:46"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:46"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:46"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:46"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:46"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:46"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:47"}
+{"level":"info","message":"Adding admin admin 10 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:47"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:48"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:48"}
+{"level":"info","message":"Setting admin 2: admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:49"}
+{"level":"info","message":"Admin 2 set to admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:49"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:49"}
+{"level":"info","message":"Admin admin 10 added to campaign 289626 successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:49"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:49"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:49"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:50"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:50"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:50"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:51"}
+{"level":"info","message":"Adding admin admin 10 to campaign 289627...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:51"}
+{"level":"info","message":"Campaign 289627 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:52"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:52"}
+{"level":"info","message":"Setting admin 2: admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:52"}
+{"level":"info","message":"Admin 2 set to admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:53"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:53"}
+{"level":"info","message":"Admin admin 10 added to campaign 289627 successfully","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:53"}
+{"level":"info","message":"Process to add admin to all campaigns completed successfully.","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:53"}
+{"jobId":"1759312784270","level":"info","message":"Adding admin admin 10 to all campaigns completed.","service":"efe-admin-lo","timestamp":"2025-10-01 16:59:53"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-01 17:00:57"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-01 17:00:58"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 10 to ALL campaigns. Job ID: 1759312877304","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Starting process to add admin 'admin 10' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Client subscribed to job: 1759312877304","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:17"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:18"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:18"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:19"}
+{"level":"info","message":"Adding admin admin 10 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:19"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:20"}
+{"level":"info","message":"Found 2 existing admin field(s) on campaign 289626.","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:20"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:20"}
+{"level":"info","message":"Setting admin 3: admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:20"}
+{"level":"info","message":"Admin 3 set to admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:21"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:21"}
+{"level":"info","message":"Admin admin 10 added to campaign 289626 successfully","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:21"}
+{"level":"info","message":"Skipping campaign 289627: Admin 'admin 10' is restricted by configuration rules.","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:21"}
+{"level":"info","message":"Process to add admin to all campaigns completed successfully.","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:21"}
+{"jobId":"1759312877304","level":"info","message":"Adding admin admin 10 to all campaigns completed.","service":"efe-admin-lo","timestamp":"2025-10-01 17:01:21"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 10 to ALL campaigns. Job ID: 1759312927131","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Starting process to add admin 'admin 10' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Client subscribed to job: 1759312927131","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:07"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:08"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:09"}
+{"level":"info","message":"Adding admin admin 10 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:09"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:09"}
+{"level":"info","message":"Found 2 existing admin field(s) on campaign 289626.","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:09"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:09"}
+{"level":"info","message":"Setting admin 3: admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:10"}
+{"level":"info","message":"Admin 3 set to admin 10","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:10"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:10"}
+{"level":"info","message":"Admin admin 10 added to campaign 289626 successfully","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:11"}
+{"level":"info","message":"Skipping campaign 289627: Admin 'admin 10' is restricted by configuration rules.","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:11"}
+{"level":"info","message":"Process to add admin to all campaigns completed successfully.","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:11"}
+{"jobId":"1759312927131","level":"info","message":"Adding admin admin 10 to all campaigns completed.","service":"efe-admin-lo","timestamp":"2025-10-01 17:02:11"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-01 17:06:30"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 09:53:18"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 09:53:31"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 09:53:50"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 09:53:50"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:26"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:26"}
+{"level":"info","message":"Client disconnected","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:31"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:32"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 7 to ALL campaigns. Job ID: 1759373695898","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:55"}
+{"level":"info","message":"Starting process to add admin 'admin 7' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:55"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:55"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:55"}
+{"level":"info","message":"Client subscribed to job: 1759373695898","service":"efe-admin-lo","timestamp":"2025-10-02 09:54:55"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:01"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:03"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:03"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:04"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:05"}
+{"level":"info","message":"Adding admin admin 7 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:05"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:06"}
+{"level":"info","message":"Found 2 existing admin field(s) on campaign 289626.","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:06"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:06"}
+{"level":"info","message":"Setting admin 3: admin 7","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:06"}
+{"level":"info","message":"Admin 3 set to admin 7","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:07"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:07"}
+{"level":"info","message":"Admin admin 7 added to campaign 289626 successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:07"}
+{"level":"info","message":"Skipping campaign 289627: Admin 'admin 7' is restricted by configuration rules.","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:07"}
+{"level":"info","message":"Process to add admin to all campaigns completed successfully.","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:07"}
+{"jobId":"1759373695898","level":"info","message":"Adding admin admin 7 to all campaigns completed.","service":"efe-admin-lo","timestamp":"2025-10-02 09:55:07"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:05"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:06"}
+{"level":"info","message":"/api/admin/change-all received a request.","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:25"}
+{"adminPayloads":[{"name":"admin 1"},{"name":"admin 91"},{"name":"admin 6"}],"level":"info","message":"Starting automation for manual with admin payloads:","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:25"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:25"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:25"}
+{"level":"info","message":"Client subscribed to job: 1759373905611","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:25"}
+{"level":"info","message":"🔍 Campaign 289626 restrictions: Excluded admins: [admin 1] -> Processing with: [admin 91, admin 6]","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:27"}
+{"level":"info","message":"🔍 Campaign 289627 restrictions: Excluded admins: [admin 91, admin 6] -> Processing with: [admin 1]","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:27"}
+{"level":"info","message":"Processing group for admins: admin 6, admin 91 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:27"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:27"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:27"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:28"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:28"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:29"}
+{"level":"info","message":"Processing campaign 289626 with admins: admin 91, admin 6","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:29"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:30"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:30"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:31"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:31"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:32"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:32"}
+{"level":"info","message":"Cloning fields for 2 admins...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:32"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:32"}
+{"level":"info","message":"Setting admin 1: admin 91","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:33"}
+{"level":"info","message":"Admin 1 set to admin 91","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:33"}
+{"level":"info","message":"Setting admin 2: admin 6","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:33"}
+{"level":"info","message":"Admin 2 set to admin 6","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:34"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:34"}
+{"level":"info","message":"Campaign 289626 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:34"}
+{"level":"info","message":"Processing group for admins: admin 1 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:34"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:34"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:34"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:35"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:35"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:36"}
+{"level":"info","message":"Processing campaign 289627 with admins: admin 1","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:36"}
+{"level":"info","message":"🔍 SPECIAL CAMPAIGN (289627): Processing with admins: [admin 1]","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:36"}
+{"level":"info","message":"ℹ️ INFO: No admins were excluded for special campaign 289627 from the current selection.","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:36"}
+{"level":"info","message":"Campaign 289627 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:37"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:37"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:37"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:38"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:38"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:39"}
+{"level":"info","message":"Cloning fields for 1 admins...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:39"}
+{"level":"info","message":"Setting admin 1: admin 1","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:39"}
+{"level":"info","message":"Admin 1 set to admin 1","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:39"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:39"}
+{"level":"info","message":"Campaign 289627 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:40"}
+{"level":"info","message":"Webhook sent, status:","service":"efe-admin-lo","status":200,"timestamp":"2025-10-02 09:58:41"}
+{"jobId":"1759373905611","level":"info","message":"Automation completed.","service":"efe-admin-lo","timestamp":"2025-10-02 09:58:41"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 4 to ALL campaigns. Job ID: 1759373962637","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:22"}
+{"level":"info","message":"Starting process to add admin 'admin 4' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:22"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:22"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:22"}
+{"level":"info","message":"Client subscribed to job: 1759373962637","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:22"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:23"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:24"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:24"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:25"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:26"}
+{"level":"info","message":"Adding admin admin 4 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:26"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:27"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:27"}
+{"level":"info","message":"Setting admin last1: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:27"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289626:","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"level":"info","message":"Adding admin admin 4 to campaign 289627...","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289627:","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"level":"info","message":"Process to add admin to all campaigns finished with some failures.","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"jobId":"1759373962637","level":"info","message":"Adding admin admin 4 to all campaigns failed.","service":"efe-admin-lo","timestamp":"2025-10-02 09:59:40"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 10:01:40"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 10:01:41"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 10:01:59"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:02"}
+{"level":"info","message":"[/api/admin/add] Received request to add admin admin 4 to ALL campaigns. Job ID: 1759374126827","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:06"}
+{"level":"info","message":"Starting process to add admin 'admin 4' to all campaigns.","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:06"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:06"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:06"}
+{"level":"info","message":"Client subscribed to job: 1759374126827","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:06"}
+{"level":"info","message":"Found 2 unique campaigns to process.","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:08"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:09"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:10"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:10"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:11"}
+{"level":"info","message":"Adding admin admin 4 to campaign 289626...","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:11"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:12"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:12"}
+{"level":"info","message":"Initial admin field count: 2","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:12"}
+{"level":"info","message":"Field cloned successfully. New count: 3","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:12"}
+{"level":"info","message":"Setting admin last1: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:12"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289626:","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"level":"error","message":"Failed to add admin admin 4 to campaign 289626: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:last-child .select2-arrow')\u001b[22m\n","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"level":"info","message":"Adding admin admin 4 to campaign 289627...","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"error":{},"level":"error","message":"Failed to add admin admin 4 to campaign 289627:","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"level":"error","message":"Failed to add admin admin 4 to campaign 289627: page.goto: Target page, context or browser has been closed","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"level":"info","message":"Process to add admin to all campaigns finished with some failures.","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:28"}
+{"jobId":"1759374126827","level":"info","message":"Adding admin admin 4 to all campaigns failed.","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:29"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:41"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 10:02:41"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:05"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:05"}
+{"level":"info","message":"/api/admin/change-all received a request.","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:13"}
+{"adminPayloads":[{"name":"admin 4"}],"level":"info","message":"Starting automation for manual with admin payloads:","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:13"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:13"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:14"}
+{"level":"info","message":"Client subscribed to job: 1759374193997","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:14"}
+{"level":"info","message":"Processing group for admins: admin 4 with 2 campaigns","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:14"}
+{"level":"info","message":"Processing batch of 2 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:14"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:14"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:14"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:15"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:15"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:15"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:15"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:16"}
+{"level":"info","message":"Processing campaign 289626 with admins: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:16"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:16"}
+{"level":"info","message":"Processing campaign 289627 with admins: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:16"}
+{"level":"info","message":"🔍 SPECIAL CAMPAIGN (289627): Processing with admins: [admin 4]","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:16"}
+{"level":"info","message":"ℹ️ INFO: No admins were excluded for special campaign 289627 from the current selection.","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:16"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:17"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:17"}
+{"level":"info","message":"Campaign 289627 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:17"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:17"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:17"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:17"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:18"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:18"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:18"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:18"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Cloning fields for 1 admins...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Setting admin 1: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Cloning fields for 1 admins...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Setting admin 1: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Admin 1 set to admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Admin 1 set to admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:19"}
+{"level":"info","message":"Campaign 289626 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:20"}
+{"level":"info","message":"Campaign 289627 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:20"}
+{"level":"info","message":"Webhook sent, status:","service":"efe-admin-lo","status":200,"timestamp":"2025-10-02 10:03:21"}
+{"jobId":"1759374193997","level":"info","message":"Automation completed.","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:21"}
+{"level":"info","message":"/api/admin/change-all received a request.","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"adminPayloads":[{"name":"admin 4"},{"name":"admin 91"},{"name":"admin 1"}],"level":"info","message":"Starting automation for manual with admin payloads:","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Attempting browser connection...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Use local Chromium...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Client subscribed to job: 1759374224028","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"🔍 Campaign 289626 restrictions: Excluded admins: [admin 1] -> Processing with: [admin 4, admin 91]","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"🔍 Campaign 289627 restrictions: Excluded admins: [admin 91] -> Processing with: [admin 4, admin 1]","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Processing group for admins: admin 4, admin 91 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:44"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:45"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:45"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:46"}
+{"level":"info","message":"Processing campaign 289626 with admins: admin 4, admin 91","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:46"}
+{"level":"info","message":"Campaign 289626 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:47"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:47"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:47"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:48"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:48"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:49"}
+{"level":"info","message":"Cloning fields for 2 admins...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:49"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:49"}
+{"level":"info","message":"Setting admin 1: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:49"}
+{"level":"info","message":"Admin 1 set to admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Setting admin 2: admin 91","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Admin 2 set to admin 91","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Campaign 289626 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Processing group for admins: admin 1, admin 4 with 1 campaigns","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Processing batch of 1 campaigns...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Initiating login process...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:50"}
+{"level":"info","message":"Login page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:51"}
+{"level":"info","message":"Credentials entered","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:51"}
+{"level":"info","message":"Login completed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:52"}
+{"level":"info","message":"Processing campaign 289627 with admins: admin 4, admin 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:52"}
+{"level":"info","message":"🔍 SPECIAL CAMPAIGN (289627): Processing with admins: [admin 4, admin 1]","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:52"}
+{"level":"info","message":"ℹ️ INFO: No admins were excluded for special campaign 289627 from the current selection.","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:52"}
+{"level":"info","message":"Campaign 289627 page loaded","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:53"}
+{"level":"info","message":"Deleting 4 existing items...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:53"}
+{"level":"info","message":"Deleted item 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:54"}
+{"level":"info","message":"Deleted item 2","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:54"}
+{"level":"info","message":"Deleted item 3","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:55"}
+{"level":"info","message":"Deleted item 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:56"}
+{"level":"info","message":"Cloning fields for 2 admins...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:56"}
+{"level":"info","message":"Cloning field...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:56"}
+{"level":"info","message":"Setting admin 1: admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:56"}
+{"level":"info","message":"Admin 1 set to admin 4","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:57"}
+{"level":"info","message":"Setting admin 2: admin 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:57"}
+{"level":"info","message":"Admin 2 set to admin 1","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:57"}
+{"level":"info","message":"Saving changes...","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:57"}
+{"level":"info","message":"Campaign 289627 processed successfully","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:58"}
+{"level":"info","message":"Webhook sent, status:","service":"efe-admin-lo","status":200,"timestamp":"2025-10-02 10:03:59"}
+{"jobId":"1759374224028","level":"info","message":"Automation completed.","service":"efe-admin-lo","timestamp":"2025-10-02 10:03:59"}
+{"level":"info","message":"Enhanced server started on http://localhost:3010","service":"efe-admin-lo","timestamp":"2025-10-02 10:08:39"}
+{"level":"info","message":"New client connected","service":"efe-admin-lo","timestamp":"2025-10-02 10:08:40"}
