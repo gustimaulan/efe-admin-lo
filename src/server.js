@@ -9,6 +9,7 @@ const socketIo = require('socket.io');
 const automationService = require('./services/automationService');
 const fs = require('fs');
 const path = require('path');
+const { log, setSocketIO } = require('./services/logger'); // Import log and setSocketIO
 
 dotenv.config();
 
@@ -29,31 +30,17 @@ async function startServer() {
   server.timeout = 600000;
 
   const io = socketIo(server);
+  setSocketIO(io); // Pass the Socket.IO instance to the logger
   const runningJobs = new Map();
 
-  const originalConsoleLog = console.log;
-  const originalConsoleError = console.error;
-
-  console.log = function() {
-    originalConsoleLog.apply(console, arguments);
-    const message = Array.from(arguments).map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' ');
-    io.emit('console_logs', { timestamp: new Date(), message, isError: false });
-  };
-
-  console.error = function() {
-    originalConsoleError.apply(console, arguments);
-    const message = Array.from(arguments).map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' ');
-    io.emit('console_logs', { timestamp: new Date(), message, isError: true });
-  };
-
   io.on('connection', (socket) => {
-    console.log('New client connected');
+    log('info', 'New client connected');
     socket.on('subscribeToJob', (jobId) => {
-      console.log('Client subscribed to job:', jobId);
+      log('info', `Client subscribed to job: ${jobId}`);
       socket.join(jobId);
     });
     socket.on('disconnect', () => {
-      console.log('Client disconnected');
+      log('info', 'Client disconnected');
     });
   });
 
@@ -198,13 +185,13 @@ async function startServer() {
 
     const exemptionSettings = { exemptAdmin: req.body.exemptAdmin || null };
 
-    console.log('DEBUG: Validating admin names.');
-    console.log('DEBUG: adminPayloads:', JSON.stringify(adminPayloads));
-    console.log('DEBUG: ALLOWED_ADMIN_NAMES:', JSON.stringify(ALLOWED_ADMIN_NAMES));
+    log('debug', 'Validating admin names.');
+    log('debug', `adminPayloads: ${JSON.stringify(adminPayloads)}`);
+    log('debug', `ALLOWED_ADMIN_NAMES: ${JSON.stringify(ALLOWED_ADMIN_NAMES)}`);
 
     const allAdminsValid = adminPayloads.every(payload => ALLOWED_ADMIN_NAMES.includes(payload.name));
     if (!allAdminsValid || adminPayloads.length === 0) {
-      console.log('DEBUG: Validation failed. At least one admin name is not in ALLOWED_ADMIN_NAMES or no admins were provided.');
+      log('debug', 'Validation failed. At least one admin name is not in ALLOWED_ADMIN_NAMES or no admins were provided.');
       return res.status(400).json({ message: 'Invalid admin names' });
     }
 
@@ -223,7 +210,7 @@ async function startServer() {
 
     res.json({ jobId, message: 'Automation started', status: 'running' });
 
-    automationService.runAutomation(adminPayloads, timeOfDay, campaignSelections, exemptionSettings, console)
+    automationService.runAutomation(adminPayloads, timeOfDay, campaignSelections, exemptionSettings, log)
       .then(success => {
         const finalMessage = `Automation ${success ? 'completed' : 'failed'}.`;
         addJobLog(jobId, finalMessage, !success);
@@ -239,7 +226,7 @@ async function startServer() {
   });
 
   server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Enhanced server started on http://localhost:${PORT}`);
+    log('info', `Enhanced server started on http://localhost:${PORT}`);
   });
 }
 
