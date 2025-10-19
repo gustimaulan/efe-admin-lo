@@ -19,15 +19,13 @@ const logger = winston.createLogger({
     ]
 });
 
-// If we're not in production, log to the console too
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: format.combine(
-            format.colorize(),
-            format.simple()
-        )
-    }));
-}
+// Always log to the console, regardless of environment
+logger.add(new winston.transports.Console({
+    format: format.combine(
+        format.colorize(),
+        format.simple()
+    )
+}));
 
 // Create a stream object for Morgan
 const stream = {
