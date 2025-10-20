@@ -1,4 +1,3 @@
-
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -35,14 +34,14 @@ const config = {
     _specialCampaign: {
         regular: {
             id: 247001,
-            excludedAdmins: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"]
+            excludedAdmins: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92", "admin 914", "admin 915", "admin 916", "admin 917", "admin 918"]
         },
         staging: {
             id: 289627,
-            excludedAdmins: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"]
+            excludedAdmins: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92", "admin 914", "admin 915", "admin 916", "admin 917", "admin 918"]
         }
     },
-    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 09", "admin 10", "admin 91", "admin 92"],
+    ALLOWED_ADMIN_NAMES: ["admin 1", "admin 2", "admin 3", "admin 4", "admin 5", "admin 6", "admin 7", "admin 8", "admin 09", "admin 10", "admin 91", "admin 92", "admin 914", "admin 915", "admin 916", "admin 917", "admin 918"],
     LOGIN_URL: 'https://app.loops.id/login',
     CAMPAIGN_BASE_URL: 'https://app.loops.id/campaign/',
     SERVER: {
@@ -81,61 +80,44 @@ const config = {
                 priority: 1
             },
             {
-                id: "exclude_admins_from_campaign_247001",
-                description: "Admins 6, 7, 10, 91, 92 cannot process campaign 247001",
+                id: "restrict_admin5_to_only_campaign_247001",
+                description: "Admin 5 can only process campaign 247001",
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"] },
+                        { type: "ADMIN", value: "admin 5" },
+                        { type: "CAMPAIGN", operator: "!=", value: 247001 }
+                    ]
+                },
+                action: { type: "DENY" },
+                priority: 1
+            },
+            {
+                id: "restrict_admin2_to_only_campaign_247001",
+                description: "Admin 2 can only process campaign 247001",
+                condition: {
+                    type: "AND",
+                    conditions: [
+                        { type: "ADMIN", value: "admin 2" },
+                        { type: "CAMPAIGN", operator: "!=", value: 247001 }
+                    ]
+                },
+                action: { type: "DENY" },
+                priority: 1
+            },
+            {
+                id: "exclude_admins_from_campaign_247001",
+                description: "Admins 6, 7, 10, 91, 92, 914, 915, 916, 917, 918 cannot process campaign 247001",
+                condition: {
+                    type: "AND",
+                    conditions: [
+                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92", "admin 914", "admin 915", "admin 916", "admin 917", "admin 918"] },
                         { type: "CAMPAIGN", value: 247001 }
                     ]
                 },
                 action: { type: "DENY" },
                 priority: 1
             },
-            // Conditional restriction: when admin 91 is present, admin 5 is restricted
-            {
-                id: "conditional_restriction_admin5_when_admin91",
-                description: "When admin 91 is present, admin 5 can only process campaign 247001",
-                condition: {
-                    type: "AND",
-                    conditions: [
-                        { type: "ADMIN", value: "admin 5" },
-                        { type: "CAMPAIGN", operator: "!=", value: 247001 },
-                        { type: "ALL_SELECTED_ADMINS_CONTAINS", value: ["admin 91"] }
-                    ]
-                },
-                action: { type: "DENY" },
-                priority: 2
-            },
-            {
-                id: "conditional_restriction_admin2_when_admin92",
-                description: "When admin 92 is present, admin 2 is restricted and can only process campaign 247001",
-                condition: {
-                    type: "AND",
-                    conditions: [
-                        { type: "ADMIN", value: "admin 2" },
-                        { type: "CAMPAIGN", operator: "!=", value: 247001 },
-                        { type: "ALL_SELECTED_ADMINS_CONTAINS", value: ["admin 92"] }
-                    ]
-                },
-                action: { type: "DENY" },
-                priority: 2
-            },
-            // Special case: if admin 1, 5, and 91 are all present, an admin can be exempted
-            {
-                id: "exemption_when_all_special_admins_present",
-                description: "When admin 1, 5, and 91 are all selected, admin 5 is always exempt from conditional restriction",
-                condition: {
-                    type: "AND",
-                    conditions: [
-                        { type: "ADMIN", value: "admin 5" }, // This rule now specifically targets admin 5
-                        { type: "ALL_SELECTED_ADMINS_CONTAINS", value: ["admin 1", "admin 5", "admin 91"] }
-                    ]
-                },
-                action: { type: "ALLOW_BYPASS" }, // A special action to bypass other rules
-                priority: 3 // High priority to override other rules
-            }
         ],
         staging: [
             // --- Rules below are duplicated from 'regular' and adapted for 'staging' environment ---
@@ -154,11 +136,11 @@ const config = {
             },
             {
                 id: "exclude_admins_from_campaign_289627_staging",
-                description: "Admins 6, 7, 10, 91, 92 cannot process campaign 289627",
+                description: "Admins 6, 7, 10, 91, 92, 914, 915, 916, 917, 918 cannot process campaign 289627",
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92"] },
+                        { type: "ADMIN", operator: "IN", value: ["admin 6", "admin 7", "admin 09", "admin 10", "admin 91", "admin 92", "admin 914", "admin 915", "admin 916", "admin 917", "admin 918"] },
                         { type: "CAMPAIGN", value: 289627 }
                     ]
                 },
@@ -201,7 +183,8 @@ const config = {
                 condition: {
                     type: "AND",
                     conditions: [
-                        { type: "ADMIN", value: "admin 5" }, // This rule now specifically targets admin 5
+                        { type: "ADMIN", value: "admin 5" },
+                        { type: "CAMPAIGN", operator: "!=", value: 289627 }, // This rule should only trigger when the restriction would apply
                         { type: "ALL_SELECTED_ADMINS_CONTAINS", value: ["admin 1", "admin 5", "admin 91"] }
                     ]
                 },
@@ -273,9 +256,13 @@ const config = {
 
     checkAllSelectedAdminsContainsCondition: function(condition, allSelectedAdmins) {
         if (Array.isArray(condition.value)) {
+            // This condition requires that EVERY admin listed in condition.value
+            // must be present in the allSelectedAdmins array.
             return condition.value.every(admin => allSelectedAdmins.includes(admin));
         }
-        return allSelectedAdmins.includes(condition.value);
+        // If condition.value is not an array, it's a single string.
+        // Check if that single admin is present.
+        return allSelectedAdmins.includes(String(condition.value));
     },
     // --- END: Default Rules ---
     
