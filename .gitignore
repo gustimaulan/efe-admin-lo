@@ -10,7 +10,7 @@ appscript.js
 *.sh
 *.md
 test-process.js
+logs
 .DS_Store
 .vscode
 .idea
-logs
