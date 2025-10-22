@@ -29,6 +29,8 @@ const app = express();
 // Create HTTP server
 const server = http.createServer(app);
 
+
+
 // Configure Socket.IO
 const io = socketIo(server, {
     cors: {
@@ -45,7 +47,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.socket.io", "https://cdnjs.cloudflare.com", "https://cdn.tailwindcss.com"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
             imgSrc: ["'self'", "data:", "https:"],

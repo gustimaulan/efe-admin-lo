@@ -5,7 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=production node src/server.js",
     "dev": "NODE_ENV=development nodemon src/server.js",
-    "staging": "NODE_ENV=staging nodemon staging/server-enhanced.js",
+    "staging": "NODE_ENV=staging nodemon src/server.js",
     "staging:prod": "NODE_ENV=staging node staging/server-enhanced.js",
     "lint": "eslint .",
     "test": "jest",
