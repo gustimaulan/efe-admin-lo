@@ -122,59 +122,44 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     
     <!-- Custom JavaScript -->
+    <script src="/static/js/app.js"></script>
+    
+    <!-- Fallback JavaScript -->
     <script>
-        // Ensure the app.js loads properly with error handling
-        function loadAppScript() {
-            const script = document.createElement('script');
-            script.src = '/static/js/app.js';
-            script.onerror = function() {
-                console.error('Failed to load app.js');
-                // Try alternative path
-                const altScript = document.createElement('script');
-                altScript.src = '/js/app.js';
-                altScript.onerror = function() {
-                    console.error('Failed to load app.js from alternative path');
-                    // Fallback: inline basic functionality
-                    initBasicFunctionality();
-                };
-                document.head.appendChild(altScript);
-            };
-            document.head.appendChild(script);
-        }
-        
-        // Basic fallback functionality
-        function initBasicFunctionality() {
-            console.warn('Using fallback functionality');
-            document.addEventListener('DOMContentLoaded', () => {
-                const formTab = document.getElementById('formTab');
-                const logTab = document.getElementById('logTab');
-                const formContent = document.getElementById('formContent');
-                const logContent = document.getElementById('logContent');
+        // Check if app loaded successfully, if not use fallback
+        setTimeout(() => {
+            if (typeof EFEAdminApp === 'undefined') {
+                console.warn('App.js failed to load, using fallback functionality');
                 
-                if (formTab && logTab && formContent && logContent) {
-                    formTab.addEventListener('click', () => {
-                        formTab.classList.add('text-white', 'border-blue-500');
-                        formTab.classList.remove('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
-                        logTab.classList.remove('text-white', 'border-blue-500');
-                        logTab.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
-                        formContent.classList.remove('hidden');
-                        logContent.classList.add('hidden');
-                    });
+                // Basic tab functionality
+                document.addEventListener('DOMContentLoaded', () => {
+                    const formTab = document.getElementById('formTab');
+                    const logTab = document.getElementById('logTab');
+                    const formContent = document.getElementById('formContent');
+                    const logContent = document.getElementById('logContent');
                     
-                    logTab.addEventListener('click', () => {
-                        logTab.classList.add('text-white', 'border-blue-500');
-                        logTab.classList.remove('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
-                        formTab.classList.remove('text-white', 'border-blue-500');
-                        formTab.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
-                        logContent.classList.remove('hidden');
-                        formContent.classList.add('hidden');
-                    });
-                }
-            });
-        }
-        
-        // Load the main script
-        loadAppScript();
+                    if (formTab && logTab && formContent && logContent) {
+                        formTab.addEventListener('click', () => {
+                            formTab.classList.add('text-white', 'border-blue-500');
+                            formTab.classList.remove('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+                            logTab.classList.remove('text-white', 'border-blue-500');
+                            logTab.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+                            formContent.classList.remove('hidden');
+                            logContent.classList.add('hidden');
+                        });
+                        
+                        logTab.addEventListener('click', () => {
+                            logTab.classList.add('text-white', 'border-blue-500');
+                            logTab.classList.remove('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+                            formTab.classList.remove('text-white', 'border-blue-500');
+                            formTab.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+                            logContent.classList.remove('hidden');
+                            formContent.classList.add('hidden');
+                        });
+                    }
+                });
+            }
+        }, 1000);
     </script>
     
     <!-- Progressive Web App Support -->
