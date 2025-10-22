@@ -1,6 +1,6 @@
 {
   "name": "efe-admin-lo",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "main": "src/server.js",
   "scripts": {
     "start": "NODE_ENV=production node src/server.js",
