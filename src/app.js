@@ -226,12 +226,24 @@ app.get('/', (req, res) => {
     }
 });
 
-// Static files serving with proper headers
+// Static files serving with proper headers and fallback
 app.use('/static', express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, path, stat) => {
         if (path.endsWith('.js')) {
             res.setHeader('Content-Type', 'application/javascript');
         }
+        // Add caching headers for better performance
+        if (path.endsWith('.css') || path.endsWith('.js')) {
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+        }
+    }
+}));
+
+// Fallback route for direct /js/ access
+app.use('/js', express.static(path.join(__dirname, 'public/js'), {
+    setHeaders: (res, path, stat) => {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Cache-Control', 'public, max-age=3600');
     }
 }));
 
