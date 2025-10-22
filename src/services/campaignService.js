@@ -69,10 +69,10 @@ class BrowserService {
                 return false;
             }
 
-            // Delete existing items with retry mechanism
-            loggerService.info(`Deleting ${adminsToProcess.length} existing items...`);
+            // Delete 5 items with retry mechanism
+            loggerService.info(`Deleting 5 existing items...`);
             await this.retryOperation(async () => {
-                for (let i = 0; i < adminsToProcess.length; i++) {
+                for (let i = 0; i < 5; i++) {
                     if (await page.$("button.secondary.op-delete.icon-subtraction.delete")) {
                         await page.click("button.secondary.op-delete.icon-subtraction.delete", { timeout: 5000 });
                         await page.waitForTimeout(500);
