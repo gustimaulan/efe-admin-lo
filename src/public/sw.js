@@ -1,7 +1,7 @@
-const CACHE_NAME = 'efe-admin-lo-v1';
+const CACHE_NAME = 'efe-admin-lo-v2';
 const urlsToCache = [
   '/',
-  '/public/js/app.js',
+  '/js/app.js',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdn.socket.io/4.5.4/socket.io.min.js'
