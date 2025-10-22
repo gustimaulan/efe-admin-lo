@@ -10,18 +10,23 @@ module.exports = {
     out_file: './logs/out.log',
     log_file: './logs/combined.log',
     time: true,
+    kill_timeout: 30000,
+    listen_timeout: 10000,
 
     // Environment untuk Produksi (menggunakan config 'regular')
     env_production: {
       NODE_ENV: 'production',
-      // Anda bisa menambahkan variabel lain di sini jika perlu
-      // PORT: 3010 
+      PORT: 3010,
+      ALLOWED_ORIGINS: 'http://5.161.185.120:3010,http://localhost:3010',
+      TRUST_PROXY: 'false'
     },
 
     // Environment untuk Staging (menggunakan config 'staging')
     env_staging: {
       NODE_ENV: 'staging',
-      // PORT: 3011
+      PORT: 3011,
+      ALLOWED_ORIGINS: 'http://5.161.185.120:3011,http://localhost:3011',
+      TRUST_PROXY: 'false'
     }
   }]
 };

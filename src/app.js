@@ -49,14 +49,17 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.socket.io", "https://cdnjs.cloudflare.com", "https://cdn.tailwindcss.com"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "ws:", "wss:"]
+            connectSrc: ["'self'", "ws:", "wss:", "https://cdn.socket.io"]
         }
-    }
+    },
+    crossOriginOpenerPolicy: { policy: "unsafe-none" },
+    crossOriginEmbedderPolicy: false,
+    originAgentCluster: false
 }));
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3010', 'http://5.161.185.120:3010'],
     credentials: true
 }));
 
@@ -223,8 +226,14 @@ app.get('/', (req, res) => {
     }
 });
 
-// Static files serving
-app.use('/static', express.static(path.join(__dirname, 'public')));
+// Static files serving with proper headers
+app.use('/static', express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, path, stat) => {
+        if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+    }
+}));
 
 // Service worker route
 app.get('/sw.js', (req, res) => {

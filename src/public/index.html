@@ -7,6 +7,18 @@
     
     <!-- External CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Disable Tailwind CDN warning in production
+        if (window.location.hostname !== 'localhost') {
+            const originalWarn = console.warn;
+            console.warn = function(...args) {
+                if (args[0] && args[0].includes('should not be used in production')) {
+                    return;
+                }
+                originalWarn.apply(console, args);
+            };
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Meta tags -->
@@ -107,7 +119,22 @@
     </div>
 
     <!-- External JavaScript -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // Handle Socket.IO connection based on protocol
+        (function() {
+            const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+            const socketIoScript = document.createElement('script');
+            socketIoScript.src = protocol + '//cdn.socket.io/4.5.4/socket.io.min.js';
+            socketIoScript.onerror = function() {
+                console.warn('Socket.IO CDN failed to load, using fallback');
+                // Fallback to local if available
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = '/static/js/socket.io.min.js';
+                document.head.appendChild(fallbackScript);
+            };
+            document.head.appendChild(socketIoScript);
+        })();
+    </script>
     
     <!-- Custom JavaScript -->
     <script src="/static/js/app.js"></script>
