@@ -7,7 +7,6 @@ tmp
 stderr.log
 appscript.js
 *.sh
-test-process.js
 logs
 .DS_Store
 .vscode

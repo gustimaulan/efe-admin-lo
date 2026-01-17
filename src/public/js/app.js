@@ -11,7 +11,7 @@ class EFEAdminApp {
         this.adminOptions = [];
         this.socket = null;
         this.currentJobId = null;
-        
+
         this.init();
     }
 
@@ -30,22 +30,23 @@ class EFEAdminApp {
         this.formContent = document.getElementById('formContent');
         this.logContent = document.getElementById('logContent');
         this.logCounter = document.getElementById('logCounter');
-        
+
         // Form elements
         this.automationForm = document.getElementById('automationForm');
         this.adminContainer = document.getElementById('adminContainer');
         this.automationButton = document.getElementById('automationButton');
         this.checkPlanButton = document.getElementById('checkPlanButton');
-        
+        this.exemptAdminSelect = document.getElementById('exemptAdminSelect');
+
         // Log elements
         this.logContainer = document.getElementById('logContainer');
         this.clearLogsButton = document.getElementById('clearLogs');
-        
+
         // Modal elements
         this.planModal = document.getElementById('planModal');
         this.closeModalButton = document.getElementById('closeModalButton');
         this.planContainer = document.getElementById('planContainer');
-        
+
         // Status elements
         this.versionBadge = document.getElementById('versionBadge');
         this.statusIndicator = document.getElementById('statusIndicator');
@@ -75,13 +76,24 @@ class EFEAdminApp {
         try {
             const response = await fetch('/api/config');
             const result = await response.json();
-            
+
             if (result.success) {
                 this.currentConfig = result.data;
                 this.adminOptions = this.currentConfig.ALLOWED_ADMIN_NAMES.map(name => ({
                     label: name,
                     value: name
                 }));
+
+                // Populate exempt admin select
+                if (this.exemptAdminSelect) {
+                    this.adminOptions.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt.value;
+                        option.textContent = opt.label;
+                        this.exemptAdminSelect.appendChild(option);
+                    });
+                }
+
                 this.updateVersionBadge();
             } else {
                 this.addLog('Failed to load admin options', true);
@@ -94,7 +106,7 @@ class EFEAdminApp {
 
     initializeSocket() {
         this.socket = io();
-        
+
         this.socket.on('connect', () => {
             this.addLog('Connected to server via WebSocket.', false);
             this.updateStatusIndicator(true);
@@ -112,7 +124,7 @@ class EFEAdminApp {
         this.socket.on('newLog', (logEntry) => {
             const message = logEntry.message.trim();
             this.addLog(message, logEntry.isError);
-            
+
             if (this.isJobCompleteMessage(message)) {
                 this.handleJobCompletion(logEntry);
             }
@@ -121,22 +133,25 @@ class EFEAdminApp {
 
     switchTab(tab) {
         this.activeTab = tab;
-        
-        // Update tab styles
-        [this.formTab, this.logTab].forEach(t => {
-            t.classList.remove('text-white', 'border-blue-500');
-            t.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+
+        // Select tab buttons and contents
+        const tabs = {
+            form: { btn: this.formTab, content: this.formContent },
+            log: { btn: this.logTab, content: this.logContent }
+        };
+
+        // Reset all tabs
+        Object.values(tabs).forEach(({ btn, content }) => {
+            btn.classList.remove('active', 'text-white', 'border-blue-500');
+            btn.classList.add('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+            content.classList.add('hidden');
         });
-        
-        // Hide all content
-        [this.formContent, this.logContent].forEach(c => c.classList.add('hidden'));
 
-        // Show selected tab
-        const tabElements = { form: this.formTab, log: this.logTab };
-        const contentElements = { form: this.formContent, log: this.logContent };
-
-        tabElements[tab].classList.add('text-white', 'border-blue-500');
-        contentElements[tab].classList.remove('hidden');
+        // Set active tab
+        const active = tabs[tab];
+        active.btn.classList.remove('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
+        active.btn.classList.add('active', 'text-white', 'border-blue-500');
+        active.content.classList.remove('hidden');
 
         if (tab === 'form' && this.adminContainer.children.length === 0) {
             this.addAdminField();
@@ -145,55 +160,58 @@ class EFEAdminApp {
 
     createAdminField(index) {
         const adminDiv = document.createElement('div');
-        adminDiv.className = 'bg-slate-800/50 p-3 rounded-lg mb-2 border border-slate-700';
+        adminDiv.className = 'bg-slate-800/50 p-3 rounded-lg mb-2 border border-slate-700 opacity-0 transition-opacity duration-300';
         adminDiv.dataset.adminIndex = index;
-        
+
         const flexContainer = document.createElement('div');
         flexContainer.className = 'flex items-center space-x-2';
-        
+
         const select = this.createAdminSelect(index);
         const buttonContainer = this.createButtonContainer();
-        
+
         flexContainer.appendChild(select);
         flexContainer.appendChild(buttonContainer);
         adminDiv.appendChild(flexContainer);
-        
+
+        // Trigger opacity transition
+        setTimeout(() => adminDiv.classList.remove('opacity-0'), 10);
+
         return adminDiv;
     }
 
     createAdminSelect(index) {
         const select = document.createElement('select');
         select.name = `admin${index}`;
-        select.className = 'flex-grow p-2 border rounded-lg bg-slate-700 text-slate-200 border-slate-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20';
+        select.className = 'flex-grow p-2 border rounded-lg bg-slate-700 text-slate-200 border-slate-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all';
         select.required = true;
-        
+
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.disabled = true;
         defaultOption.selected = true;
         defaultOption.textContent = 'Select an admin';
         select.appendChild(defaultOption);
-        
+
         this.adminOptions.forEach(opt => {
             const option = document.createElement('option');
             option.value = opt.value;
             option.textContent = opt.label;
             select.appendChild(option);
         });
-        
+
         return select;
     }
 
     createButtonContainer() {
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'flex items-center space-x-1';
-        
+
         const addButton = this.createAddButton();
         const removeButton = this.createRemoveButton();
-        
+
         buttonContainer.appendChild(addButton);
         buttonContainer.appendChild(removeButton);
-        
+
         return buttonContainer;
     }
 
@@ -201,9 +219,7 @@ class EFEAdminApp {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'bg-green-500/20 hover:bg-green-500/40 text-green-400 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200';
-        button.innerHTML = '+';
-        button.style.fontSize = '18px';
-        button.style.fontWeight = 'bold';
+        button.innerHTML = '<i class="fas fa-plus text-xs"></i>';
         button.onclick = () => this.addAdminField();
         return button;
     }
@@ -212,9 +228,7 @@ class EFEAdminApp {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'rmv bg-red-500/20 hover:bg-red-500/40 text-red-400 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200';
-        button.innerHTML = '−';
-        button.style.fontSize = '18px';
-        button.style.fontWeight = 'bold';
+        button.innerHTML = '<i class="fas fa-minus text-xs"></i>';
         button.onclick = (e) => {
             const field = e.target.closest('[data-admin-index]');
             this.removeAdminField(field);
@@ -232,10 +246,13 @@ class EFEAdminApp {
 
     removeAdminField(field) {
         if (this.adminCount > 1) {
-            field.remove();
-            this.adminCount--;
-            this.updateRemoveButtons();
-            this.updateAdminCounter();
+            field.classList.add('opacity-0');
+            setTimeout(() => {
+                field.remove();
+                this.adminCount--;
+                this.updateRemoveButtons();
+                this.updateAdminCounter();
+            }, 300);
         }
     }
 
@@ -258,21 +275,22 @@ class EFEAdminApp {
 
     async handleFormSubmit(e) {
         e.preventDefault();
-        
+
         this.setButtonLoading(true);
         this.addLog('Starting automation...');
-        
+
         try {
-            const response = await fetch('/api/run', { 
-                method: 'POST', 
-                body: new URLSearchParams(new FormData(this.automationForm)) 
+            const response = await fetch('/api/run', {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(this.automationForm))
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.currentJobId = result.data.jobId;
                 this.addLog(`Job started with ID: ${result.data.jobId}`);
+                this.switchTab('log'); // Auto-switch to logs when submitted
                 this.socket.emit('subscribeToJob', result.data.jobId);
             } else {
                 throw new Error(result.error?.message || 'Failed to start automation');
@@ -285,44 +303,50 @@ class EFEAdminApp {
     }
 
     async handleCheckPlan() {
-        this.planContainer.innerHTML = '<div class="text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Generating plan...</div>';
+        this.planContainer.innerHTML = '<div class="text-center text-slate-400 py-8"><i class="fas fa-spinner fa-spin fa-2x mb-3 text-blue-500"></i><br>Analyzing campaigns...</div>';
         this.planModal.classList.remove('hidden');
-        
+
         try {
             const response = await fetch('/api/check-plan', {
                 method: 'POST',
                 body: new URLSearchParams(new FormData(this.automationForm))
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.displayPlan(result.data.plan);
             } else {
-                this.planContainer.innerHTML = `<div class="text-red-400"><i class="fas fa-exclamation-triangle mr-2"></i>Error: ${result.error?.message || 'Failed to generate plan.'}</div>`;
+                this.planContainer.innerHTML = `<div class="text-red-400 p-4 bg-red-500/10 rounded-lg"><i class="fas fa-exclamation-triangle mr-2"></i>Error: ${result.error?.message || 'Failed to generate plan.'}</div>`;
             }
         } catch (error) {
-            this.planContainer.innerHTML = '<div class="text-red-400"><i class="fas fa-server mr-2"></i>Failed to connect to server to generate plan.</div>';
+            this.planContainer.innerHTML = '<div class="text-red-400 p-4 bg-red-500/10 rounded-lg"><i class="fas fa-server mr-2"></i>Failed to connect to server.</div>';
         }
     }
 
     displayPlan(plan) {
         if (!plan || plan.length === 0) {
-            this.planContainer.innerHTML = '<div class="text-slate-400 text-center">No campaigns to process.</div>';
+            this.planContainer.innerHTML = '<div class="text-slate-400 text-center py-8"><i class="fas fa-info-circle mb-2 fa-2x"></i><br>No campaigns found for the selected settings.</div>';
             return;
         }
-        
+
         this.planContainer.innerHTML = plan.map(item => {
-            const excludedText = item.excludedAdmins.length > 0 
-                ? `Excluded: <span class="text-red-400">[${item.excludedAdmins.join(', ')}]</span>` 
+            const hasProc = item.processingAdmins.length > 0;
+            const borderClass = hasProc ? 'border-green-500/30 bg-green-500/5' : 'border-slate-700 bg-slate-900/50';
+
+            const excludedText = item.excludedAdmins.length > 0
+                ? `Excluded: <span class="text-red-400">[${item.excludedAdmins.join(', ')}]</span>`
                 : 'No exclusions.';
-            const processingText = item.processingAdmins.length > 0 
-                ? `Processing: <span class="text-green-400">[${item.processingAdmins.join(', ')}]</span>` 
-                : '<span class="text-yellow-400">SKIPPED</span>';
-            
-            return `<div class="border-b border-slate-700 pb-2 mb-2">
-                <strong class="text-white">Campaign ${item.campaignId}</strong><br>
-                <span class="text-slate-400 text-xs">${excludedText} &rarr; ${processingText}</span>
+            const processingText = hasProc
+                ? `<span class="text-green-400 font-bold"><i class="fas fa-check-circle mr-1"></i>[${item.processingAdmins.join(', ')}]</span>`
+                : '<span class="text-yellow-400 font-bold"><i class="fas fa-minus-circle mr-1"></i>SKIPPED</span>';
+
+            return `<div class="border rounded-lg p-3 mb-2 ${borderClass}">
+                <div class="flex justify-between items-start mb-1">
+                    <strong class="text-white">Campaign ${item.campaignId}</strong>
+                    ${processingText}
+                </div>
+                <div class="text-slate-500 text-xs">${excludedText}</div>
             </div>`;
         }).join('');
     }
@@ -339,18 +363,20 @@ class EFEAdminApp {
     addLog(message, isError = false) {
         const timestamp = new Date().toLocaleTimeString();
         const logEntry = document.createElement('p');
-        logEntry.className = 'opacity-0 transition-opacity duration-300';
-        logEntry.innerHTML = `<span class="text-slate-500 mr-2">[${timestamp}]</span> <span class="${isError ? 'text-red-400' : 'text-slate-300'}">${this.escapeHtml(message)}</span>`;
-        
+        const colorClass = isError ? 'text-red-400' : (message.includes('[Backend]') ? 'text-blue-300' : 'text-slate-300');
+
+        logEntry.className = 'opacity-0 transition-opacity duration-300 mb-1 leading-relaxed';
+        logEntry.innerHTML = `<span class="text-slate-500 text-xs mr-2">${timestamp}</span> <span class="${colorClass}">${this.escapeHtml(message)}</span>`;
+
         this.logContainer.appendChild(logEntry);
-        
+
         // Fade in effect
-        setTimeout(() => { 
-            logEntry.classList.remove('opacity-0'); 
+        setTimeout(() => {
+            logEntry.classList.remove('opacity-0');
         }, 50);
-        
+
         this.logContainer.scrollTop = this.logContainer.scrollHeight;
-        
+
         // Update log counter if not on log tab
         if (this.activeTab !== 'log' && !message.includes('Connected to server')) {
             this.newLogCount++;
