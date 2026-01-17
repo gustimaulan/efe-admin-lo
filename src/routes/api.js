@@ -5,22 +5,22 @@ const router = express.Router();
 const automationController = require('../controllers/automationController');
 
 // Import middleware
-const { 
-    validateAdminPayloads, 
-    validateTimeOfDay, 
-    validateCampaignSelections, 
+const {
+    validateAdminPayloads,
+    validateTimeOfDay,
+    validateCampaignSelections,
     validateExemptionSettings,
     sanitizeBody,
     createRateLimit
 } = require('../middleware/validation');
 
-const { 
+const {
     asyncHandler,
-    rateLimitErrorHandler 
+    rateLimitErrorHandler
 } = require('../middleware/errorHandler');
 
 // Apply rate limiting to all routes
-router.use(createRateLimit(10, 60000)); // 10 requests per minute
+router.use(createRateLimit(60, 60000)); // 60 requests per minute
 router.use(rateLimitErrorHandler);
 
 // Apply body sanitization to all routes
@@ -81,7 +81,7 @@ router.delete('/jobs/:jobId', asyncHandler(automationController.cancelJob));
  * @access  Public
  * @middleware validateAdminPayloads, validateTimeOfDay, validateExemptionSettings
  */
-router.post('/check-plan', 
+router.post('/check-plan',
     validateAdminPayloads,
     validateTimeOfDay,
     validateExemptionSettings,
@@ -94,7 +94,7 @@ router.post('/check-plan',
  * @access  Public
  * @middleware validateAdminPayloads, validateTimeOfDay, validateCampaignSelections, validateExemptionSettings
  */
-router.post('/run', 
+router.post('/run',
     validateAdminPayloads,
     validateTimeOfDay,
     validateCampaignSelections,
@@ -107,19 +107,19 @@ router.post('/run',
  */
 router.use((err, req, res, next) => {
     console.error('API Route Error:', err);
-    
+
     // If response already sent, delegate to default error handler
     if (res.headersSent) {
         return next(err);
     }
-    
+
     res.status(err.statusCode || 500).json({
         success: false,
         error: {
             message: err.message || 'Internal Server Error',
-            ...(process.env.NODE_ENV === 'development' && { 
+            ...(process.env.NODE_ENV === 'development' && {
                 stack: err.stack,
-                details: err.details 
+                details: err.details
             })
         }
     });
