@@ -36,7 +36,6 @@ class EFEAdminApp {
         this.adminContainer = document.getElementById('adminContainer');
         this.automationButton = document.getElementById('automationButton');
         this.checkPlanButton = document.getElementById('checkPlanButton');
-        this.exemptAdminSelect = document.getElementById('exemptAdminSelect');
 
         // Log elements
         this.logContainer = document.getElementById('logContainer');
@@ -83,17 +82,6 @@ class EFEAdminApp {
                     label: name,
                     value: name
                 }));
-
-                // Populate exempt admin select
-                if (this.exemptAdminSelect) {
-                    this.adminOptions.forEach(opt => {
-                        const option = document.createElement('option');
-                        option.value = opt.value;
-                        option.textContent = opt.label;
-                        this.exemptAdminSelect.appendChild(option);
-                    });
-                }
-
                 this.updateVersionBadge();
             } else {
                 this.addLog('Failed to load admin options', true);
@@ -303,7 +291,7 @@ class EFEAdminApp {
     }
 
     async handleCheckPlan() {
-        this.planContainer.innerHTML = '<div class="text-center text-slate-400 py-8"><i class="fas fa-spinner fa-spin fa-2x mb-3 text-blue-500"></i><br>Analyzing campaigns...</div>';
+        this.planContainer.innerHTML = '<div class="text-center text-slate-400 py-8"><i class="fas fa-spinner fa-spin fa-2x mb-3 text-blue-500"></i><br>Generating plan...</div>';
         this.planModal.classList.remove('hidden');
 
         try {
@@ -331,22 +319,16 @@ class EFEAdminApp {
         }
 
         this.planContainer.innerHTML = plan.map(item => {
-            const hasProc = item.processingAdmins.length > 0;
-            const borderClass = hasProc ? 'border-green-500/30 bg-green-500/5' : 'border-slate-700 bg-slate-900/50';
-
             const excludedText = item.excludedAdmins.length > 0
                 ? `Excluded: <span class="text-red-400">[${item.excludedAdmins.join(', ')}]</span>`
                 : 'No exclusions.';
-            const processingText = hasProc
-                ? `<span class="text-green-400 font-bold"><i class="fas fa-check-circle mr-1"></i>[${item.processingAdmins.join(', ')}]</span>`
-                : '<span class="text-yellow-400 font-bold"><i class="fas fa-minus-circle mr-1"></i>SKIPPED</span>';
+            const processingText = item.processingAdmins.length > 0
+                ? `Processing: <span class="text-green-400">[${item.processingAdmins.join(', ')}]</span>`
+                : '<span class="text-yellow-400">SKIPPED</span>';
 
-            return `<div class="border rounded-lg p-3 mb-2 ${borderClass}">
-                <div class="flex justify-between items-start mb-1">
-                    <strong class="text-white">Campaign ${item.campaignId}</strong>
-                    ${processingText}
-                </div>
-                <div class="text-slate-500 text-xs">${excludedText}</div>
+            return `<div class="border-b border-slate-700 pb-2 mb-2">
+                <strong class="text-white">Campaign ${item.campaignId}</strong><br>
+                <span class="text-slate-400 text-xs">${excludedText} &rarr; ${processingText}</span>
             </div>`;
         }).join('');
     }
