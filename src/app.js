@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
-const helmet = require('helmet');
+// const helmet = require('helmet'); // Removed per user request
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
@@ -43,22 +43,23 @@ const io = socketIo(server, {
 loggerService.setSocketIO(io);
 
 // Security middleware
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.socket.io", "https://cdnjs.cloudflare.com", "https://cdn.tailwindcss.com"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "ws:", "wss:", "https://cdn.socket.io"]
-        }
-    },
-    crossOriginOpenerPolicy: { policy: "unsafe-none" },
-    crossOriginEmbedderPolicy: false,
-    originAgentCluster: false,
-    hsts: false // Disable HSTS to prevent HTTPS upgrades on IP address
-}));
+// Security middleware - Removed per user request
+// app.use(helmet({
+//     contentSecurityPolicy: {
+//         directives: {
+//             defaultSrc: ["'self'"],
+//             styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+//             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.socket.io", "https://cdnjs.cloudflare.com", "https://cdn.tailwindcss.com"],
+//             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
+//             imgSrc: ["'self'", "data:", "https:"],
+//             connectSrc: ["'self'", "ws:", "wss:", "https://cdn.socket.io"]
+//         }
+//     },
+//     crossOriginOpenerPolicy: { policy: "unsafe-none" },
+//     crossOriginEmbedderPolicy: false,
+//     originAgentCluster: false,
+//     hsts: false // Disable HSTS to prevent HTTPS upgrades on IP address
+// }));
 
 // CORS configuration
 app.use(cors({
