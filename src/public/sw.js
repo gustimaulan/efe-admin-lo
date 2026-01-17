@@ -1,4 +1,4 @@
-const CACHE_NAME = 'efe-admin-lo-v2';
+const CACHE_NAME = 'efe-admin-lo-v3';
 const urlsToCache = [
   '/',
   '/js/app.js',
@@ -26,24 +26,24 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response;
         }
-        
+
         // Clone the request
         const fetchRequest = event.request.clone();
-        
+
         return fetch(fetchRequest).then(response => {
           // Check if valid response
-          if(!response || response.status !== 200 || response.type !== 'basic') {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
-          
+
           // Clone the response
           const responseToCache = response.clone();
-          
+
           caches.open(CACHE_NAME)
             .then(cache => {
               cache.put(event.request, responseToCache);
             });
-          
+
           return response;
         });
       })
