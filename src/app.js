@@ -56,7 +56,8 @@ app.use(helmet({
     },
     crossOriginOpenerPolicy: { policy: "unsafe-none" },
     crossOriginEmbedderPolicy: false,
-    originAgentCluster: false
+    originAgentCluster: false,
+    hsts: false // Disable HSTS to prevent HTTPS upgrades on IP address
 }));
 
 // CORS configuration
@@ -87,11 +88,11 @@ const limiter = rateLimit({
         // If trust proxy is enabled, use the X-Forwarded-For header
         if (app.get('trust proxy')) {
             return req.ip || req.connection.remoteAddress || req.socket.remoteAddress ||
-                   (req.connection.socket ? req.connection.socket.remoteAddress : null);
+                (req.connection.socket ? req.connection.socket.remoteAddress : null);
         }
         // Otherwise, use the direct connection IP
         return req.connection.remoteAddress || req.socket.remoteAddress ||
-               (req.connection.socket ? req.connection.socket.remoteAddress : null);
+            (req.connection.socket ? req.connection.socket.remoteAddress : null);
     }
 });
 app.use(limiter);
@@ -120,7 +121,7 @@ app.use((req, res, next) => {
 const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
 
-console.log = function() {
+console.log = function () {
     originalConsoleLog.apply(console, arguments);
     const message = Array.from(arguments).map(arg => {
         if (typeof arg === 'object') {
@@ -128,17 +129,17 @@ console.log = function() {
         }
         return sanitizeForLogging(String(arg));
     }).join(' ');
-    
+
     loggerService.info(message);
-    io.emit('console_logs', { 
-        timestamp: new Date(), 
-        message, 
+    io.emit('console_logs', {
+        timestamp: new Date(),
+        message,
         isError: false,
         correlationId: global.currentCorrelationId
     });
 };
 
-console.error = function() {
+console.error = function () {
     originalConsoleError.apply(console, arguments);
     const message = Array.from(arguments).map(arg => {
         if (typeof arg === 'object') {
@@ -146,11 +147,11 @@ console.error = function() {
         }
         return sanitizeForLogging(String(arg));
     }).join(' ');
-    
+
     loggerService.error(message);
-    io.emit('console_logs', { 
-        timestamp: new Date(), 
-        message, 
+    io.emit('console_logs', {
+        timestamp: new Date(),
+        message,
         isError: true,
         correlationId: global.currentCorrelationId
     });
@@ -159,13 +160,13 @@ console.error = function() {
 // Socket.IO connection handling
 io.on('connection', (socket) => {
     loggerService.info('New client connected', { socketId: socket.id });
-    
+
     socket.on('subscribeToJob', (jobId) => {
         loggerService.info('Client subscribed to job', { jobId, socketId: socket.id });
         socket.join(jobId);
         global.currentCorrelationId = jobId;
     });
-    
+
     socket.on('unsubscribeFromJob', (jobId) => {
         loggerService.info('Client unsubscribed from job', { jobId, socketId: socket.id });
         socket.leave(jobId);
@@ -173,7 +174,7 @@ io.on('connection', (socket) => {
             global.currentCorrelationId = null;
         }
     });
-    
+
     socket.on('disconnect', () => {
         loggerService.info('Client disconnected', { socketId: socket.id });
     });
@@ -181,7 +182,7 @@ io.on('connection', (socket) => {
 
 // Forward automation service logs to Socket.IO
 const originalAddJobLog = automationService.addJobLog;
-automationService.addJobLog = function(jobId, message, isError = false) {
+automationService.addJobLog = function (jobId, message, isError = false) {
     originalAddJobLog.call(this, jobId, message, isError);
     io.to(jobId).emit('newLog', {
         timestamp: new Date(),
@@ -206,7 +207,7 @@ app.get('/health', (req, res) => {
         version: require('../package.json').version,
         correlationId: req.correlationId
     };
-    
+
     res.json(RESPONSE_TEMPLATES.SUCCESS(health));
 });
 
@@ -218,13 +219,13 @@ app.get('/', (req, res) => {
         html = html.replace('{{VERSION}}', packageJson.version);
         html = html.replace('{{ENVIRONMENT}}', config.env);
         html = html.replace('{{ACTIVE_ENV}}', config.activeEnv);
-        
+
         res.setHeader('Content-Type', 'text/html');
         res.send(html);
     } catch (error) {
         loggerService.error('Error serving index.html:', error);
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-           .json(RESPONSE_TEMPLATES.ERROR('Failed to load page', HTTP_STATUS.INTERNAL_SERVER_ERROR));
+            .json(RESPONSE_TEMPLATES.ERROR('Failed to load page', HTTP_STATUS.INTERNAL_SERVER_ERROR));
     }
 });
 
@@ -283,7 +284,7 @@ app.get('/api/docs', (req, res) => {
             }
         }
     };
-    
+
     res.json(RESPONSE_TEMPLATES.SUCCESS(docs));
 });
 
@@ -296,10 +297,10 @@ app.use(errorHandler);
 // Graceful shutdown handling
 const gracefulShutdown = (signal) => {
     loggerService.info(`Received ${signal}. Starting graceful shutdown...`);
-    
+
     server.close(() => {
         loggerService.info('HTTP server closed');
-        
+
         // Close browser service
         const campaignService = require('./services/campaignService');
         campaignService.cleanup().then(() => {
@@ -310,7 +311,7 @@ const gracefulShutdown = (signal) => {
             process.exit(1);
         });
     });
-    
+
     // Force close after 30 seconds
     setTimeout(() => {
         loggerService.error('Could not close connections in time, forcefully shutting down');
@@ -330,14 +331,14 @@ const net = require('net');
 const checkPortAvailable = (port) => {
     return new Promise((resolve) => {
         const server = net.createServer();
-        
+
         server.listen(port, () => {
             server.once('close', () => {
                 resolve(true);
             });
             server.close();
         });
-        
+
         server.on('error', () => {
             resolve(false);
         });
@@ -348,7 +349,7 @@ const checkPortAvailable = (port) => {
 const startServer = async (port, maxRetries = 5) => {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         const isAvailable = await checkPortAvailable(port);
-        
+
         if (isAvailable) {
             return new Promise((resolve, reject) => {
                 server.listen(port, '0.0.0.0', () => {
@@ -361,7 +362,7 @@ const startServer = async (port, maxRetries = 5) => {
                     });
                     resolve();
                 });
-                
+
                 server.on('error', (error) => {
                     if (error.code === 'EADDRINUSE') {
                         loggerService.error(`Port ${port} is already in use`);
@@ -373,7 +374,7 @@ const startServer = async (port, maxRetries = 5) => {
             });
         } else {
             loggerService.warn(`Port ${port} is already in use, attempting to find an alternative port...`);
-            
+
             if (attempt < maxRetries) {
                 // Try next port
                 port = port + 1;
