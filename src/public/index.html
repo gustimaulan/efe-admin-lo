@@ -228,7 +228,13 @@
             }
 
             initializeSocket() {
-                this.socket = io();
+                // Initialize Socket.IO with specific transports and relative path to support both HTTP and HTTPS
+                this.socket = io({
+                    transports: ['polling', 'websocket'],
+                    // If we are on HTTP, don't force secure. If HTTPS, it usually upgrades automatically.
+                    // connecting to relative path '/' will use the same host and port as the page
+                    secure: window.location.protocol === 'https:'
+                });
 
                 this.socket.on('connect', () => {
                     this.addLog('Connected to server via WebSocket.', false);
