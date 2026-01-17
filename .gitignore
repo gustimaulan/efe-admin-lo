@@ -1,0 +1,15 @@
+node_modules
+.env
+.well-known
+cgi-bin
+tmp
+.htaccess
+stderr.log
+appscript.js
+*.sh
+*.md
+test-process.js
+logs
+.DS_Store
+.vscode
+.idea
