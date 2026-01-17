@@ -206,15 +206,9 @@
                 });
             }
 
-            getApiUrl(endpoint) {
-                // Force HTTP protocol
-                const host = window.location.host; // e.g., 5.161.185.120:3010
-                return `http://${host}${endpoint}`;
-            }
-
             async loadAdminOptions() {
                 try {
-                    const response = await fetch(this.getApiUrl('/api/config'));
+                    const response = await fetch('/api/config');
                     const result = await response.json();
 
                     if (result.success) {
@@ -415,7 +409,7 @@
                 this.addLog('Starting automation...');
 
                 try {
-                    const response = await fetch(this.getApiUrl('/api/run'), {
+                    const response = await fetch('/api/run', {
                         method: 'POST',
                         body: new URLSearchParams(new FormData(this.automationForm))
                     });
@@ -442,7 +436,7 @@
                 this.planModal.classList.remove('hidden');
 
                 try {
-                    const response = await fetch(this.getApiUrl('/api/check-plan'), {
+                    const response = await fetch('/api/check-plan', {
                         method: 'POST',
                         body: new URLSearchParams(new FormData(this.automationForm))
                     });

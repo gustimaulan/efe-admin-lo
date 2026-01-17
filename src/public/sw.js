@@ -1,4 +1,4 @@
-const CACHE_NAME = 'efe-admin-lo-v4';
+const CACHE_NAME = 'efe-admin-lo-v5';
 const urlsToCache = [
   '/',
   'https://cdn.tailwindcss.com',
