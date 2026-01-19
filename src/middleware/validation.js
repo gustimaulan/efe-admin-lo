@@ -8,7 +8,7 @@ class AppError extends Error {
         super(message);
         this.statusCode = statusCode;
         this.isOperational = true;
-        
+
         Error.captureStackTrace(this, this.constructor);
     }
 }
@@ -22,7 +22,7 @@ class AppError extends Error {
 const validateAdminPayloads = (req, res, next) => {
     try {
         req.adminPayloads = [];
-        
+
         for (const key in req.body) {
             if (/^admin\d+$/.test(key)) {
                 const adminName = req.body[key];
@@ -38,10 +38,10 @@ const validateAdminPayloads = (req, res, next) => {
         }
 
         // Validate admin names against allowed list
-        const allAdminsValid = req.adminPayloads.every(payload => 
+        const allAdminsValid = req.adminPayloads.every(payload =>
             config.ALLOWED_ADMIN_NAMES.includes(payload.name)
         );
-        
+
         if (!allAdminsValid) {
             throw new AppError('One or more admin names are not allowed', 400);
         }
@@ -62,11 +62,11 @@ const validateTimeOfDay = (req, res, next) => {
     try {
         const timeOfDay = req.body.timeOfDay || "manual";
         const validTimes = ["pagi", "siang", "malam", "manual"];
-        
+
         if (!validTimes.includes(timeOfDay)) {
             throw new AppError('Invalid time of day. Must be one of: pagi, siang, malam, manual', 400);
         }
-        
+
         req.timeOfDay = timeOfDay;
         next();
     } catch (error) {
@@ -84,22 +84,22 @@ const validateCampaignSelections = (req, res, next) => {
     try {
         const isManualRequest = req.body.isManual === 'true';
         const timeOfDay = req.body.timeOfDay || "manual";
-        
+
         let campaignSelections;
-        
+
         if (isManualRequest) {
-            campaignSelections = { 
-                regular: { 
-                    selected: req.body.regularCampaigns === 'true', 
-                    time: 'manual' 
-                } 
+            campaignSelections = {
+                regular: {
+                    selected: req.body.regularCampaigns === 'true',
+                    time: 'manual'
+                }
             };
         } else {
-            campaignSelections = { 
-                regular: { 
-                    selected: ['pagi', 'siang', 'malam'].includes(timeOfDay), 
-                    time: timeOfDay 
-                } 
+            campaignSelections = {
+                regular: {
+                    selected: ['pagi', 'siang', 'malam'].includes(timeOfDay),
+                    time: timeOfDay
+                }
             };
         }
 
@@ -118,17 +118,39 @@ const validateCampaignSelections = (req, res, next) => {
  */
 const validateExemptionSettings = (req, res, next) => {
     try {
-        const exemptionSettings = { 
-            exemptAdmin: req.body.exemptAdmin || null 
+        const exemptionSettings = {
+            exemptAdmin: req.body.exemptAdmin || null
         };
-        
+
         // If exemptAdmin is provided, validate it's in the allowed list
-        if (exemptionSettings.exemptAdmin && 
+        if (exemptionSettings.exemptAdmin &&
             !config.ALLOWED_ADMIN_NAMES.includes(exemptionSettings.exemptAdmin)) {
             throw new AppError('Exempt admin is not in the allowed admin list', 400);
         }
-        
+
         req.exemptionSettings = exemptionSettings;
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Validate browser selection
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+const validateBrowserSelection = (req, res, next) => {
+    try {
+        const browserType = req.body.browserType || 'local';
+        const validTypes = ['local', 'remote'];
+
+        if (!validTypes.includes(browserType)) {
+            throw new AppError('Invalid browser type. Must be one of: local, remote', 400);
+        }
+
+        req.browserType = browserType;
         next();
     } catch (error) {
         next(error);
@@ -167,8 +189,8 @@ const sanitizeBody = (req, res, next) => {
         const sanitizeString = (str) => {
             if (typeof str !== 'string') return str;
             return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                     .replace(/<[^>]*>/g, '')
-                     .trim();
+                .replace(/<[^>]*>/g, '')
+                .trim();
         };
 
         for (const key in req.body) {
@@ -176,7 +198,7 @@ const sanitizeBody = (req, res, next) => {
                 req.body[key] = sanitizeString(req.body[key]);
             }
         }
-        
+
         next();
     } catch (error) {
         next(error);
@@ -191,12 +213,12 @@ const sanitizeBody = (req, res, next) => {
  */
 const createRateLimit = (maxRequests = 10, windowMs = 60000) => {
     const requests = new Map();
-    
+
     return (req, res, next) => {
         const clientId = req.ip || req.connection.remoteAddress;
         const now = Date.now();
         const windowStart = now - windowMs;
-        
+
         // Clean old entries
         for (const [id, timestamps] of requests.entries()) {
             const validTimestamps = timestamps.filter(timestamp => timestamp > windowStart);
@@ -206,18 +228,18 @@ const createRateLimit = (maxRequests = 10, windowMs = 60000) => {
                 requests.set(id, validTimestamps);
             }
         }
-        
+
         // Check current client
         const clientRequests = requests.get(clientId) || [];
         const recentRequests = clientRequests.filter(timestamp => timestamp > windowStart);
-        
+
         if (recentRequests.length >= maxRequests) {
             throw new AppError('Too many requests. Please try again later.', 429);
         }
-        
+
         recentRequests.push(now);
         requests.set(clientId, recentRequests);
-        
+
         next();
     };
 };
@@ -228,6 +250,7 @@ module.exports = {
     validateTimeOfDay,
     validateCampaignSelections,
     validateExemptionSettings,
+    validateBrowserSelection,
     validate,
     sanitizeBody,
     createRateLimit

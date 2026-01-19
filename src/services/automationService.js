@@ -15,10 +15,10 @@ class AutomationService {
      * @param {Object} exemptionSettings - Exemption settings
      * @returns {Promise<Object>} - Job result
      */
-    async runAutomation(adminPayloads, timeOfDay, campaignSelections, exemptionSettings = {}) {
+    async runAutomation(adminPayloads, timeOfDay, campaignSelections, exemptionSettings = {}, browserType = 'local') {
         const jobId = Date.now().toString();
 
-        loggerService.info(`Starting automation for ${timeOfDay} with admin payloads:`, adminPayloads);
+        loggerService.info(`Starting automation for ${timeOfDay} with admin payloads:`, adminPayloads, `Browser: ${browserType}`);
 
         // Initialize job tracking
         this.runningJobs.set(jobId, {
@@ -29,9 +29,10 @@ class AutomationService {
             timeOfDay,
             campaignSelections,
             exemptionSettings,
+            browserType,
             logs: [{
                 timestamp: new Date(),
-                message: `Started automation for admin payloads: ${adminPayloads.map(p => p.name).join(', ')} with timeOfDay: ${timeOfDay}`,
+                message: `Started automation for admin payloads: ${adminPayloads.map(p => p.name).join(', ')} with timeOfDay: ${timeOfDay} (Browser: ${browserType})`,
                 isError: false
             }]
         });
@@ -84,7 +85,7 @@ class AutomationService {
                 loggerService.info(`Processing group for admins: ${group.admins.join(', ')} with ${group.campaigns.length} campaigns`);
 
                 const groupPayloads = adminPayloads.filter(p => group.admins.includes(p.name));
-                const results = await this.runParallelCampaigns(groupPayloads, group.campaigns);
+                const results = await this.runParallelCampaigns(groupPayloads, group.campaigns, undefined, browserType);
                 allResults.push(...results);
             }
 
@@ -134,7 +135,7 @@ class AutomationService {
      * @param {number} batchSize - Batch size for parallel processing
      * @returns {Promise<Array>} - Results array
      */
-    async runParallelCampaigns(adminPayloads, campaignIds, batchSize = 2) {
+    async runParallelCampaigns(adminPayloads, campaignIds, batchSize = 2, browserType = 'local') {
         const results = [];
         const sortedAdminPayloads = [...adminPayloads].sort((a, b) => a.name.localeCompare(b.name));
         const numWorkers = config.JOB.MAX_CONCURRENT_WORKERS || 3;
@@ -158,7 +159,7 @@ class AutomationService {
             let page = null;
 
             try {
-                await campaignService.initialize();
+                await campaignService.initialize(browserType);
                 page = await campaignService.getPage();
 
                 loggerService.info(`Worker ${workerId} performing login...`);

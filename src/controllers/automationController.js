@@ -37,10 +37,10 @@ const getConfig = asyncHandler(async (req, res) => {
  */
 const checkPlan = asyncHandler(async (req, res) => {
     const { adminPayloads, timeOfDay, exemptionSettings } = req;
-    
+
     try {
         const plan = automationService.generateProcessingPlan(adminPayloads, timeOfDay, exemptionSettings);
-        
+
         res.json({
             success: true,
             message: 'Processing plan generated successfully.',
@@ -63,16 +63,17 @@ const checkPlan = asyncHandler(async (req, res) => {
  * @param {Object} res - Express response object
  */
 const runAutomation = asyncHandler(async (req, res) => {
-    const { adminPayloads, timeOfDay, campaignSelections, exemptionSettings } = req;
-    
+    const { adminPayloads, timeOfDay, campaignSelections, exemptionSettings, browserType } = req;
+
     try {
         const result = await automationService.runAutomation(
-            adminPayloads, 
-            timeOfDay, 
-            campaignSelections, 
-            exemptionSettings
+            adminPayloads,
+            timeOfDay,
+            campaignSelections,
+            exemptionSettings,
+            browserType
         );
-        
+
         res.json({
             success: true,
             message: 'Automation started',
@@ -99,10 +100,10 @@ const runAutomation = asyncHandler(async (req, res) => {
  */
 const getJobStatus = asyncHandler(async (req, res) => {
     const { jobId } = req.params;
-    
+
     try {
         const jobStatus = automationService.getJobStatus(jobId);
-        
+
         if (!jobStatus) {
             return res.status(404).json({
                 success: false,
@@ -111,7 +112,7 @@ const getJobStatus = asyncHandler(async (req, res) => {
                 }
             });
         }
-        
+
         res.json({
             success: true,
             data: jobStatus
@@ -163,7 +164,7 @@ const getAdminRestrictions = asyncHandler(async (req, res) => {
 const getVersion = asyncHandler(async (req, res) => {
     try {
         const packageJson = require('../../../package.json');
-        
+
         res.json({
             success: true,
             data: {
@@ -201,7 +202,7 @@ const healthCheck = asyncHandler(async (req, res) => {
             activeEnv: config.activeEnv,
             version: require('../../../package.json').version
         };
-        
+
         // Check if browser service is available
         try {
             const campaignService = require('../services/campaignService');
@@ -214,7 +215,7 @@ const healthCheck = asyncHandler(async (req, res) => {
         } catch (error) {
             health.browser = 'error';
         }
-        
+
         res.json({
             success: true,
             data: health
@@ -237,10 +238,10 @@ const healthCheck = asyncHandler(async (req, res) => {
  */
 const cancelJob = asyncHandler(async (req, res) => {
     const { jobId } = req.params;
-    
+
     try {
         const jobStatus = automationService.getJobStatus(jobId);
-        
+
         if (!jobStatus) {
             return res.status(404).json({
                 success: false,
@@ -249,7 +250,7 @@ const cancelJob = asyncHandler(async (req, res) => {
                 }
             });
         }
-        
+
         if (jobStatus.status === 'completed' || jobStatus.status === 'error') {
             return res.status(400).json({
                 success: false,
@@ -258,13 +259,13 @@ const cancelJob = asyncHandler(async (req, res) => {
                 }
             });
         }
-        
+
         automationService.updateJobStatus(jobId, {
             status: 'cancelled',
             message: 'Job cancelled by user',
             endTime: new Date()
         });
-        
+
         res.json({
             success: true,
             message: 'Job cancelled successfully'
@@ -291,7 +292,7 @@ const getRunningJobs = asyncHandler(async (req, res) => {
             jobId,
             ...job
         }));
-        
+
         res.json({
             success: true,
             data: {

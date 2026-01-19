@@ -8,21 +8,55 @@ class BrowserService {
         this.pagePool = new Map();
     }
 
-    async initialize() {
-        if (this.browser) return this.browser;
+    async initialize(browserType) {
+        const targetType = browserType || this.currentBrowserType || 'local';
+
+        // If already initialized with the same type, return existing browser
+        if (this.browser && this.currentBrowserType === targetType) {
+            return this.browser;
+        }
+
+        // If initialized but type changed, close existing
+        if (this.browser) {
+            loggerService.info(`Switching browser from ${this.currentBrowserType} to ${targetType}`);
+            await this.cleanup();
+        }
 
         // Use a lock to prevent multiple initializations
         if (this.initializing) return this.initializing;
 
         this.initializing = (async () => {
             try {
-                loggerService.info('Initializing browser service...');
-                this.browser = await chromium.launch({
-                    headless: true,
-                    args: config.BROWSER.ARGS
-                });
-                loggerService.info('Browser service initialized');
+                loggerService.info(`Initializing browser service (${targetType})...`);
+
+                if (targetType === 'remote') {
+                    const apiKey = process.env.BCAT_APIKEY;
+                    if (!apiKey) {
+                        throw new Error('BCAT_APIKEY is missing in environment variables');
+                    }
+
+                    const connectUrl = 'wss://api.browsercat.com/connect';
+                    loggerService.info('Connecting to BrowserCat...');
+
+                    this.browser = await chromium.connect(connectUrl, {
+                        headers: {
+                            'Api-Key': apiKey
+                        }
+                    });
+                    loggerService.info('Connected to BrowserCat successfully');
+                } else {
+                    this.browser = await chromium.launch({
+                        headless: true,
+                        args: config.BROWSER.ARGS
+                    });
+                    loggerService.info('Local browser initialized');
+                }
+
+                this.currentBrowserType = targetType;
                 return this.browser;
+            } catch (error) {
+                loggerService.error('Failed to initialize browser:', error);
+                throw error;
             } finally {
                 this.initializing = null;
             }

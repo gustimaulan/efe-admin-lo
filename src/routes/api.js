@@ -10,6 +10,7 @@ const {
     validateTimeOfDay,
     validateCampaignSelections,
     validateExemptionSettings,
+    validateBrowserSelection,
     sanitizeBody,
     createRateLimit
 } = require('../middleware/validation');
@@ -99,6 +100,7 @@ router.post('/run',
     validateTimeOfDay,
     validateCampaignSelections,
     validateExemptionSettings,
+    validateBrowserSelection,
     asyncHandler(automationController.runAutomation)
 );
 
