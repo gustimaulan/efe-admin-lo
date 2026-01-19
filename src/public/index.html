@@ -50,12 +50,17 @@
                     <i class="fas fa-edit mr-2"></i>Form
                 </button>
                 <button id="logTab"
-                    class="tab-btn py-3 px-4 w-1/2 font-medium text-slate-400 border-b-2 border-transparent hover:bg-slate-700/50">
+                    class="tab-btn py-3 px-4 w-1/3 font-medium text-slate-400 border-b-2 border-transparent hover:bg-slate-700/50">
                     <i class="fas fa-list-ul mr-2"></i>Logs
                     <span id="logCounter"
                         class="ml-2 bg-blue-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
                 </button>
+                <button id="historyTab"
+                    class="tab-btn py-3 px-4 w-1/3 font-medium text-slate-400 border-b-2 border-transparent hover:bg-slate-700/50">
+                    <i class="fas fa-history mr-2"></i>History
+                </button>
             </nav>
+
 
             <!-- Form tab content -->
             <section id="formContent" class="tab-content block p-6">
@@ -117,7 +122,26 @@
                     <!-- Log entries will be added here dynamically -->
                 </div>
             </section>
+
+            <!-- History tab content -->
+            <section id="historyContent" class="tab-content hidden p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-white">Recent Submissions</h2>
+                    <button id="refreshHistory"
+                        class="text-xs bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-3 py-1 rounded-md transition-colors">
+                        <i class="fas fa-sync-alt mr-1"></i>Refresh
+                    </button>
+                </div>
+                <div id="historyList" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- History entries will be added here dynamically -->
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fas fa-history fa-2x mb-3 opacity-20"></i>
+                        <p>No submission history yet</p>
+                    </div>
+                </div>
+            </section>
         </main>
+
 
         <!-- Plan Check Modal -->
         <div id="planModal"
@@ -179,9 +203,12 @@
                 // Tab elements
                 this.formTab = document.getElementById('formTab');
                 this.logTab = document.getElementById('logTab');
+                this.historyTab = document.getElementById('historyTab');
                 this.formContent = document.getElementById('formContent');
                 this.logContent = document.getElementById('logContent');
+                this.historyContent = document.getElementById('historyContent');
                 this.logCounter = document.getElementById('logCounter');
+
 
                 // Form elements
                 this.automationForm = document.getElementById('automationForm');
@@ -192,6 +219,11 @@
                 // Log elements
                 this.logContainer = document.getElementById('logContainer');
                 this.clearLogsButton = document.getElementById('clearLogs');
+
+                // History elements
+                this.historyList = document.getElementById('historyList');
+                this.refreshHistoryButton = document.getElementById('refreshHistory');
+
 
                 // Modal elements
                 this.planModal = document.getElementById('planModal');
@@ -210,11 +242,18 @@
                     this.switchTab('log');
                     this.resetLogCounter();
                 });
+                this.historyTab.addEventListener('click', () => {
+                    this.switchTab('history');
+                    this.fetchHistory();
+                });
+
 
                 // Form events
                 this.automationForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
                 this.checkPlanButton.addEventListener('click', () => this.handleCheckPlan());
                 this.clearLogsButton.addEventListener('click', () => this.clearLogs());
+                this.refreshHistoryButton.addEventListener('click', () => this.fetchHistory());
+
 
                 // Modal events
                 this.closeModalButton.addEventListener('click', () => this.closeModal());
@@ -289,8 +328,10 @@
                 // Select tab buttons and contents
                 const tabs = {
                     form: { btn: this.formTab, content: this.formContent },
-                    log: { btn: this.logTab, content: this.logContent }
+                    log: { btn: this.logTab, content: this.logContent },
+                    history: { btn: this.historyTab, content: this.historyContent }
                 };
+
 
                 // Reset all tabs
                 Object.values(tabs).forEach(({ btn, content }) => {
@@ -584,7 +625,70 @@
                 }
             }
 
+            async fetchHistory() {
+                try {
+                    const response = await fetch('/api/history');
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.renderHistory(result.data);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch history:', error);
+                }
+            }
+
+            renderHistory(history) {
+                if (!history || history.length === 0) {
+                    this.historyList.innerHTML = `<div class="text-center py-8 text-slate-500">
+                        <i class="fas fa-history fa-2x mb-3 opacity-20"></i>
+                        <p>No submission history yet</p>
+                    </div>`;
+                    return;
+                }
+
+                this.historyList.innerHTML = history.map(entry => {
+                    const date = new Date(entry.timestamp);
+                    const formattedDate = date.toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const browserIcon = entry.browserType === 'remote' ? 'cloud' : 'desktop';
+                    const browserColor = entry.browserType === 'remote' ? 'text-purple-400' : 'text-blue-400';
+
+                    return `
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-slate-500 transition-all duration-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex flex-wrap gap-1">
+                                    ${entry.admins.map(admin => `
+                                        <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-medium border border-blue-500/30">
+                                            ${admin}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                                <span class="text-[10px] text-slate-500 font-mono">${formattedDate}</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="px-2 py-0.5 bg-slate-700 rounded text-[10px] text-slate-300 uppercase letter tracking-wider font-bold">
+                                        ${entry.timeOfDay}
+                                    </span>
+                                    <span class="text-[10px] ${browserColor} flex items-center">
+                                        <i class="fas fa-${browserIcon} mr-1.5"></i> ${entry.browserType}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
             escapeHtml(text) {
+
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;

@@ -105,6 +105,14 @@ router.post('/run',
 );
 
 /**
+ * @route   GET /api/history
+ * @desc    Get recent submission history
+ * @access  Public
+ */
+router.get('/history', asyncHandler(automationController.getHistory));
+
+
+/**
  * Error handling middleware for this router
  */
 router.use((err, req, res, next) => {

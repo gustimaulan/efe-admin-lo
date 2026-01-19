@@ -1,6 +1,8 @@
 const config = require('../config');
 const loggerService = require('./loggerService');
 const campaignService = require('./campaignService');
+const historyService = require('./historyService');
+
 
 class AutomationService {
     constructor() {
@@ -92,6 +94,15 @@ class AutomationService {
             if (campaignSelections.regular.selected) {
                 await this.sendToWebhook(allSelectedAdmins, timeOfDay);
             }
+
+            // Record history
+            historyService.addEntry({
+                admins: allSelectedAdmins,
+                timeOfDay,
+                browserType,
+                timestamp: new Date().toISOString()
+            });
+
 
             const success = allResults.every(r => r.success);
             const finalMessage = `Automation ${success ? 'completed' : 'failed'}.`;

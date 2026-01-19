@@ -1,4 +1,6 @@
 const automationService = require('../services/automationService');
+const historyService = require('../services/historyService');
+
 const config = require('../config');
 const { asyncHandler } = require('../middleware/errorHandler');
 
@@ -311,6 +313,29 @@ const getRunningJobs = asyncHandler(async (req, res) => {
     }
 });
 
+/**
+ * Get history endpoint
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getHistory = asyncHandler(async (req, res) => {
+    try {
+        const history = historyService.getHistory(5);
+        res.json({
+            success: true,
+            data: history
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: {
+                message: 'Failed to get history',
+                details: error.message
+            }
+        });
+    }
+});
+
 module.exports = {
     getConfig,
     checkPlan,
@@ -320,5 +345,6 @@ module.exports = {
     getVersion,
     healthCheck,
     cancelJob,
-    getRunningJobs
+    getRunningJobs,
+    getHistory
 };
