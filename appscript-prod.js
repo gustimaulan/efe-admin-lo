@@ -102,11 +102,12 @@ function getSelectedAdminValues(timeOfDay) {
     "manual": 5
   };
 
-  const headerRange = sheet.getRange("A1:K1");
+  const lastCol = sheet.getLastColumn();
+  const headerRange = sheet.getRange(1, 1, 1, lastCol);
   const rawHeaders = headerRange.getValues()[0];
   const headers = rawHeaders.map(header => `admin ${header}`);
 
-  const dataRange = sheet.getRange(`A${rowMap[timeOfDay]}:K${rowMap[timeOfDay]}`);
+  const dataRange = sheet.getRange(rowMap[timeOfDay], 1, 1, lastCol);
   const values = dataRange.getValues()[0];
 
   let formData = { "requestTime": timeOfDay };
@@ -138,9 +139,10 @@ function getSelectedAdminValues(timeOfDay) {
   return formData;
 }
 
-function getValuesFromSpreadsheetOy(cellRange) {
+function getValuesFromSpreadsheetOy(row) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
-  return sheet.getRange(cellRange).getValues()[0];
+  const lastCol = sheet.getLastColumn();
+  return sheet.getRange(row, 1, 1, lastCol).getValues()[0];
 }
 
 function sendPostRequestLoopsPagi() {
@@ -156,17 +158,17 @@ function sendPostRequestLoopsMalam() {
 }
 
 function sendPostRequestOyPagi() {
-  const values = getValuesFromSpreadsheetOy("A2:K2").map(val => (isNaN(Number(val)) ? 0 : Number(val)));
+  const values = getValuesFromSpreadsheetOy(2).map(val => (isNaN(Number(val)) ? 0 : Number(val)));
   return sendPostRequestOy(values, "pagi");
 }
 
 function sendPostRequestOySiang() {
-  const values = getValuesFromSpreadsheetOy("A3:K3").map(val => (isNaN(Number(val)) ? 0 : Number(val)));
+  const values = getValuesFromSpreadsheetOy(3).map(val => (isNaN(Number(val)) ? 0 : Number(val)));
   return sendPostRequestOy(values, "siang");
 }
 
 function sendPostRequestOyMalam() {
-  const values = getValuesFromSpreadsheetOy("A4:K4").map(val => (isNaN(Number(val)) ? 0 : Number(val)));
+  const values = getValuesFromSpreadsheetOy(4).map(val => (isNaN(Number(val)) ? 0 : Number(val)));
   return sendPostRequestOy(values, "malam");
 }
 
@@ -271,10 +273,11 @@ function testFormSubmissionMimicking() {
     // Show original selections from spreadsheet
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
     const rowMap = { "pagi": 2, "siang": 3, "malam": 4 };
-    const headerRange = sheet.getRange("A1:K1");
+    const lastCol = sheet.getLastColumn();
+    const headerRange = sheet.getRange(1, 1, 1, lastCol);
     const rawHeaders = headerRange.getValues()[0];
     const headers = rawHeaders.map(header => `admin ${header}`);
-    const dataRange = sheet.getRange(`A${rowMap[timeOfDay]}:J${rowMap[timeOfDay]}`);
+    const dataRange = sheet.getRange(rowMap[timeOfDay], 1, 1, lastCol);
     const values = dataRange.getValues()[0];
 
     const originalSelections = [];
