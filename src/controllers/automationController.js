@@ -336,6 +336,26 @@ const getHistory = asyncHandler(async (req, res) => {
     }
 });
 
+/**
+ * Restart server endpoint
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const restartServer = asyncHandler(async (req, res) => {
+    try {
+        const result = await automationService.restartProcess();
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: {
+                message: 'Failed to issue restart command',
+                details: error.message
+            }
+        });
+    }
+});
+
 module.exports = {
     getConfig,
     checkPlan,
@@ -346,5 +366,6 @@ module.exports = {
     healthCheck,
     cancelJob,
     getRunningJobs,
-    getHistory
+    getHistory,
+    restartServer
 };

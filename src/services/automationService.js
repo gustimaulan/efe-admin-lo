@@ -324,6 +324,38 @@ class AutomationService {
 
         return plan;
     }
+
+    /**
+     * Restarts the application process using PM2
+     * @returns {Promise<Object>} - Status of the restart request
+     */
+    async restartProcess() {
+        const { exec } = require('child_process');
+
+        loggerService.info('Restart request received. Application will restart in 2 seconds...');
+
+        // Execute the restart command after a short delay to allow the response to be sent
+        setTimeout(() => {
+            // Try standard pm2 first, then fallback to npx if it fails
+            const cmd = 'pm2 restart loops || npx pm2 restart loops';
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    loggerService.error(`Error executing PM2 restart: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    loggerService.error(`PM2 restart stderr: ${stderr}`);
+                    return;
+                }
+                loggerService.info(`PM2 restart stdout: ${stdout}`);
+            });
+        }, 2000);
+
+        return {
+            success: true,
+            message: 'Restart command issued. The server will be offline momentarily.'
+        };
+    }
 }
 
 module.exports = new AutomationService();

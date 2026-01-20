@@ -111,6 +111,13 @@ router.post('/run',
  */
 router.get('/history', asyncHandler(automationController.getHistory));
 
+/**
+ * @route   POST /api/restart
+ * @desc    Restart the server process
+ * @access  Public
+ */
+router.post('/restart', asyncHandler(automationController.restartServer));
+
 
 /**
  * Error handling middleware for this router

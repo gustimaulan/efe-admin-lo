@@ -107,10 +107,17 @@
             <div class="flex flex-col items-end space-y-2">
                 <span class="text-xs font-bold bg-cyan-400 border-2 border-black px-3 py-1 neo-shadow-sm rounded-lg"
                     id="versionBadge">v{{VERSION}}</span>
-                <div class="flex items-center space-x-2">
-                    <span class="text-[10px] font-bold uppercase">Status:</span>
-                    <div class="w-4 h-4 border-2 border-black transition-colors duration-300 rounded-full"
-                        id="statusIndicator" title="System Status"></div>
+                <div class="flex items-center space-x-3">
+                    <button id="reloadButton"
+                        class="text-[10px] font-black bg-pink-400 border-2 border-black px-3 py-1 neo-shadow-sm rounded-lg hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all uppercase"
+                        title="Reload Server (PM2 Restart)">
+                        <i class="fas fa-sync-alt mr-1"></i>RELOAD
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] font-bold uppercase">Status:</span>
+                        <div class="w-4 h-4 border-2 border-black transition-colors duration-300 rounded-full"
+                            id="statusIndicator" title="System Status"></div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -318,6 +325,7 @@
                 // Status elements
                 this.versionBadge = document.getElementById('versionBadge');
                 this.statusIndicator = document.getElementById('statusIndicator');
+                this.reloadButton = document.getElementById('reloadButton');
             }
 
             bindEvents() {
@@ -345,6 +353,9 @@
                 this.planModal.addEventListener('click', (e) => {
                     if (e.target === this.planModal) this.closeModal();
                 });
+
+                // Reload event
+                this.reloadButton.addEventListener('click', () => this.handleReload());
             }
 
             async loadAdminOptions() {
@@ -553,6 +564,37 @@
                 if (counter) {
                     counter.textContent = `(${this.adminCount})`;
                 }
+            }
+
+            async handleReload() {
+                if (!confirm('Are you sure you want to reload the server? This will restart the backend process and temporarily disconnect all clients.')) {
+                    return;
+                }
+
+                const originalText = this.reloadButton.innerHTML;
+                this.reloadButton.disabled = true;
+                this.reloadButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>RELOADING...';
+                this.reloadButton.classList.remove('bg-pink-400');
+                this.reloadButton.classList.add('bg-gray-400');
+
+                try {
+                    this.addLog('Requesting server reload...', false);
+                    const response = await fetch('/api/restart', { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.addLog('Reload command sent successfully. Server will restart in 2 seconds.', false);
+                    } else {
+                        throw new Error(result.error?.message || 'Failed to send reload command');
+                    }
+                } catch (error) {
+                    this.addLog(`Reload Error: ${error.message}`, true);
+                    this.reloadButton.disabled = false;
+                    this.reloadButton.innerHTML = originalText;
+                    this.reloadButton.classList.remove('bg-gray-400');
+                    this.reloadButton.classList.add('bg-pink-400');
+                }
+                // Button will stay in reloading state until page reloads or reconnects
             }
 
             async handleFormSubmit(e) {
