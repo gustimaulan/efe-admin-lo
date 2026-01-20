@@ -279,6 +279,8 @@
                 this.adminOptions = [];
                 this.socket = null;
                 this.currentJobId = null;
+                this.isReloading = false;
+                this.originalReloadButtonHtml = '';
 
                 this.init();
             }
@@ -397,6 +399,10 @@
                 this.socket.on('connect', () => {
                     this.addLog('Connected to server via WebSocket.', false);
                     this.updateStatusIndicator(true);
+
+                    if (this.isReloading) {
+                        this.resetReloadButton();
+                    }
                 });
 
                 this.socket.on('disconnect', () => {
@@ -571,10 +577,11 @@
                     return;
                 }
 
-                const originalText = this.reloadButton.innerHTML;
+                this.isReloading = true;
+                this.originalReloadButtonHtml = this.reloadButton.innerHTML;
                 this.reloadButton.disabled = true;
                 this.reloadButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>RELOADING...';
-                this.reloadButton.classList.remove('bg-pink-400');
+                this.reloadButton.classList.remove('bg-pink-400', 'hover:bg-pink-300');
                 this.reloadButton.classList.add('bg-gray-400');
 
                 try {
@@ -589,12 +596,16 @@
                     }
                 } catch (error) {
                     this.addLog(`Reload Error: ${error.message}`, true);
-                    this.reloadButton.disabled = false;
-                    this.reloadButton.innerHTML = originalText;
-                    this.reloadButton.classList.remove('bg-gray-400');
-                    this.reloadButton.classList.add('bg-pink-400');
+                    this.resetReloadButton();
                 }
-                // Button will stay in reloading state until page reloads or reconnects
+            }
+
+            resetReloadButton() {
+                this.isReloading = false;
+                this.reloadButton.disabled = false;
+                this.reloadButton.innerHTML = this.originalReloadButtonHtml || '<i class="fas fa-sync-alt mr-1"></i>RELOAD';
+                this.reloadButton.classList.remove('bg-gray-400');
+                this.reloadButton.classList.add('bg-pink-400');
             }
 
             async handleFormSubmit(e) {
@@ -616,6 +627,7 @@
                         this.addLog(`Job started with ID: ${result.data.jobId}`);
                         this.switchTab('log'); // Auto-switch to logs when submitted
                         this.socket.emit('subscribeToJob', result.data.jobId);
+                        this.resetForm(); // Clear the form after submission
                     } else {
                         throw new Error(result.error?.message || 'Failed to start automation');
                     }
