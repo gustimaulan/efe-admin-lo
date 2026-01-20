@@ -48,13 +48,18 @@ const config = {
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu'
-        ]
+        ],
+        TIMEOUTS: {
+            NAVIGATION: 60000, // 1 minute
+            LOAD_STATE: 30000, // 30 seconds
+            SELECTOR: 15000     // 15 seconds
+        }
     },
 
     // Job settings
     JOB: {
         CLEANUP_TIMEOUT: 3600000, // 1 hour
-        MAX_CONCURRENT_WORKERS: 3
+        MAX_CONCURRENT_WORKERS: parseInt(process.env.MAX_WORKERS) || 3
     },
 
     // User-defined rules (can be updated at runtime)

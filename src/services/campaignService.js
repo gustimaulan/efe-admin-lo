@@ -86,8 +86,12 @@ class BrowserService {
 
         try {
             loggerService.info(`Processing campaign ${campaignId}...${retryCount > 0 ? `(Retry ${retryCount}/${maxRetries})` : ''}`);
-            await page.goto(`${config.CAMPAIGN_BASE_URL}${campaignId}`, { timeout: 30000 });
-            await page.waitForLoadState('networkidle', { timeout: 15000 });
+            await page.goto(`${config.CAMPAIGN_BASE_URL}${campaignId}`, {
+                timeout: config.BROWSER.TIMEOUTS.NAVIGATION
+            });
+            await page.waitForLoadState('networkidle', {
+                timeout: config.BROWSER.TIMEOUTS.LOAD_STATE
+            });
 
             // adminNames is already filtered by getAdminsForCampaign in automationService
             let adminsToProcess = adminNames;
@@ -147,18 +151,21 @@ class BrowserService {
                 await this.retryOperation(async () => {
                     // Wait for the select2 container to be ready
                     await page.waitForSelector(`#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(${i + 1}) .select2-container`, {
-                        timeout: 10000,
+                        timeout: config.BROWSER.TIMEOUTS.SELECTOR,
                         state: 'visible'
                     });
 
                     // Click on the select2 arrow to open dropdown
                     await page.click(`#app > form > section > article > div.columns.eight > div:nth-child(2) > div > div:nth-child(${i + 1}) .select2-arrow`, {
-                        timeout: 5000,
+                        timeout: config.BROWSER.TIMEOUTS.SELECTOR,
                         force: true
                     });
 
                     // Wait for dropdown to be visible
-                    await page.waitForSelector('#select2-drop', { timeout: 5000, state: 'visible' });
+                    await page.waitForSelector('#select2-drop', {
+                        timeout: config.BROWSER.TIMEOUTS.SELECTOR,
+                        state: 'visible'
+                    });
 
                     // Type admin name with delay to ensure proper selection
                     await page.keyboard.type(adminsToProcess[i], { delay: 100 });
@@ -208,13 +215,16 @@ class BrowserService {
                 // Method 1: Direct selector with force
                 async () => {
                     await page.click("#app > form > section > article > div.columns.four > div.card.has-sections > div.card-section.secondary.align-right > small > button:nth-child(2)", {
-                        timeout: 10000,
+                        timeout: config.BROWSER.TIMEOUTS.SELECTOR,
                         force: true
                     });
                 },
                 // Method 2: By text content with force
                 async () => {
-                    await page.click("button:has-text('Save')", { timeout: 10000, force: true });
+                    await page.click("button:has-text('Save')", {
+                        timeout: config.BROWSER.TIMEOUTS.SELECTOR,
+                        force: true
+                    });
                 },
                 // Method 3: JavaScript click
                 async () => {

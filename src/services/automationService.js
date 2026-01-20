@@ -200,7 +200,7 @@ class AutomationService {
                     }
                 }
             } catch (workerError) {
-                loggerService.error(`Worker ${workerId} critical failure:`, workerError.message);
+                loggerService.error(`Worker ${workerId} critical failure:`, workerError);
                 campaigns.forEach(id => {
                     if (!results.find(r => r.campaignId === id)) {
                         results.push({ campaignId: id, success: false, error: 'Worker failure', workerId });
