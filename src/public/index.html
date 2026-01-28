@@ -27,71 +27,105 @@
 
     <style>
         :root {
-            --neo-yellow: #FFD600;
-            --neo-pink: #FF008A;
-            --neo-cyan: #00F0FF;
-            --neo-black: #000000;
+            --notion-bg: #FFFFFF;
+            --notion-text: #000000;
+            --notion-text-muted: #999999;
+            --notion-border: #EAEAEA;
+            --notion-hover: #F7F7F7;
+            --notion-primary: #000000;
+            --notion-secondary: #666666;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F3F3F3;
-            color: var(--neo-black);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--notion-bg);
+            color: var(--notion-text);
+            -webkit-font-smoothing: antialiased;
         }
 
         h1,
         h2,
         h3,
         .heading-font {
-            font-family: 'Lexend', sans-serif;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
         }
 
-        .neo-border {
-            border: 2px solid var(--neo-black);
-        }
-
-        .neo-shadow {
-            box-shadow: 4px 4px 0px 0px var(--neo-black);
-        }
-
-        .neo-shadow-sm {
-            box-shadow: 2.5px 2.5px 0px 0px var(--neo-black);
-        }
-
-        .neo-button {
-            border: 2px solid var(--neo-black);
-            box-shadow: 3px 3px 0px 0px var(--neo-black);
-            border-radius: 0.75rem;
-            transition: all 0.1s ease;
-        }
-
-        .neo-button:hover {
-            transform: translate(-1px, -1px);
-            box-shadow: 4px 4px 0px 0px var(--neo-black);
-        }
-
-        .neo-button:active {
-            transform: translate(1px, 1px);
-            box-shadow: 0px 0px 0px 0px var(--neo-black);
-        }
-
-        .neo-card {
+        .notion-card {
             background-color: white;
-            border: 2.5px solid var(--neo-black);
-            box-shadow: 6px 6px 0px 0px var(--neo-black);
-            border-radius: 1.5rem;
+            border: 1px solid var(--notion-border);
+            border-radius: 8px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .notion-card:hover {
+            box-shadow: 0 1px 2px rgba(15, 15, 15, 0.1);
+        }
+
+        .notion-button {
+            border: 1px solid var(--notion-border);
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .notion-button:hover {
+            background: var(--notion-hover);
+        }
+
+        .notion-button-primary {
+            background: var(--notion-primary);
+            color: white;
+            border-color: var(--notion-primary);
+        }
+
+        .notion-button-primary:hover {
+            background: #333333;
         }
 
         .tab-btn {
+            font-size: 15px;
+            color: var(--notion-text-muted);
+            border-bottom: 2px solid transparent;
             transition: all 0.2s;
-            border-bottom: 2.5px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            background: var(--notion-hover);
         }
 
         .tab-btn.active {
-            background-color: var(--neo-yellow);
-            border-bottom: 2.5px solid var(--neo-black);
-            color: var(--neo-black);
-            font-weight: 700;
+            color: var(--notion-text);
+            border-bottom-color: var(--notion-text);
+        }
+
+        /* Minimalist Input Styles */
+        select,
+        input[type="text"],
+        input[type="radio"] {
+            border: 1px solid var(--notion-border);
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus,
+        input[type="text"]:focus {
+            border-color: var(--notion-primary);
+        }
+
+        .log-entry {
+            border-bottom: 1px solid var(--notion-border);
+            padding: 8px 0;
         }
     </style>
 </head>
@@ -99,23 +133,22 @@
 <body class="p-4 sm:p-8">
     <div class="max-w-xl mx-auto space-y-10">
         <!-- Header with Version -->
-        <header class="flex justify-between items-end mb-4">
+        <header class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
             <div>
-                <h1 class="text-4xl font-extrabold text-black tracking-tighter uppercase italic">EFE ADMIN</h1>
-                <p class="text-sm font-bold text-black opacity-60 uppercase tracking-widest">Loops Panel</p>
+                <h1 class="text-2xl font-bold text-gray-800">EFE Admin</h1>
+                <p class="text-xs text-gray-500 font-medium">Loops Panel</p>
             </div>
-            <div class="flex flex-col items-end space-y-2">
-                <span class="text-xs font-bold bg-cyan-400 border-2 border-black px-3 py-1 neo-shadow-sm rounded-lg"
+            <div class="flex items-center space-x-4">
+                <span class="text-[10px] font-semibold text-gray-500 border border-gray-200 px-2 py-0.5 rounded"
                     id="versionBadge">v{{VERSION}}</span>
                 <div class="flex items-center space-x-3">
                     <button id="reloadButton"
-                        class="text-[10px] font-black bg-pink-400 border-2 border-black px-3 py-1 neo-shadow-sm rounded-lg hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all uppercase"
-                        title="Reload Server (PM2 Restart)">
-                        <i class="fas fa-sync-alt mr-1"></i>RELOAD
+                        class="notion-button text-[11px] h-7 px-2.5 text-gray-600 uppercase flex items-center"
+                        title="Reload Server">
+                        <i class="fas fa-sync-alt mr-1.5 opacity-60"></i>Reload
                     </button>
                     <div class="flex items-center space-x-2">
-                        <span class="text-[10px] font-bold uppercase">Status:</span>
-                        <div class="w-4 h-4 border-2 border-black transition-colors duration-300 rounded-full"
+                        <div class="w-1.5 h-1.5 transition-colors duration-300 rounded-full bg-black shadow-[0_0_8px_rgba(0,0,0,0.1)]"
                             id="statusIndicator" title="System Status"></div>
                     </div>
                 </div>
@@ -124,22 +157,20 @@
 
 
         <!-- Main Content Card -->
-        <main class="neo-card overflow-hidden">
+        <main class="notion-card overflow-hidden bg-white shadow-sm">
 
             <!-- Tab navigation -->
-            <nav class="flex border-b-2 border-black bg-white">
-                <button id="formTab"
-                    class="tab-btn active py-4 px-4 w-1/3 font-extrabold text-black border-r-2 border-black">
-                    <i class="fas fa-edit mr-2 text-lg"></i>FORM
+            <nav class="flex border-b border-gray-100 px-4">
+                <button id="formTab" class="tab-btn active py-3 px-4 mr-2">
+                    <i class="fas fa-edit mr-2 text-sm opacity-60"></i>Form
                 </button>
-                <button id="logTab"
-                    class="tab-btn py-4 px-4 w-1/3 font-bold text-black border-r-2 border-black hover:bg-pink-400">
-                    <i class="fas fa-list-ul mr-2 text-lg"></i>LOGS
+                <button id="logTab" class="tab-btn py-3 px-4 mr-2 relative">
+                    <i class="fas fa-list-ul mr-2 text-sm opacity-60"></i>Logs
                     <span id="logCounter"
-                        class="ml-2 bg-white border-2 border-black text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-sm hidden">0</span>
+                        class="absolute top-2 right-1 bg-gray-700 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
                 </button>
-                <button id="historyTab" class="tab-btn py-4 px-4 w-1/3 font-bold text-black hover:bg-cyan-400">
-                    <i class="fas fa-history mr-2 text-lg"></i>HISTORY
+                <button id="historyTab" class="tab-btn py-3 px-4">
+                    <i class="fas fa-history mr-2 text-sm opacity-60"></i>History
                 </button>
             </nav>
 
@@ -147,30 +178,30 @@
 
 
             <!-- Form tab content -->
-            <section id="formContent" class="tab-content block p-6 bg-white">
-                <form id="automationForm" class="space-y-6">
-                    <div class="block p-5 bg-yellow-300 border-2 border-black neo-shadow-sm rounded-xl">
-                        <label class="block mb-3 font-extrabold text-sm uppercase italic">Browser Selection</label>
-                        <div class="flex space-x-6">
-                            <label class="inline-flex items-center cursor-pointer group">
+            <section id="formContent" class="tab-content block p-8">
+                <form id="automationForm" class="space-y-8">
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider">Browser
+                            Selection</label>
+                        <div class="flex space-x-8">
+                            <label class="inline-flex items-center cursor-pointer">
                                 <input type="radio" name="browserType" value="local"
-                                    class="w-5 h-5 border-2 border-black focus:ring-0 checked:bg-black rounded-md"
-                                    checked>
-                                <span class="ml-2 text-sm font-extrabold uppercase">Local</span>
+                                    class="text-black focus:ring-black h-5 w-5" checked>
+                                <span class="ml-3 text-base text-gray-700 font-medium">Local</span>
                             </label>
-                            <label class="inline-flex items-center cursor-pointer group">
+                            <label class="inline-flex items-center cursor-pointer">
                                 <input type="radio" name="browserType" value="remote"
-                                    class="w-5 h-5 border-2 border-black focus:ring-0 checked:bg-black rounded-md">
-                                <span class="ml-2 text-sm font-extrabold uppercase">Remote <span
-                                        class="text-[10px] bg-black text-white px-1 ml-1 rounded-sm tracking-tighter">BCAT</span></span>
+                                    class="text-black focus:ring-black h-5 w-5">
+                                <span class="ml-3 text-base text-gray-700 font-medium">Remote <span
+                                        class="text-[10px] bg-gray-100 text-gray-600 px-1.5 ml-1.5 rounded font-bold">BCAT</span></span>
                             </label>
                         </div>
                     </div>
 
 
-                    <div>
-                        <label class="block mb-2 font-black text-sm uppercase italic">
-                            Select Admins <span id="adminCounter" class="opacity-40"></span>
+                    <div class="space-y-4">
+                        <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                            Select Admins <span id="adminCounter" class="text-gray-400 font-normal"></span>
                         </label>
                         <div id="adminContainer" class="space-y-3">
                             <!-- Admin fields will be added here dynamically -->
@@ -183,78 +214,129 @@
                     <input type="hidden" name="regularCampaigns" value="true" />
 
                     <!-- Form actions -->
-                    <div class="grid grid-cols-2 gap-4 pt-4">
-                        <button id="checkPlanButton" type="button"
-                            class="neo-button font-black bg-white text-black py-3 px-4 uppercase italic">
-                            CHECK PLAN
+                    <div class="flex items-center space-x-3 pt-4">
+                        <button id="checkPlanButton" type="button" class="notion-button px-6 text-gray-700 font-medium">
+                            Check Plan
                         </button>
-                        <button id="automationButton" type="submit"
-                            class="neo-button font-black bg-yellow-400 text-black py-3 px-4 uppercase italic">
-                            RUN PROCESS
+                        <button id="automationButton" type="submit" class="notion-button notion-button-primary px-8">
+                            <i class="fas fa-play text-[10px] mr-2 opacity-80"></i>Run Process
                         </button>
                     </div>
                 </form>
+
             </section>
 
 
             <!-- Log tab content -->
-            <section id="logContent" class="tab-content hidden p-6 bg-pink-50">
+            <section id="logContent" class="tab-content hidden p-8">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black text-black uppercase italic">Activity Logs</h2>
-                    <button id="clearLogs" class="neo-button text-[10px] bg-white font-black px-4 py-1 uppercase">
-                        TRASH
+                    <h2 class="text-lg font-bold text-gray-800">Activity Logs</h2>
+                    <button id="clearLogs" class="notion-button text-xs text-gray-500 hover:text-black">
+                        Clear
                     </button>
                 </div>
                 <div id="logContainer"
-                    class="space-y-2 max-h-96 overflow-y-auto bg-white border-4 border-black p-4 font-mono text-xs text-black">
+                    class="space-y-1 max-h-[500px] overflow-y-auto font-mono text-xs border border-gray-100 p-4 rounded-lg bg-gray-50/50">
                     <!-- Log entries will be added here dynamically -->
                 </div>
             </section>
 
             <!-- History tab content -->
-            <section id="historyContent" class="tab-content hidden p-6 bg-cyan-50">
+            <section id="historyContent" class="tab-content hidden p-8">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black text-black uppercase italic">Past Jobs</h2>
-                    <button id="refreshHistory" class="neo-button text-[10px] bg-white font-black px-4 py-1 uppercase">
-                        FETCH
+                    <h2 class="text-lg font-bold text-gray-800">Past Jobs</h2>
+                    <button id="refreshHistory" class="notion-button text-xs">
+                        Refresh
                     </button>
                 </div>
-                <div id="historyList" class="space-y-4 max-h-96 overflow-y-auto p-1">
+                <div id="historyList" class="space-y-3 max-h-[500px] overflow-y-auto">
                     <!-- History entries will be added here dynamically -->
-                    <div class="text-center py-10">
-                        <div class="inline-block p-4 border-4 border-black bg-white neo-shadow-sm mb-4">
-                            <i class="fas fa-history fa-2x opacity-20"></i>
-                        </div>
-                        <p class="font-black text-black opacity-30 uppercase">Empty Archive</p>
+                    <div class="text-center py-16 text-gray-400">
+                        <i class="fas fa-history text-4xl mb-3 opacity-20"></i>
+                        <p class="text-sm">Empty Archive</p>
                     </div>
                 </div>
             </section>
 
         </main>
 
+        <!-- Usage Instructions Section -->
+        <section id="usageInstructionsSection"
+            class="mt-8 notion-card p-8 bg-white shadow-sm rounded-xl border border-gray-100">
+            <h3 class="text-base font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-info-circle mr-2 text-black opacity-60"></i>Petunjuk Penggunaan
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <ul class="space-y-4 text-[14px] text-gray-600">
+                    <li class="flex items-start italic">
+                        <span class="font-bold mr-3 text-black">1.</span>
+                        <span><strong>Pilih Browser:</strong> Gunakan 'Local' untuk browser lokal atau 'Remote' untuk
+                            BrowserCat (cloud). Jika bingung pilih 'Local' saja.</span>
+                    </li>
+                    <li class="flex items-start italic">
+                        <span class="font-bold mr-3 text-black">2.</span>
+                        <span><strong>Tentukan Admin:</strong> Masukkan nama admin. Gunakan tombol <strong
+                                class="bg-black text-white px-1.5 py-0.5 rounded text-[12px]">+</strong>
+                            untuk menambah
+                            antrian.</span>
+                    </li>
+                    <li class="flex items-start italic">
+                        <span class="font-bold mr-3 text-black">3.</span>
+                        <span><strong>Cek Rencana:</strong> Kamu bisa melihat pembagian Admin dengan klik <strong>Check
+                                Plan</strong> untuk memvalidasi
+                            urutan kampanye.</span>
+                    </li>
+                    <li class="flex items-start italic">
+                        <span class="font-bold mr-3 text-black">4.</span>
+                        <span><strong>Jalankan:</strong> Klik <strong>Run Process</strong> untuk memulai. Pantau
+                            realtime di tab <strong>Logs</strong>.</span>
+                    </li>
+                    <li class="flex items-start italic">
+                        <span class="font-bold mr-3 text-black">5.</span>
+                        <span><strong>Riwayat:</strong> Lihat tab <strong>History</strong> untuk laporan pekerjaan
+                            selesai.</span>
+                    </li>
+                </ul>
+                <div class="space-y-3">
+                    <div class="text-[13px] text-gray-500 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <i class="fas fa-id-badge mr-2 opacity-60"></i>
+                        <strong class="text-gray-700">Info Admin WABA:</strong><br>
+                        Selalu gunakan awalan <strong>9</strong>. <br>
+                        Contoh: WABA1 → <strong>91</strong>, WABA2 → <strong>92</strong>, WABA15 → <strong>915</strong>.
+                    </div>
+                    <div class="text-[13px] text-gray-500 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <i class="fas fa-sync-alt mr-2 opacity-60"></i>
+                        <strong class="text-gray-700">Pemulihan Error:</strong><br>
+                        Jika sistem bermasalah, gunakan tombol <strong>Reload</strong> di pojok kanan atas untuk memuat
+                        ulang server.
+                    </div>
+                </div>
+            </div>
+        </section>
+
 
         <!-- Plan Check Modal -->
         <div id="planModal"
-            class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
-            <div class="bg-white border-2 border-black neo-shadow p-6 w-full max-w-2xl mx-4 rounded-2xl">
+            class="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 hidden">
+            <div class="bg-white notion-card p-6 w-full max-w-2xl mx-4 shadow-2xl relative">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-extrabold text-black tracking-tight">
-                        PLANNING BOARD
+                    <h2 class="text-xl font-bold text-gray-800">
+                        Planning Board
                     </h2>
-                    <button id="closeModalButton" class="hover:rotate-90 transition-transform duration-200">
-                        <i class="fas fa-times fa-2x"></i>
+                    <button id="closeModalButton" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
                 <div id="planContainer"
-                    class="space-y-4 max-h-[60vh] overflow-y-auto bg-yellow-50 border-2 border-black p-5 font-mono text-sm text-black rounded-xl">
+                    class="space-y-4 max-h-[60vh] overflow-y-auto font-mono text-sm text-gray-700 bg-gray-50/50 p-4 rounded-lg border border-gray-100">
                     <!-- Plan content will be added here dynamically -->
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
-        <footer class="text-center py-6 border-2 border-black bg-white neo-shadow mt-10 rounded-2xl">
-            <p class="font-bold text-xs uppercase italic tracking-widest">ENV: {{ENVIRONMENT}} | ACTIVE: {{ACTIVE_ENV}}
+        <footer class="text-center py-12 text-gray-300">
+            <p class="text-[10px] font-medium tracking-widest uppercase">Env: {{ENVIRONMENT}} | Active: {{ACTIVE_ENV}}
             </p>
         </footer>
     </div>
@@ -281,6 +363,17 @@
                 this.currentJobId = null;
                 this.isReloading = false;
                 this.originalReloadButtonHtml = '';
+
+                // Notion-style tag colors
+                this.tagColors = [
+                    { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100' },
+                    { bg: 'bg-green-50', text: 'text-green-600', border: 'border-green-100' },
+                    { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200' },
+                    { bg: 'bg-pink-50', text: 'text-pink-600', border: 'border-pink-100' },
+                    { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-100' },
+                    { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-100' },
+                    { bg: 'bg-teal-50', text: 'text-teal-600', border: 'border-teal-100' }
+                ];
 
                 this.init();
             }
@@ -328,6 +421,7 @@
                 this.versionBadge = document.getElementById('versionBadge');
                 this.statusIndicator = document.getElementById('statusIndicator');
                 this.reloadButton = document.getElementById('reloadButton');
+                this.usageInstructionsSection = document.getElementById('usageInstructionsSection');
             }
 
             bindEvents() {
@@ -445,8 +539,17 @@
                 // Set active tab
                 const active = tabs[tab];
                 active.btn.classList.remove('text-slate-400', 'border-transparent', 'hover:bg-slate-700/50');
-                active.btn.classList.add('active', 'text-white', 'border-blue-500');
+                active.btn.classList.add('active', 'text-gray-900', 'border-gray-900');
                 active.content.classList.remove('hidden');
+
+                // Toggle usage instructions (only show on form tab)
+                if (this.usageInstructionsSection) {
+                    if (tab === 'form') {
+                        this.usageInstructionsSection.classList.remove('hidden');
+                    } else {
+                        this.usageInstructionsSection.classList.add('hidden');
+                    }
+                }
 
                 if (tab === 'form' && this.adminContainer.children.length === 0) {
                     this.addAdminField();
@@ -455,18 +558,14 @@
 
             createAdminField(index) {
                 const adminDiv = document.createElement('div');
-                adminDiv.className = 'bg-white p-4 border-2 border-black neo-shadow-sm mb-4 rounded-xl opacity-0 transition-all duration-300';
+                adminDiv.className = 'flex items-center space-x-2 py-1.5 opacity-0 transition-all duration-300';
                 adminDiv.dataset.adminIndex = index;
-
-                const flexContainer = document.createElement('div');
-                flexContainer.className = 'flex items-center space-x-3';
 
                 const select = this.createAdminSelect(index);
                 const buttonContainer = this.createButtonContainer();
 
-                flexContainer.appendChild(select);
-                flexContainer.appendChild(buttonContainer);
-                adminDiv.appendChild(flexContainer);
+                adminDiv.appendChild(select);
+                adminDiv.appendChild(buttonContainer);
 
                 // Trigger opacity transition
                 setTimeout(() => adminDiv.classList.remove('opacity-0'), 10);
@@ -477,7 +576,7 @@
             createAdminSelect(index) {
                 const select = document.createElement('select');
                 select.name = `admin${index}`;
-                select.className = 'flex-grow p-3 border-2 border-black text-black font-extrabold uppercase text-sm focus:bg-yellow-100 focus:outline-none transition-all rounded-lg';
+                select.className = 'flex-grow px-4 py-3 border border-gray-200 text-gray-800 text-base focus:border-black focus:outline-none transition-all rounded-md bg-white';
                 select.required = true;
 
 
@@ -515,8 +614,8 @@
             createAddButton() {
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = 'bg-cyan-400 border-2 border-black w-10 h-10 flex items-center justify-center rounded-lg neo-shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all';
-                button.innerHTML = '<i class="fas fa-plus font-bold"></i>';
+                button.className = 'w-9 h-9 flex items-center justify-center rounded-md bg-black text-white hover:bg-gray-800 transition-all';
+                button.innerHTML = '<i class="fas fa-plus text-xs"></i>';
                 button.onclick = () => this.addAdminField();
                 return button;
             }
@@ -524,8 +623,8 @@
             createRemoveButton() {
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = 'rmv bg-pink-400 border-2 border-black w-10 h-10 flex items-center justify-center rounded-lg neo-shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all';
-                button.innerHTML = '<i class="fas fa-minus font-bold"></i>';
+                button.className = 'rmv w-9 h-9 flex items-center justify-center rounded-md border border-gray-400 text-gray-400 hover:text-black hover:border-gray-800 hover:bg-gray-50 transition-all';
+                button.innerHTML = '<i class="fas fa-minus text-xs"></i>';
                 button.onclick = (e) => {
                     const field = e.target.closest('[data-admin-index]');
                     this.removeAdminField(field);
@@ -603,9 +702,8 @@
             resetReloadButton() {
                 this.isReloading = false;
                 this.reloadButton.disabled = false;
-                this.reloadButton.innerHTML = this.originalReloadButtonHtml || '<i class="fas fa-sync-alt mr-1"></i>RELOAD';
-                this.reloadButton.classList.remove('bg-gray-400');
-                this.reloadButton.classList.add('bg-pink-400');
+                this.reloadButton.innerHTML = this.originalReloadButtonHtml || '<i class="fas fa-sync-alt mr-1.5 opacity-60"></i>Reload';
+                this.reloadButton.classList.remove('opacity-50');
             }
 
             async handleFormSubmit(e) {
@@ -653,10 +751,10 @@
                     if (result.success) {
                         this.displayPlan(result.data.plan);
                     } else {
-                        this.planContainer.innerHTML = `<div class="text-red-400 p-4 bg-red-500/10 rounded-lg"><i class="fas fa-exclamation-triangle mr-2"></i>Error: ${result.error?.message || 'Failed to generate plan.'}</div>`;
+                        this.planContainer.innerHTML = `<div class="text-gray-500 p-4 bg-gray-50 rounded-lg"><i class="fas fa-exclamation-triangle mr-2"></i>Error: ${result.error?.message || 'Failed to generate plan.'}</div>`;
                     }
                 } catch (error) {
-                    this.planContainer.innerHTML = '<div class="text-red-400 p-4 bg-red-500/10 rounded-lg"><i class="fas fa-server mr-2"></i>Failed to connect to server.</div>';
+                    this.planContainer.innerHTML = '<div class="text-gray-500 p-4 bg-gray-50 rounded-lg"><i class="fas fa-server mr-2"></i>Failed to connect to server.</div>';
                 }
             }
 
@@ -667,16 +765,25 @@
                 }
 
                 this.planContainer.innerHTML = plan.map(item => {
-                    const excludedText = item.excludedAdmins.length > 0
-                        ? `Excluded: <span class="text-red-400">[${item.excludedAdmins.join(', ')}]</span>`
-                        : 'No exclusions.';
-                    const processingText = item.processingAdmins.length > 0
-                        ? `Processing: <span class="text-green-400">[${item.processingAdmins.join(', ')}]</span>`
-                        : '<span class="text-yellow-400">SKIPPED</span>';
+                    const formatAdmins = (admins, isExcluded) => {
+                        if (admins.length === 0) return isExcluded ? 'No exclusions.' : '<span class="text-gray-400 italic">SKIPPED</span>';
 
-                    return `<div class="border-b border-slate-700 pb-2 mb-2">
-                        <strong class="text-white">Campaign ${item.campaignId}</strong><br>
-                        <span class="text-slate-400 text-xs">${excludedText} &rarr; ${processingText}</span>
+                        return admins.map(admin => {
+                            const color = this.getAdminColor(admin);
+                            const baseClasses = isExcluded ? 'opacity-40 grayscale' : '';
+                            return `<span class="inline-block text-[10px] font-medium ${color.bg} border ${color.border} ${color.text} px-1.5 py-0.5 rounded m-0.5 ${baseClasses}">${admin}</span>`;
+                        }).join('');
+                    };
+
+                    const excludedText = formatAdmins(item.excludedAdmins, true);
+                    const processingText = formatAdmins(item.processingAdmins, false);
+
+                    return `<div class="border-b border-gray-100 last:border-0 pb-3 mb-3">
+                        <div class="font-semibold text-black mb-1">Campaign ${item.campaignId}</div>
+                        <div class="text-[12px] space-y-1">
+                            <div class="flex items-start flex-wrap"><span class="text-gray-400 mr-2 mt-0.5 min-w-[80px]">Excluded:</span> ${excludedText}</div>
+                            <div class="flex items-start flex-wrap"><span class="text-gray-400 mr-2 mt-0.5 min-w-[80px]">Processing:</span> ${processingText}</div>
+                        </div>
                     </div>`;
                 }).join('');
             }
@@ -691,12 +798,15 @@
             }
 
             addLog(message, isError = false) {
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = document.createElement('p');
-                const logBg = isError ? 'bg-pink-100 border-pink-400' : (message.includes('[Backend]') ? 'bg-cyan-50 border-cyan-400' : 'bg-slate-50 border-slate-200');
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const logEntry = document.createElement('div');
+                const textColor = isError ? 'text-gray-800 font-bold' : 'text-gray-600';
 
-                logEntry.className = `p-3 border-l-4 ${logBg} mb-3 text-black font-mono leading-tight rounded-r-lg shadow-sm`;
-                logEntry.innerHTML = `<span class="opacity-40 text-[10px] block mb-1 font-bold tracking-tighter">${timestamp}</span> <span class="font-bold text-xs">${this.escapeHtml(message)}</span>`;
+                logEntry.className = 'py-2 border-b border-gray-100 last:border-0 flex items-start space-x-4';
+                logEntry.innerHTML = `
+                    <span class="text-[11px] text-gray-300 font-mono mt-0.5 shrink-0 w-16">${timestamp}</span>
+                    <span class="text-[14px] leading-relaxed ${textColor}">${this.escapeHtml(message)}</span>
+                `;
 
                 this.logContainer.appendChild(logEntry);
                 this.logContainer.scrollTop = this.logContainer.scrollHeight;
@@ -726,11 +836,13 @@
 
             setButtonLoading(loading) {
                 if (loading) {
-                    this.automationButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+                    this.automationButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 opacity-60"></i>Processing...';
                     this.automationButton.disabled = true;
+                    this.automationButton.classList.add('opacity-70', 'cursor-not-allowed');
                 } else {
-                    this.automationButton.innerHTML = '<i class="fas fa-play-circle mr-2"></i>Submit';
+                    this.automationButton.innerHTML = '<i class="fas fa-play text-[10px] mr-2 opacity-80"></i>Run Process';
                     this.automationButton.disabled = false;
+                    this.automationButton.classList.remove('opacity-70', 'cursor-not-allowed');
                 }
             }
 
@@ -759,7 +871,7 @@
 
             updateStatusIndicator(connected) {
                 if (this.statusIndicator) {
-                    this.statusIndicator.className = `w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`;
+                    this.statusIndicator.className = `w-1.5 h-1.5 rounded-full ${connected ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-gray-300'}`;
                     this.statusIndicator.title = connected ? 'Connected' : 'Disconnected';
                 }
             }
@@ -777,11 +889,19 @@
                 }
             }
 
+            getAdminColor(name) {
+                let hash = 0;
+                for (let i = 0; i < name.length; i++) {
+                    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                return this.tagColors[Math.abs(hash) % this.tagColors.length];
+            }
+
             renderHistory(history) {
                 if (!history || history.length === 0) {
-                    this.historyList.innerHTML = `<div class="text-center py-8 text-slate-500">
-                        <i class="fas fa-history fa-2x mb-3 opacity-20"></i>
-                        <p>No submission history yet</p>
+                    this.historyList.innerHTML = `<div class="text-center py-16 text-gray-400">
+                        <i class="fas fa-history text-4xl mb-3 opacity-20"></i>
+                        <p class="text-sm">Empty Archive</p>
                     </div>`;
                     return;
                 }
@@ -791,32 +911,32 @@
                     const formattedDate = date.toLocaleString('en-GB', {
                         day: '2-digit',
                         month: 'short',
-                        year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit'
                     });
 
-                    const browserColor = entry.browserType === 'remote' ? 'bg-purple-400' : 'bg-blue-400';
-
                     return `
-                        <div class="bg-white p-5 border-2 border-black neo-shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all rounded-xl">
-                            <div class="flex justify-between items-start mb-4">
+                        <div class="bg-white p-4 border border-gray-100 rounded-lg hover:border-gray-200 hover:shadow-sm transition-all">
+                            <div class="flex justify-between items-start mb-3">
                                 <div class="flex flex-wrap gap-2">
-                                    ${entry.admins.map(admin => `
-                                        <span class="text-[10px] font-extrabold bg-yellow-200 border-2 border-black px-2 py-0.5 uppercase tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md">
-                                            ${admin}
-                                        </span>
-                                    `).join('')}
+                                    ${entry.admins.map(admin => {
+                        const color = this.getAdminColor(admin);
+                        return `
+                                            <span class="text-[13px] font-semibold ${color.bg} border ${color.border} ${color.text} px-3 py-1 rounded">
+                                                ${admin}
+                                            </span>
+                                        `;
+                    }).join('')}
                                 </div>
-                                <span class="text-[10px] font-extrabold uppercase text-black italic opacity-40">${formattedDate}</span>
+                                <span class="text-[11px] font-medium text-gray-400">${formattedDate}</span>
                             </div>
-                            <div class="flex items-center justify-between border-t-2 border-black pt-4">
-                                <div class="flex items-center space-x-4">
-                                    <span class="px-2 py-1 bg-black text-white text-[9px] uppercase font-extrabold italic rounded-sm tracking-wider">
+                            <div class="flex items-center justify-between text-[13px] text-gray-400">
+                                <div class="flex items-center space-x-5">
+                                    <span class="text-gray-400 lowercase font-medium">
                                         ${entry.timeOfDay}
                                     </span>
-                                    <span class="text-[9px] font-extrabold uppercase flex items-center">
-                                        <span class="w-2.5 h-2.5 ${browserColor} border-2 border-black mr-2"></span>
+                                    <span class="flex items-center">
+                                        <span class="w-1.5 h-1.5 bg-black rounded-full mr-2 opacity-30"></span>
                                         ${entry.browserType}
                                     </span>
                                 </div>
@@ -861,7 +981,7 @@
         window.addEventListener('online', () => {
             const indicator = document.getElementById('statusIndicator');
             if (indicator) {
-                indicator.className = 'w-2 h-2 rounded-full bg-green-500';
+                indicator.className = 'w-1.5 h-1.5 rounded-full bg-black shadow-[0_0_8px_rgba(0,0,0,0.1)]';
                 indicator.title = 'Online';
             }
         });
@@ -869,7 +989,7 @@
         window.addEventListener('offline', () => {
             const indicator = document.getElementById('statusIndicator');
             if (indicator) {
-                indicator.className = 'w-2 h-2 rounded-full bg-red-500';
+                indicator.className = 'w-1.5 h-1.5 rounded-full bg-gray-200';
                 indicator.title = 'Offline';
             }
         });
