@@ -24,10 +24,16 @@ const validateAdminPayloads = (req, res, next) => {
         req.adminPayloads = [];
 
         for (const key in req.body) {
-            if (/^admin\d+$/.test(key)) {
+            const adminMatch = key.match(/^admin(\d+)$/);
+            if (adminMatch) {
+                const index = adminMatch[1];
                 const adminName = req.body[key];
                 if (adminName && adminName.trim()) {
-                    req.adminPayloads.push({ name: adminName.trim() });
+                    const isLanjutan = req.body[`lanjutan${index}`] === 'true';
+                    req.adminPayloads.push({
+                        name: adminName.trim(),
+                        isLanjutan: isLanjutan
+                    });
                 }
             }
         }

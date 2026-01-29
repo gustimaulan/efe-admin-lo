@@ -155,7 +155,15 @@ const config = {
     },
 
     // Check if an admin can process a campaign with the new payload structure
-    canAdminProcessCampaign: function (adminName, campaignId, allSelectedAdmins, exemptionSettings = {}) {
+    canAdminProcessCampaign: function (adminPayload, campaignId, allSelectedAdmins, exemptionSettings = {}) {
+        const adminName = typeof adminPayload === 'object' ? adminPayload.name : adminPayload;
+        const isLanjutan = typeof adminPayload === 'object' ? adminPayload.isLanjutan : false;
+
+        // If explicitly marked as Lanjutan, only allow the special campaign
+        if (isLanjutan) {
+            return parseInt(campaignId) === parseInt(this.SPECIAL_CAMPAIGN?.id || 247001);
+        }
+
         // Step 1: Check user-defined rules first.
         const userRule = (this.USER_RULES || []).find(r => r.admin === adminName);
         if (userRule) {
@@ -175,7 +183,7 @@ const config = {
     getAdminsForCampaign: function (adminPayloads, campaignId, exemptionSettings = {}) {
         const allSelectedAdmins = adminPayloads.map(p => p.name);
         return adminPayloads
-            .filter(payload => this.canAdminProcessCampaign(payload.name, campaignId, allSelectedAdmins, exemptionSettings))
+            .filter(payload => this.canAdminProcessCampaign(payload, campaignId, allSelectedAdmins, exemptionSettings))
             .map(payload => payload.name);
     }
 };

@@ -52,7 +52,7 @@ class AutomationService {
             // Group campaigns by admin combinations
             for (const campaignId of campaignIds) {
                 const payloadsForThisCampaign = adminPayloads.filter(payload =>
-                    config.canAdminProcessCampaign(payload.name, campaignId, allSelectedAdmins, exemptionSettings)
+                    config.canAdminProcessCampaign(payload, campaignId, allSelectedAdmins, exemptionSettings)
                 );
                 const adminNamesForThisCampaign = payloadsForThisCampaign.map(p => p.name);
 
@@ -310,7 +310,7 @@ class AutomationService {
 
         for (const campaignId of campaignIds) {
             const payloadsForThisCampaign = adminPayloads.filter(payload =>
-                config.canAdminProcessCampaign(payload.name, campaignId, allSelectedAdminNames, exemptionSettings)
+                config.canAdminProcessCampaign(payload, campaignId, allSelectedAdminNames, exemptionSettings)
             );
             const processingAdmins = payloadsForThisCampaign.map(p => p.name);
             const excludedAdmins = allSelectedAdminNames.filter(name => !processingAdmins.includes(name));

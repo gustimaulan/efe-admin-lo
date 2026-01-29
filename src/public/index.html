@@ -200,9 +200,22 @@
 
 
                     <div class="space-y-4">
-                        <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                            Select Admins <span id="adminCounter" class="text-gray-400 font-normal"></span>
-                        </label>
+                        <div class="flex justify-between items-center">
+                            <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                                Select Admins <span id="adminCounter" class="text-gray-400 font-normal"></span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <span
+                                    class="mr-2 text-[10px] font-bold text-gray-400 uppercase tracking-tight group-hover:text-gray-600 transition-colors">Advanced
+                                    Select</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="advancedToggle" class="sr-only peer">
+                                    <div
+                                        class="w-7 h-4 bg-gray-200 rounded-full peer peer-checked:bg-black transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3">
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
                         <div id="adminContainer" class="space-y-3">
                             <!-- Admin fields will be added here dynamically -->
                         </div>
@@ -363,6 +376,7 @@
                 this.currentJobId = null;
                 this.isReloading = false;
                 this.originalReloadButtonHtml = '';
+                this.isAdvancedMode = false;
 
                 // Notion-style tag colors
                 this.tagColors = [
@@ -421,6 +435,7 @@
                 this.versionBadge = document.getElementById('versionBadge');
                 this.statusIndicator = document.getElementById('statusIndicator');
                 this.reloadButton = document.getElementById('reloadButton');
+                this.advancedToggle = document.getElementById('advancedToggle');
                 this.usageInstructionsSection = document.getElementById('usageInstructionsSection');
             }
 
@@ -452,6 +467,11 @@
 
                 // Reload event
                 this.reloadButton.addEventListener('click', () => this.handleReload());
+
+                // Advanced Selection Toggle
+                if (this.advancedToggle) {
+                    this.advancedToggle.addEventListener('change', (e) => this.handleAdvancedToggle(e.target.checked));
+                }
             }
 
             async loadAdminOptions() {
@@ -562,15 +582,54 @@
                 adminDiv.dataset.adminIndex = index;
 
                 const select = this.createAdminSelect(index);
+                const lanjutanDropdown = this.createLanjutanDropdown(index);
                 const buttonContainer = this.createButtonContainer();
 
                 adminDiv.appendChild(select);
+                adminDiv.appendChild(lanjutanDropdown);
                 adminDiv.appendChild(buttonContainer);
 
                 // Trigger opacity transition
                 setTimeout(() => adminDiv.classList.remove('opacity-0'), 10);
 
                 return adminDiv;
+            }
+
+            createLanjutanDropdown(index) {
+                const select = document.createElement('select');
+                select.name = `lanjutan${index}`;
+
+                // Hide by default if not in advanced mode
+                select.style.display = this.isAdvancedMode ? 'block' : 'none';
+
+                select.className = 'w-20 px-2 py-3 border border-gray-200 text-[10px] font-bold uppercase tracking-tighter focus:border-black focus:outline-none transition-all rounded-md bg-gray-50/50 shrink-0 cursor-pointer text-gray-500';
+
+                const options = [
+                    { value: 'false', label: 'Reg' },
+                    { value: 'true', label: 'Lanj' }
+                ];
+
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    select.appendChild(option);
+                });
+
+                return select;
+            }
+
+            handleAdvancedToggle(enabled) {
+                this.isAdvancedMode = enabled;
+                const dropdowns = this.adminContainer.querySelectorAll('select[name^="lanjutan"]');
+
+                dropdowns.forEach(dropdown => {
+                    dropdown.style.display = enabled ? 'block' : 'none';
+                    if (!enabled) {
+                        // Reset to Regular (false) when hidden to prevent confusion
+                        dropdown.value = 'false';
+                    }
+                });
             }
 
             createAdminSelect(index) {
@@ -713,9 +772,19 @@
                 this.addLog('Starting automation...');
 
                 try {
+                    const formData = new FormData(this.automationForm);
+
+                    // Add checkboxes that are not checked to FormData if needed, 
+                    // or handle them specifically. FormData ignores unchecked checkboxes.
+                    // But here we want to ensure we send 'true' for checked ones.
+                    const params = new URLSearchParams();
+                    for (const [key, value] of formData.entries()) {
+                        params.append(key, value);
+                    }
+
                     const response = await fetch('/api/run', {
                         method: 'POST',
-                        body: new URLSearchParams(new FormData(this.automationForm))
+                        body: params
                     });
 
                     const result = await response.json();
@@ -741,9 +810,15 @@
                 this.planModal.classList.remove('hidden');
 
                 try {
+                    const formData = new FormData(this.automationForm);
+                    const params = new URLSearchParams();
+                    for (const [key, value] of formData.entries()) {
+                        params.append(key, value);
+                    }
+
                     const response = await fetch('/api/check-plan', {
                         method: 'POST',
-                        body: new URLSearchParams(new FormData(this.automationForm))
+                        body: params
                     });
 
                     const result = await response.json();
@@ -781,8 +856,14 @@
                     return `<div class="border-b border-gray-100 last:border-0 pb-3 mb-3">
                         <div class="font-semibold text-black mb-1">Campaign ${item.campaignId}</div>
                         <div class="text-[12px] space-y-1">
-                            <div class="flex items-start flex-wrap"><span class="text-gray-400 mr-2 mt-0.5 min-w-[80px]">Excluded:</span> ${excludedText}</div>
-                            <div class="flex items-start flex-wrap"><span class="text-gray-400 mr-2 mt-0.5 min-w-[80px]">Processing:</span> ${processingText}</div>
+                            <div class="flex items-start flex-wrap">
+                                <span class="text-gray-400 mr-2 mt-0.5 min-w-[80px]">Excluded:</span> 
+                                ${excludedText}
+                            </div>
+                            <div class="flex items-start flex-wrap">
+                                <span class="text-gray-400 mr-2 mt-0.5 min-w-[80px]">Processing:</span> 
+                                ${processingText}
+                            </div>
                         </div>
                     </div>`;
                 }).join('');
